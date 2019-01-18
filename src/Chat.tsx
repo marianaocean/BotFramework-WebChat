@@ -29,6 +29,7 @@ export interface ChatProps {
     showUploadButton?: boolean;
     speechOptions?: SpeechOptions;
     user: User;
+    botName?: string;
 }
 
 import { History } from './History';
@@ -106,6 +107,11 @@ export class Chat extends React.Component<ChatProps, {}> {
         switch (activity.type) {
             case 'message':
                 this.store.dispatch<ChatActions>({ type: activity.from.id === state.connection.user.id ? 'Receive_Sent_Message' : 'Receive_Message', activity });
+                if (activity.from.id !== state.connection.user.id) {
+                    const botName = this.props.botName;
+                    localStorage.setItem('obotConversationId_' + botName,  activity.conversation.id);
+                    localStorage.setItem('obotConversationIdTimestamp_' + botName,  Date.now().toString());
+                }
                 break;
 
             case 'typing':
