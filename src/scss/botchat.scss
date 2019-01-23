@@ -64,7 +64,7 @@
         padding: 10px;
         position: absolute;
         right: 0;
-        top: $headerTotalHeight;
+        top: $headerTotalHeight + $languageSelectorHeight;
         transition: transform $actionTransition;
 
         &.no-header {
@@ -168,7 +168,7 @@
 
     .wc-message-pane.show-actions {
         .wc-message-groups {
-            top: $headerTotalHeight + $actionsHeight;
+            top: $headerTotalHeight + $languageSelectorHeight + $actionsHeight;
             transform: translateY(-$actionsHeight);
         }
         .wc-suggested-actions {
@@ -809,5 +809,22 @@
 
         &:active {
             @include link-and-svg-arrow($c01, 0.6);
+        }
+    }
+
+    .wc-language-selector{
+        position: absolute;
+        width:100%;
+        top:38px;
+        height: $languageSelectorHeight;
+        text-align: center;
+        button{
+            height:30px;
+            vertical-align: bottom;
+            margin-left:5px
+        }
+
+        .button-disabled{
+            background: gray
         }
     }

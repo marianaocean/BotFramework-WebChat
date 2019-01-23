@@ -17,6 +17,13 @@ export enum ListeningState {
     STOPPING
 }
 
+export const languageChangeWords: any[] = [
+    { text: 'japanese', language: 'ja-jp', message: 'こんにちは、日本語を設定しました', displayMessage: '言語切り替え中', displayName: '言語スイッチャ' },
+    { text: 'tchinese', language: 'zh-hant', message: '您好，語言已經設置為中文', displayMessage: '語言切換中', displayName: '語言切換器' },
+    { text: 'chinese', language: 'zh-hans', message: '您好，语言已经设定为中文', displayMessage: '语言切换中', displayName: '语言切换器' },
+    { text: 'english', language: 'en-us', message: 'Hello,Language has been set to English', displayMessage: 'changing language', displayName: 'language switcher' }
+];
+
 export const sendMessage = (text: string, from: User, locale: string) => ({
     type: 'Send_Message',
     activity: {
@@ -27,6 +34,22 @@ export const sendMessage = (text: string, from: User, locale: string) => ({
         textFormat: 'plain',
         timestamp: (new Date()).toISOString()
     }} as ChatActions);
+
+export const changeLanguageTo = (language: string, from: User, locale: string) => ({
+    type: 'Change_Language',
+    activity: {
+        type: 'message',
+        text: language,
+        from,
+        locale,
+        textFormat: 'plain',
+        timestamp: (new Date()).toISOString()
+    },
+    language} as ChatActions);
+
+export const resetChangeLanguage = () => ({
+    type: 'Reset_Change_Language'
+} as ChatActions);
 
 export const sendFiles = (files: FileList, from: User, locale: string) => ({
     type: 'Send_Message',
@@ -48,6 +71,50 @@ const attachmentsFromFiles = (files: FileList) => {
         });
     }
     return attachments;
+};
+
+export interface ChangeLanguageState {
+    isChangingLanguage: boolean;
+}
+
+export type ChangeLanguageAction = {
+    type: 'Change_Language',
+    activity: Activity
+} | {
+    type: 'Reset_Change_Language'
+} | {
+    type: 'Changed_Language' | 'Receive_Message'
+};
+
+export const changeLanguage: Reducer<ChangeLanguageState> = (
+    state: ChangeLanguageState = {
+        isChangingLanguage: false
+    },
+    action: ChangeLanguageAction
+) => {
+    switch (action.type) {
+        case 'Change_Language':
+            return {
+                ...state,
+                isChangingLanguage: true
+            };
+        case 'Reset_Change_Language':
+            return {
+                ...state,
+                isChangingLanguage: false
+            };
+        case 'Changed_Language':
+            return {
+                ...state
+            };
+        case 'Receive_Message':
+            return {
+                ...state,
+                isChangingLanguage: false
+            };
+        default:
+            return state;
+    }
 };
 
 export interface ShellState {
@@ -295,7 +362,7 @@ export interface HistoryState {
 }
 
 export type HistoryAction = {
-    type: 'Receive_Message' | 'Send_Message' | 'Show_Typing' | 'Receive_Sent_Message'
+    type: 'Receive_Message' | 'Send_Message' | 'Show_Typing' | 'Receive_Sent_Message',
     activity: Activity
 } | {
     type: 'Send_Message_Try' | 'Send_Message_Fail' | 'Send_Message_Retry',
@@ -313,6 +380,12 @@ export type HistoryAction = {
 } | {
     type: 'Clear_Typing',
     id: string
+} | {
+    type: 'Changed_Language'
+} | {
+    type: 'Change_Language',
+    activity: Activity,
+    language: string
 };
 
 const copyArrayWithUpdatedItem = <T>(array: T[], i: number, item: T) => [
@@ -378,6 +451,35 @@ export const history: Reducer<HistoryState> = (
                 clientActivityCounter: state.clientActivityCounter + 1
             };
 
+        case 'Change_Language':
+            const languageIndex = languageChangeWords.findIndex(word => word.text === action.language);
+            const changedLanguageActivity = {
+                id: (new Date()).toISOString(),
+                ...action.activity,
+                text: languageIndex > -1 ? languageChangeWords[languageIndex].displayMessage : 'changing Language',
+                from: {
+                    name: languageIndex > -1 ? languageChangeWords[languageIndex].displayName : 'language switcher',
+                    id: Math.random().toString()
+                }
+            };
+            return {
+                ...state,
+                activities: [
+                    ...state.activities.filter(activity => activity.type !== 'typing'),
+                    {
+                        ...changedLanguageActivity,
+                        timestamp: (new Date()).toISOString(),
+                        channelData: { clientActivityId: state.clientActivityBase + state.clientActivityCounter }
+                    },
+                    ...state.activities.filter(activity => activity.type === 'typing')
+                ],
+                clientActivityCounter: state.clientActivityCounter + 1
+            };
+        case 'Changed_Language':
+            return {
+                ...state,
+                clientActivityCounter: state.clientActivityCounter + 1
+            };
         case 'Send_Message_Retry': {
             const activity = state.activities.find(activity =>
                 activity.channelData && activity.channelData.clientActivityId === action.clientActivityId
@@ -483,7 +585,7 @@ export const adaptiveCards: Reducer<AdaptiveCardsState> = (
     }
 };
 
-export type ChatActions = ShellAction | FormatAction | SizeAction | ConnectionAction | HistoryAction | AdaptiveCardsAction;
+export type ChatActions = ChangeLanguageAction | ShellAction | FormatAction | SizeAction | ConnectionAction | HistoryAction | AdaptiveCardsAction;
 
 const nullAction = { type: null } as ChatActions;
 
@@ -494,6 +596,7 @@ export interface ChatState {
     history: HistoryState;
     shell: ShellState;
     size: SizeState;
+    changeLanguage: ChangeLanguageState;
 }
 
 const speakFromMsg = (msg: Message, fallbackLocale: string) => {
@@ -542,6 +645,43 @@ import 'rxjs/add/operator/throttleTime';
 import 'rxjs/add/observable/bindCallback';
 import 'rxjs/add/observable/empty';
 import 'rxjs/add/observable/of';
+
+const changeLanguageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
+    action$.ofType('Change_Language')
+    .flatMap(action => {
+        const state = store.getState();
+        const activity = {
+            channelData: {
+                clientActivityId: state.history.clientActivityBase + (state.history.clientActivityCounter - 1)
+            },
+            ...action.activity
+        };
+        if (state.history.clientActivityCounter === 1) {
+            const capabilities = {
+                type: 'ClientCapabilities',
+                requiresBotState: true,
+                supportsTts: true,
+                supportsListening: true
+                // Todo: consider implementing acknowledgesTts: true
+            };
+            (activity as any).entities = (activity as any).entities == null ? [capabilities] :  [...(activity as any).entities, capabilities];
+        }
+        return state.connection.botConnection.postActivity(activity)
+        .map(id => ({type: 'Changed_Language'} as HistoryAction))
+        .catch(error => Observable.of({ type: 'Changed_Language' } as HistoryAction));
+    });
+
+const receiveChangedLanguageMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
+    action$.ofType('Receive_Message')
+    .map( action => {
+        const state = store.getState();
+        const i = languageChangeWords.findIndex(word => word.message === action.activity.text);
+        if (i > -1) {
+            const setLanguage = languageChangeWords[i].language;
+            return ({ type: 'Set_Locale', locale: setLanguage } as FormatAction );
+        }
+        return nullAction;
+    });
 
 const sendMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
     action$.ofType('Send_Message')
@@ -706,6 +846,7 @@ const sendTypingEpic: Epic<ChatActions, ChatState> = (action$, store) =>
 
 import { combineReducers, createStore as reduxCreateStore, Store } from 'redux';
 import { combineEpics, createEpicMiddleware } from 'redux-observable';
+import { activityWithSuggestedActions } from './activityWithSuggestedActions';
 
 export const createStore = () =>
     reduxCreateStore(
@@ -715,7 +856,8 @@ export const createStore = () =>
             format,
             history,
             shell,
-            size
+            size,
+            changeLanguage
         }),
         applyMiddleware(createEpicMiddleware(combineEpics(
             updateSelectedActivityEpic,
@@ -729,7 +871,9 @@ export const createStore = () =>
             startListeningEpic,
             stopListeningEpic,
             stopSpeakingEpic,
-            listeningSilenceTimeoutEpic
+            listeningSilenceTimeoutEpic,
+            changeLanguageEpic,
+            receiveChangedLanguageMessageEpic
         )))
     );
 

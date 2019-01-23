@@ -33,6 +33,7 @@ export interface ChatProps {
 }
 
 import { History } from './History';
+import { Languages } from './LanguageSelector';
 import { MessagePane } from './MessagePane';
 import { Shell, ShellFunctions } from './Shell';
 
@@ -305,6 +306,7 @@ export class Chat extends React.Component<ChatProps, {}> {
                             ref={ this._saveHistoryRef }
                         />
                     </MessagePane>
+                    <Languages ref="languages" />
                     {
                         !this.props.disabled && <Shell ref={ this._saveShellRef } />
                     }
