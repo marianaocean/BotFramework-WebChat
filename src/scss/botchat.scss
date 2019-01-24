@@ -811,20 +811,3 @@
             @include link-and-svg-arrow($c01, 0.6);
         }
     }
-
-    .wc-language-selector{
-        position: absolute;
-        width:100%;
-        top:38px;
-        height: $languageSelectorHeight;
-        text-align: center;
-        button{
-            height:30px;
-            vertical-align: bottom;
-            margin-left:5px
-        }
-
-        .button-disabled{
-            background: gray
-        }
-    }

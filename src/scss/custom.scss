@@ -1,0 +1,27 @@
+@import "includes/colors";
+@import "includes/settings";
+@import "includes/card-size";
+
+.wc-language-selector{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: $languageSelectorHeight;
+    box-sizing: border-box;
+    border: 5px solid $c10;
+    text-align: center;
+    .buttons-group{
+        height: 100%;
+    }
+    button{
+        height: 100%;
+        width: 14vw;
+        vertical-align: bottom;
+        margin-left: 5vw;
+    }
+
+    .button-disabled{
+        background: gray
+    }
+}

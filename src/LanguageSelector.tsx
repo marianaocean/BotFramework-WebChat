@@ -25,32 +25,29 @@ class LanguageSelector extends React.Component<Props> {
 
     render() {
         const className = classList(
-            'wc-language-selector',
-            'wc-console'
+            'wc-language-selector'
         );
         return (
             <div className={ className }>
-                <div>
-                    {
-                        this.props.isChangingLanguage ?
-                        <div>
-                            <button className="button-disabled" disabled>ENGLISH</button>
-                            <button className="button-disabled" disabled>日本語</button>
-                            <button className="button-disabled" disabled>繁體中文</button>
-                            <button className="button-disabled" disabled>简体中文</button>
-                            <button onClick={ () => this.resetChangeLanguage() }>
-                                { this.props.strings.messageRetry }
-                            </button>
-                        </div>
-                        :
-                        <div>
-                            <button onClick={ () => this.changeLanguageTo('english') }>ENGLISH</button>
-                            <button onClick={ () => this.changeLanguageTo('japanese') }>日本語</button>
-                            <button onClick={ () => this.changeLanguageTo('tchinese') }>繁體中文</button>
-                            <button onClick={ () => this.changeLanguageTo('chinese') }>简体中文</button>
-                        </div>
-                    }
-                </div>
+                {
+                    this.props.isChangingLanguage ?
+                    <div className="buttons-group">
+                        <button className="button-disabled" disabled>ENGLISH</button>
+                        <button className="button-disabled" disabled>日本語</button>
+                        <button className="button-disabled" disabled>繁體中文</button>
+                        <button className="button-disabled" disabled>简体中文</button>
+                        <button onClick={ () => this.resetChangeLanguage() }>
+                            { this.props.strings.messageRetry }
+                        </button>
+                    </div>
+                    :
+                    <div className="buttons-group">
+                        <button onClick={ () => this.changeLanguageTo('english') }>ENGLISH</button>
+                        <button onClick={ () => this.changeLanguageTo('japanese') }>日本語</button>
+                        <button onClick={ () => this.changeLanguageTo('tchinese') }>繁體中文</button>
+                        <button onClick={ () => this.changeLanguageTo('chinese') }>简体中文</button>
+                    </div>
+                }
             </div>
         );
     }

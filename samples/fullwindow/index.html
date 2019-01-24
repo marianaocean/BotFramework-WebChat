@@ -19,6 +19,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Bot Chat</title>
 
+    <link href="../../custom.css" rel="stylesheet" />
     <link href="../../botchat.css" rel="stylesheet" />
     <link href="../../botchat-fullwindow.css" rel="stylesheet" />
 
@@ -56,7 +57,7 @@
         // sendTyping: true,    // defaults to false. set to true to send 'typing' activities to bot (and other users) when user is typing
         user: user,
         // locale: 'es-es', // override locale to Spanish
-
+        showUploadButton: false,
         directLine: {
           secret: params['s'],
           token: params['t'],
