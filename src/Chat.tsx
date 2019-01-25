@@ -98,6 +98,7 @@ export class Chat extends React.Component<ChatProps, {}> {
         }
 
         if (props.speechOptions) {
+            this.store.dispatch<ChatActions>({ type: 'Save_Setting', recognizer: props.speechOptions.speechRecognizer });
             Speech.SpeechRecognizer.setSpeechRecognizer(props.speechOptions.speechRecognizer);
             Speech.SpeechSynthesizer.setSpeechSynthesizer(props.speechOptions.speechSynthesizer);
         }

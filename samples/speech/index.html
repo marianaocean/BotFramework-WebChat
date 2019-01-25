@@ -27,7 +27,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Bot Chat</title>
-
+    
     <link href="../../botchat.css" rel="stylesheet" />
 
     <style>
@@ -86,21 +86,21 @@
 
       // // Option 2: Native browser speech (not supported by all browsers, no speech recognition priming support)
       //
-      // const speechOptions = {
-      //   speechRecognizer: new BotChat.Speech.BrowserSpeechRecognizer(),
-      //   speechSynthesizer: new BotChat.Speech.BrowserSpeechSynthesizer()
-      // };
+      const speechOptions = {
+        speechRecognizer: new BotChat.Speech.BrowserSpeechRecognizer('ja-JP'),
+        speechSynthesizer: new BotChat.Speech.BrowserSpeechSynthesizer()
+      };
 
       // // Option 3: Cognitive Services speech recognition using API key (cross browser, speech priming support)
       //
-      const speechOptions = {
-        speechRecognizer: new CognitiveServices.SpeechRecognizer({ subscriptionKey: 'YOUR_COGNITIVE_SPEECH_API_KEY' }),
-        speechSynthesizer: new CognitiveServices.SpeechSynthesizer({
-          gender: CognitiveServices.SynthesisGender.Female,
-          subscriptionKey: 'YOUR_COGNITIVE_SPEECH_API_KEY',
-          voiceName: 'Microsoft Server Speech Text to Speech Voice (en-US, JessaRUS)'
-        })
-      };
+      // const speechOptions = {
+      //   speechRecognizer: new CognitiveServices.SpeechRecognizer({ subscriptionKey: 'YOUR_COGNITIVE_SPEECH_API_KEY' }),
+      //   speechSynthesizer: new CognitiveServices.SpeechSynthesizer({
+      //     gender: CognitiveServices.SynthesisGender.Female,
+      //     subscriptionKey: 'YOUR_COGNITIVE_SPEECH_API_KEY',
+      //     voiceName: 'Microsoft Server Speech Text to Speech Voice (en-US, JessaRUS)'
+      //   })
+      // };
 
       // // Option 4: Cognitive Services speech recognition using a token (usually generated in a secure backend using your API key)
       //

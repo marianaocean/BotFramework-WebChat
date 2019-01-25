@@ -18,10 +18,10 @@ export enum ListeningState {
 }
 
 export const languageChangeWords: any[] = [
-    { text: 'japanese', language: 'ja-jp', message: 'こんにちは、日本語を設定しました', displayMessage: '言語切り替え中', displayName: '言語スイッチャ' },
-    { text: 'tchinese', language: 'zh-hant', message: '您好，語言已經設置為中文', displayMessage: '語言切換中', displayName: '語言切換器' },
-    { text: 'chinese', language: 'zh-hans', message: '您好，语言已经设定为中文', displayMessage: '语言切换中', displayName: '语言切换器' },
-    { text: 'english', language: 'en-us', message: 'Hello,Language has been set to English', displayMessage: 'changing language', displayName: 'language switcher' }
+    { text: 'japanese', language: 'ja-JP', message: 'こんにちは、日本語を設定しました', displayMessage: '言語切り替え中', displayName: '言語スイッチャ', recognizerLanguage: 'ja-JP' },
+    { text: 'tchinese', language: 'zh-hant', message: '您好，語言已經設置為中文', displayMessage: '語言切換中', displayName: '語言切換器', recognizerLanguage: 'cmn-Hant-TW' },
+    { text: 'chinese', language: 'zh', message: '您好，语言已经设定为中文', displayMessage: '语言切换中', displayName: '语言切换器', recognizerLanguage: 'zh' },
+    { text: 'english', language: 'en-US', message: 'Hello,Language has been set to English', displayMessage: 'changing language', displayName: 'language switcher', recognizerLanguage: 'en-US' }
 ];
 
 export const sendMessage = (text: string, from: User, locale: string) => ({
@@ -75,6 +75,7 @@ const attachmentsFromFiles = (files: FileList) => {
 
 export interface ChangeLanguageState {
     isChangingLanguage: boolean;
+    recognizer: Speech.BrowserSpeechRecognizer;
 }
 
 export type ChangeLanguageAction = {
@@ -84,11 +85,15 @@ export type ChangeLanguageAction = {
     type: 'Reset_Change_Language'
 } | {
     type: 'Changed_Language' | 'Receive_Message'
+} | {
+    type: 'Save_Setting',
+    recognizer: any
 };
 
 export const changeLanguage: Reducer<ChangeLanguageState> = (
     state: ChangeLanguageState = {
-        isChangingLanguage: false
+        isChangingLanguage: false,
+        recognizer: null
     },
     action: ChangeLanguageAction
 ) => {
@@ -111,6 +116,11 @@ export const changeLanguage: Reducer<ChangeLanguageState> = (
             return {
                 ...state,
                 isChangingLanguage: false
+            };
+        case 'Save_Setting':
+            return {
+                ...state,
+                recognizer: action.recognizer
             };
         default:
             return state;
@@ -678,6 +688,11 @@ const receiveChangedLanguageMessageEpic: Epic<ChatActions, ChatState> = (action$
         const i = languageChangeWords.findIndex(word => word.message === action.activity.text);
         if (i > -1) {
             const setLanguage = languageChangeWords[i].language;
+            const setRecognizerLanguage = setLanguage === 'zh-hant' ? languageChangeWords[i].recognizerLanguage : setLanguage;
+            const recognizer = state.changeLanguage.recognizer;
+            recognizer.setLanguage(setRecognizerLanguage);
+            // Speech.SpeechRecognizer.setSpeechRecognizer(new Speech.BrowserSpeechRecognizer(setRecognizerLanguage));
+            // Speech.SpeechSynthesizer.setSpeechSynthesizer(new Speech.BrowserSpeechSynthesizer());
             return ({ type: 'Set_Locale', locale: setLanguage } as FormatAction );
         }
         return nullAction;

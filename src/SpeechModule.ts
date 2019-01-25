@@ -84,7 +84,6 @@ export namespace Speech {
             }
 
             SpeechRecognizer.instance.setGrammars(grammars);
-
             if (SpeechRecognizer.alreadyRecognizing()) {
                 await SpeechRecognizer.stopRecognizing();
             }
@@ -93,7 +92,6 @@ export namespace Speech {
             SpeechRecognizer.instance.onFinalResult = onFinalResult;
             SpeechRecognizer.instance.onAudioStreamingToService = onAudioStreamStarted;
             SpeechRecognizer.instance.onRecognitionFailed = onRecognitionFailed;
-
             await SpeechRecognizer.instance.startRecognizing();
         }
 
@@ -158,14 +156,14 @@ export namespace Speech {
 
         private recognizer: any = null;
 
-        constructor() {
+        constructor(language: string) {
             if (!(window as any).webkitSpeechRecognition) {
                 console.error('This browser does not support speech recognition');
                 return;
             }
 
             this.recognizer = new (window as any).webkitSpeechRecognition();
-            this.recognizer.lang = 'en-US';
+            this.recognizer.lang = language;
             this.recognizer.interimResults = true;
 
             this.recognizer.onaudiostart = () => {
@@ -251,6 +249,10 @@ export namespace Speech {
 
             list.addFromString(grammar.stringify());
             this.recognizer.grammars = list;
+        }
+
+        public setLanguage(language: string) {
+            this.recognizer.lang = language;
         }
     }
 
