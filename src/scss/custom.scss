@@ -9,19 +9,49 @@
     right: 0;
     height: $languageSelectorHeight;
     box-sizing: border-box;
-    border: 5px solid $c10;
     text-align: center;
     .buttons-group{
-        height: 100%;
+        margin: 15px 0;
+        height: $languageSelectorHeight - 30px;
     }
     button{
         height: 100%;
-        width: 14vw;
+        width: 10vw;
         vertical-align: bottom;
-        margin-left: 5vw;
+        margin: 0 2.5vw;
+        border-radius: 1em !important;
+        box-shadow: 0.2vw 0.2vw $c05;
+    }
+
+    button:not(.button-disabled):active {
+        box-shadow: none;
+        margin-left: 2.7vw;
+        margin-right: 2.3vw;
+        margin-top: 0.2vw;
+        margin-bottom: -0.2vw;
+    }
+
+    button:not(.button-disabled):hover {
+        background: $c12;
     }
     
     .button-disabled{
         background: gray
+    }
+
+    .responsive-hide{
+        display: none;
+    }
+    .responsive-show{
+        display: inline;
+    }
+    
+    @media screen and (min-width: 740px){
+        .responsive-hide{
+            display: inline;
+        }
+        .responsive-show{
+            display: none;
+        }
     }
 }

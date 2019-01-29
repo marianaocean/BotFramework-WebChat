@@ -32,20 +32,21 @@ class LanguageSelector extends React.Component<Props> {
                 {
                     this.props.isChangingLanguage ?
                     <div className="buttons-group">
-                        <button className="button-disabled" disabled>ENGLISH</button>
-                        <button className="button-disabled" disabled>日本語</button>
-                        <button className="button-disabled" disabled>繁體中文</button>
-                        <button className="button-disabled" disabled>简体中文</button>
+                        <button className="button-disabled" disabled>EN<span className="responsive-hide">GLISH</span></button>
+                        <button className="button-disabled" disabled>日<span className="responsive-hide">本語</span></button>
+                        <button className="button-disabled" disabled>繁<span className="responsive-hide">體中文</span></button>
+                        <button className="button-disabled" disabled>简<span className="responsive-hide">体中文</span></button>
                         <button onClick={ () => this.resetChangeLanguage() }>
-                            { this.props.strings.messageRetry }
+                            <span className="responsive-hide">{ this.props.strings.messageRetry }</span>
+                            <span className="responsive-show">{ this.props.strings.messageRetry.slice(0, 1) }</span>
                         </button>
                     </div>
                     :
                     <div className="buttons-group">
-                        <button onClick={ () => this.changeLanguageTo('english') }>ENGLISH</button>
-                        <button onClick={ () => this.changeLanguageTo('japanese') }>日本語</button>
-                        <button onClick={ () => this.changeLanguageTo('tchinese') }>繁體中文</button>
-                        <button onClick={ () => this.changeLanguageTo('chinese') }>简体中文</button>
+                        <button onClick={ () => this.changeLanguageTo('english') }>EN<span className="responsive-hide">GLISH</span></button>
+                        <button onClick={ () => this.changeLanguageTo('japanese') }>日<span className="responsive-hide">本語</span></button>
+                        <button onClick={ () => this.changeLanguageTo('tchinese') }>繁<span className="responsive-hide">體中文</span></button>
+                        <button onClick={ () => this.changeLanguageTo('chinese') }>简<span className="responsive-hide">体中文</span></button>
                     </div>
                 }
             </div>
