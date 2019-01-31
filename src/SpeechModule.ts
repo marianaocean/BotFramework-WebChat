@@ -163,7 +163,7 @@ export namespace Speech {
             }
 
             this.recognizer = new (window as any).webkitSpeechRecognition();
-            this.recognizer.lang = language;
+            this.recognizer.lang = language || 'en-US';
             this.recognizer.interimResults = true;
 
             this.recognizer.onaudiostart = () => {

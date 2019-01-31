@@ -64,7 +64,7 @@
         padding: 10px;
         position: absolute;
         right: 0;
-        top: $languageSelectorHeight;
+        top: $headerTotalHeight;
         transition: transform $actionTransition;
 
         &.no-header {
@@ -168,7 +168,7 @@
 
     .wc-message-pane.show-actions {
         .wc-message-groups {
-            top: $languageSelectorHeight + $actionsHeight;
+            top: $actionsHeight + $headerTotalHeight;
             transform: translateY(-$actionsHeight);
         }
         .wc-suggested-actions {

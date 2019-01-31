@@ -27,11 +27,14 @@ export interface ChatProps {
     selectedActivity?: BehaviorSubject<ActivityOrID>;
     sendTyping?: boolean;
     showUploadButton?: boolean;
+    showLanguageSelector?: boolean;
+    customMenu: any;
     speechOptions?: SpeechOptions;
     user: User;
     botName?: string;
 }
 
+import { CustomMenu } from './CustomMenu';
 import { History } from './History';
 import { Languages } from './LanguageSelector';
 import { MessagePane } from './MessagePane';
@@ -101,6 +104,16 @@ export class Chat extends React.Component<ChatProps, {}> {
             this.store.dispatch<ChatActions>({ type: 'Save_Setting', recognizer: props.speechOptions.speechRecognizer });
             Speech.SpeechRecognizer.setSpeechRecognizer(props.speechOptions.speechRecognizer);
             Speech.SpeechSynthesizer.setSpeechSynthesizer(props.speechOptions.speechSynthesizer);
+        }
+
+        if (props.showLanguageSelector) {
+            this.store.dispatch<ChatActions>({ type: 'Set_Language_Setting', display: props.showLanguageSelector});
+        }
+
+        if (props.customMenu) {
+            if (props.customMenu.showMenu) {
+                this.store.dispatch<ChatActions>({ type: 'Set_Custom_Menu_Setting', showMenu: props.customMenu.showMenu, allMessages: props.customMenu.allMessages });
+            }
         }
     }
 
@@ -294,6 +307,12 @@ export class Chat extends React.Component<ChatProps, {}> {
                     onKeyDownCapture={ this._handleKeyDownCapture }
                     ref={ this._saveChatviewPanelRef }
                 >
+                {
+                    !!state.format.chatTitle &&
+                        <div className="wc-header">
+                            <span>{ typeof state.format.chatTitle === 'string' ? state.format.chatTitle : state.format.strings.title }</span>
+                        </div>
+                }
                     <MessagePane disabled={ this.props.disabled }>
                         <History
                             disabled={ this.props.disabled }
@@ -301,7 +320,12 @@ export class Chat extends React.Component<ChatProps, {}> {
                             ref={ this._saveHistoryRef }
                         />
                     </MessagePane>
-                    <Languages ref="languages" />
+                    {
+                        !!state.changeLanguage.display && <Languages ref="languages" />
+                    }
+                    {
+                        !!state.customMenu.showMenu && <CustomMenu />
+                    }
                     {
                         !this.props.disabled && <Shell ref={ this._saveShellRef } />
                     }

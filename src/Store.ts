@@ -47,6 +47,20 @@ export const changeLanguageTo = (language: string, from: User, locale: string) =
     },
     language} as ChatActions);
 
+export const sendMenuMessage = (message: string, from: User, locale: string) => ({
+    type: 'Send_Menu_Message',
+    activity: {
+        type: 'message',
+        text: message,
+        from,
+        locale,
+        textFormat: 'plain',
+        timestamp: (new Date()).toISOString()
+    },
+    message,
+    from
+} as ChatActions);
+
 export const resetChangeLanguage = () => ({
     type: 'Reset_Change_Language'
 } as ChatActions);
@@ -73,9 +87,61 @@ const attachmentsFromFiles = (files: FileList) => {
     return attachments;
 };
 
+export function checkLocale(ComparingLocale: string, ComparedLocale: string) {
+    const checkGroup = [['ja', 'ja-JP', 'ja-jp'], ['en', 'en-US', 'EN'], ['zh-hant', 'cmn-Hant-TW'], ['zh-hans', 'zh', 'zh-CN']];
+    return checkGroup.some(locale => locale.indexOf(ComparingLocale) >= 0 && locale.indexOf(ComparedLocale) >= 0);
+}
+
+export interface CustomMenuState {
+    showMenu: boolean;
+    allMessages: any[];
+    sendMessage: string;
+    activity: Activity;
+}
+
+export type CustomMenuAction = {
+    type: 'Set_Custom_Menu_Setting',
+    showMenu: boolean,
+    allMessages: any[]
+} | {
+    type: 'Send_Menu_Message',
+    activity: Activity,
+    message: string
+};
+
+export const customMenu: Reducer<CustomMenuState> = (
+    state: CustomMenuState = {
+        showMenu: false,
+        allMessages: [],
+        sendMessage: null,
+        activity: null
+    },
+    action: CustomMenuAction
+) => {
+    switch (action.type) {
+        case 'Set_Custom_Menu_Setting':
+            return {
+                ...state,
+                showMenu: action.showMenu,
+                allMessages: action.allMessages
+            };
+        case 'Send_Menu_Message':
+            return {
+                ...state,
+                activity: {
+                    ...action.activity
+                },
+                sendMessage: action.message
+            };
+        default:
+            return state;
+    }
+};
+
 export interface ChangeLanguageState {
     isChangingLanguage: boolean;
     recognizer: Speech.BrowserSpeechRecognizer;
+    display: boolean;
 }
 
 export type ChangeLanguageAction = {
@@ -88,12 +154,16 @@ export type ChangeLanguageAction = {
 } | {
     type: 'Save_Setting',
     recognizer: any
+} | {
+    type: 'Set_Language_Setting',
+    display: boolean
 };
 
 export const changeLanguage: Reducer<ChangeLanguageState> = (
     state: ChangeLanguageState = {
         isChangingLanguage: false,
-        recognizer: null
+        recognizer: null,
+        display: false
     },
     action: ChangeLanguageAction
 ) => {
@@ -121,6 +191,11 @@ export const changeLanguage: Reducer<ChangeLanguageState> = (
             return {
                 ...state,
                 recognizer: action.recognizer
+            };
+        case 'Set_Language_Setting':
+            return {
+                ...state,
+                display: action.display
             };
         default:
             return state;
@@ -372,7 +447,7 @@ export interface HistoryState {
 }
 
 export type HistoryAction = {
-    type: 'Receive_Message' | 'Send_Message' | 'Show_Typing' | 'Receive_Sent_Message',
+    type: 'Receive_Message' | 'Send_Message' | 'Show_Typing' | 'Receive_Sent_Message' | 'Push_Menu_Message',
     activity: Activity
 } | {
     type: 'Send_Message_Try' | 'Send_Message_Fail' | 'Send_Message_Retry',
@@ -391,7 +466,7 @@ export type HistoryAction = {
     type: 'Clear_Typing',
     id: string
 } | {
-    type: 'Changed_Language'
+    type: 'Changed_Language' | 'Sent_Menu_Message' | 'Send_Menu_Message_Fail'
 } | {
     type: 'Change_Language',
     activity: Activity,
@@ -435,6 +510,7 @@ export const history: Reducer<HistoryState> = (
             // else fall through and treat this as a new message
         }
         case 'Receive_Message':
+            console.log('RE', state, action);
             if (state.activities.find(a => a.id === action.activity.id)) { return state; } // don't allow duplicate messages
 
             return {
@@ -489,6 +565,30 @@ export const history: Reducer<HistoryState> = (
             return {
                 ...state,
                 clientActivityCounter: state.clientActivityCounter + 1
+            };
+        case 'Push_Menu_Message':
+            return {
+                ...state,
+                activities: [
+                    ...state.activities.filter(activity => activity.type !== 'typing'),
+                    {
+                        ...action.activity,
+                        timestamp: (new Date()).toISOString(),
+                        channelData: { clientActivityId: state.clientActivityBase + state.clientActivityCounter }
+                    },
+                    ...state.activities.filter(activity => activity.type === 'typing')
+                ],
+                clientActivityCounter: state.clientActivityCounter + 1
+            };
+        case 'Sent_Menu_Message':
+            return {
+                ...state,
+                clientActivityCounter: state.clientActivityCounter + 1
+            };
+        case 'Send_Menu_Message_Fail':
+            return {
+                ...state,
+                clientActivityCounter: state.clientActivityCounter - 1
             };
         case 'Send_Message_Retry': {
             const activity = state.activities.find(activity =>
@@ -595,7 +695,7 @@ export const adaptiveCards: Reducer<AdaptiveCardsState> = (
     }
 };
 
-export type ChatActions = ChangeLanguageAction | ShellAction | FormatAction | SizeAction | ConnectionAction | HistoryAction | AdaptiveCardsAction;
+export type ChatActions = ChangeLanguageAction | CustomMenuAction | ShellAction | FormatAction | SizeAction | ConnectionAction | HistoryAction | AdaptiveCardsAction;
 
 const nullAction = { type: null } as ChatActions;
 
@@ -607,6 +707,7 @@ export interface ChatState {
     shell: ShellState;
     size: SizeState;
     changeLanguage: ChangeLanguageState;
+    customMenu: CustomMenuState;
 }
 
 const speakFromMsg = (msg: Message, fallbackLocale: string) => {
@@ -696,6 +797,50 @@ const receiveChangedLanguageMessageEpic: Epic<ChatActions, ChatState> = (action$
             return ({ type: 'Set_Locale', locale: setLanguage } as FormatAction );
         }
         return nullAction;
+    });
+
+const sendMenuMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
+    action$.ofType('Send_Menu_Message')
+    .map( action => {
+        const state = store.getState();
+        const allMessages = state.customMenu.allMessages.find(messages => this.checkLocale(messages.locale, state.format.locale));
+        if (!allMessages) { return nullAction; }
+        const message = allMessages.messages.find((message: any) => message.sendingMessage === state.customMenu.sendMessage);
+        if (message) {
+            const activity = {
+                id: (new Date()).toISOString(),
+                ...action.activity,
+                text: message.displayingMessage,
+                from: {name: 'send message bot', id: Math.random().toString()}
+            };
+            return ({ type: 'Push_Menu_Message', activity} as HistoryAction);
+        }
+        return nullAction;
+    });
+
+const pushMenuMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
+    action$.ofType('Push_Menu_Message')
+    .flatMap( action => {
+        const state = store.getState();
+        const activity = {
+            ...state.customMenu.activity,
+            channelData: {
+                clientActivityId: state.history.clientActivityBase + (state.history.clientActivityCounter - 1)
+            }
+        };
+        if (state.history.clientActivityCounter === 1) {
+            const capabilities = {
+                type: 'ClientCapabilities',
+                requiresBotState: true,
+                supportsTts: true,
+                supportsListening: true
+                // Todo: consider implementing acknowledgesTts: true
+            };
+            (activity as any).entities = (activity as any).entities == null ? [capabilities] :  [...(activity as any).entities, capabilities];
+        }
+        return state.connection.botConnection.postActivity(activity)
+        .map(id => ({type: 'Sent_Menu_Message'} as HistoryAction))
+        .catch(error => Observable.of({ type: 'Send_Menu_Message_Fail' } as HistoryAction));
     });
 
 const sendMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
@@ -872,7 +1017,8 @@ export const createStore = () =>
             history,
             shell,
             size,
-            changeLanguage
+            changeLanguage,
+            customMenu
         }),
         applyMiddleware(createEpicMiddleware(combineEpics(
             updateSelectedActivityEpic,
@@ -888,7 +1034,9 @@ export const createStore = () =>
             stopSpeakingEpic,
             listeningSilenceTimeoutEpic,
             changeLanguageEpic,
-            receiveChangedLanguageMessageEpic
+            receiveChangedLanguageMessageEpic,
+            sendMenuMessageEpic,
+            pushMenuMessageEpic
         )))
     );
 

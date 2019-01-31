@@ -14,7 +14,8 @@ export interface HistoryProps {
     format: FormatState;
     hasActivityWithSuggestedActions: Activity;
     size: SizeState;
-
+    showLanguageSelector: boolean;
+    showMenu: boolean;
     setMeasurements: (carouselMargin: number) => void;
     onClickRetry: (activity: Activity) => void;
     onClickCardAction: () => void;
@@ -169,7 +170,9 @@ export class HistoryView extends React.Component<HistoryProps, {}> {
         const groupsClassName = classList(
             'wc-message-groups',
             !this.props.format.chatTitle && 'no-header',
-            this.props.disabled && 'disabled'
+            this.props.disabled && 'disabled',
+            !this.props.showLanguageSelector && 'no-language-selector',
+            !this.props.showMenu && 'no-custom-menu'
         );
 
         return (
@@ -198,7 +201,9 @@ export const History = connect(
         botConnection: state.connection.botConnection,
         connectionSelectedActivity: state.connection.selectedActivity,
         selectedActivity: state.history.selectedActivity,
-        user: state.connection.user
+        user: state.connection.user,
+        showLanguageSelector: state.changeLanguage.display,
+        showMenu: state.customMenu.showMenu
     }), {
         onClickCardAction: () => ({ type: 'Card_Action_Clicked'}),
         onClickRetry: (activity: Activity) => ({ type: 'Send_Message_Retry', clientActivityId: activity.channelData.clientActivityId }),
@@ -211,6 +216,8 @@ export const History = connect(
         format: stateProps.format,
         hasActivityWithSuggestedActions: stateProps.hasActivityWithSuggestedActions,
         size: stateProps.size,
+        showLanguageSelector: stateProps.showLanguageSelector,
+        showMenu: stateProps.showMenu,
         // from dispatchProps
         onClickCardAction: dispatchProps.onClickCardAction,
         onClickRetry: dispatchProps.onClickRetry,

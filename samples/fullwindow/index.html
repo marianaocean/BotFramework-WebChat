@@ -19,9 +19,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Bot Chat</title>
 
-    <link href="../../custom.css" rel="stylesheet" />
     <link href="../../botchat.css" rel="stylesheet" />
     <link href="../../botchat-fullwindow.css" rel="stylesheet" />
+    <link href="../../custom.css" rel="stylesheet" />
 
     <style>
       html, body {
@@ -35,7 +35,8 @@
   <body>
     <div id="BotChatGoesHere"></div>
     <script src="../../botchat.js"></script>
-    <script>
+    <script type="module">
+      import { customMenu } from './customMenu.js';
       const params = BotChat.queryParams(location.search);
 
       const user = {
@@ -51,6 +52,7 @@
         speechRecognizer: new BotChat.Speech.BrowserSpeechRecognizer('ja-JP'),
         speechSynthesizer: new BotChat.Speech.BrowserSpeechSynthesizer()
       };
+
       window['botchatDebug'] = params['debug'] && params['debug'] === 'true';
 
       BotChat.App({
@@ -62,6 +64,8 @@
         speechOptions: speechOptions,
         // locale: 'es-es', // override locale to Spanish
         showUploadButton: false,
+        customMenu: customMenu,
+        showLanguageSelector: true,
         directLine: {
           secret: params['s'],
           token: params['t'],
