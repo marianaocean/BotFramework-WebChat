@@ -21,15 +21,20 @@ class Menu extends React.Component<Props> {
         this.props.sendMenuMessage(message);
     }
 
+    private createDisabledButton(key: any, message: string) {
+        return <button key={key} className="button-disabled" disabled>{ message }</button>;
+    }
+
     render() {
         const menuClass = classList(
             'wc-custom-menu'
         );
+        const UNDEFINED = 'undefined';
 
         const all = this.props.allMessages.find(messages => checkLocale(messages.locale, this.props.locale)) || {messages: []};
         const list = [];
         for (let i = 6; i > all.messages.length ; i--) {
-            list.push(<button key={i} className="button-disabled" disabled>{ all.defaultMessage || 'undefined' }</button>);
+            list.push(this.createDisabledButton(i, (all.defaultMessage || UNDEFINED)));
         }
         return (
             <div className={ menuClass }>
@@ -38,9 +43,11 @@ class Menu extends React.Component<Props> {
                         if (index >= 6) {
                             return null;
                         } else {
-                            return <button key={index} onClick={() => this.sendMenuMessage(message.sendingMessage)}>
-                            <img src={message.imgUrl} alt={ all.defaultMessage || 'undefined' }></img>
-                            <span>{ message.buttonText || all.defaultMessage || 'undefined' }</span></button>;
+                            return message.sendingMessage ? <button key={index} onClick={() => this.sendMenuMessage(message.sendingMessage)}>
+                            <img src={message.imgUrl || 'https://dummyimage.com/600x400/6e9e44/ffffff&text=' + ( message.sendingMessage || all.defaultMessage || UNDEFINED )} alt={ message.sendingMessage || all.defaultMessage || UNDEFINED }></img>
+                            <span>{ message.buttonText || message.sendingMessage || all.defaultMessage || UNDEFINED }</span></button>
+                            :
+                            this.createDisabledButton(index, (all.defaultMessage || UNDEFINED));
                         }
                     })
                 }

@@ -4,7 +4,7 @@ export const customMenu = {
         {
         locale: 'ja',
         messages: [
-            // sendingMessage for message sent to intergration, displayingmessage for message from chat, imgUrl, [imgUrl, buttonText] for menu button style
+            // [required]sendingMessage for message sent to intergration, [option]displayingmessage for message from chat, imgUrl, [option][imgUrl, buttonText] for menu button style
             { sendingMessage: '見る・体験する', displayingMessage: 'show spots', imgUrl: "https://dummyimage.com/600x400/6e9e44/ffffff&text=image", buttonText: '見る・体験する' },
             { sendingMessage: '買う・食べる', displayingMessage: 'show shops', imgUrl: 'https://dummyimage.com/600x400/6e9e44/ffffff&text=image', buttonText: '買う・食べる' },
             { sendingMessage: '泊まる', displayingMessage: 'show hotels', imgUrl: 'https://dummyimage.com/600x400/6e9e44/ffffff&text=image', buttonText: '泊まる' },

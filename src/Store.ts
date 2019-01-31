@@ -806,11 +806,11 @@ const sendMenuMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
         const allMessages = state.customMenu.allMessages.find(messages => this.checkLocale(messages.locale, state.format.locale));
         if (!allMessages) { return nullAction; }
         const message = allMessages.messages.find((message: any) => message.sendingMessage === state.customMenu.sendMessage);
-        if (message) {
+        if (message && message.sendingMessage) {
             const activity = {
                 id: (new Date()).toISOString(),
                 ...action.activity,
-                text: message.displayingMessage,
+                text: message.displayingMessage || message.sendingMessage,
                 from: {name: 'send message bot', id: Math.random().toString()}
             };
             return ({ type: 'Push_Menu_Message', activity} as HistoryAction);
