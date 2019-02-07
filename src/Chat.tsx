@@ -12,6 +12,8 @@ import * as konsole from './Konsole';
 import { Speech } from './SpeechModule';
 import { SpeechOptions } from './SpeechOptions';
 import { ChatActions, createStore, sendMessage } from './Store';
+import { colorCodeMatch, headerStyleCreator } from './StyleUtil';
+import { Theme } from './Theme';
 import { ActivityOrID, FormatOptions } from './Types';
 
 export interface ChatProps {
@@ -27,8 +29,10 @@ export interface ChatProps {
     selectedActivity?: BehaviorSubject<ActivityOrID>;
     sendTyping?: boolean;
     showUploadButton?: boolean;
+    icon: {type: string, name: string};
     showLanguageSelector?: boolean;
     customMenu: any;
+    theme: any;
     speechOptions?: SpeechOptions;
     user: User;
     botName?: string;
@@ -112,8 +116,30 @@ export class Chat extends React.Component<ChatProps, {}> {
 
         if (props.customMenu) {
             if (props.customMenu.showMenu) {
-                this.store.dispatch<ChatActions>({ type: 'Set_Custom_Menu_Setting', showMenu: props.customMenu.showMenu, allMessages: props.customMenu.allMessages });
+                this.store.dispatch<ChatActions>({
+                    type: 'Set_Custom_Menu_Setting',
+                    showMenu: props.customMenu.showMenu,
+                    allMessages: props.customMenu.allMessages,
+                    border: {
+                        ...props.customMenu.borderStyle,
+                        color: !!props.customMenu.borderStyle && colorCodeMatch(props.customMenu.borderStyle.color)
+                    }
+                });
             }
+        }
+
+        if (props.icon) {
+            let icontype: string = 'none';
+            if (['url', 'uri'].indexOf(props.icon.type.toLowerCase()) >= 0) {
+                icontype = 'url';
+            } else if (['string', 'String'].indexOf(props.icon.type.toLowerCase()) >= 0) {
+                icontype = 'string';
+            }
+            this.store.dispatch<ChatActions>({type: 'Set_Icon', icon: {...props.icon, type: icontype}});
+        }
+
+        if (this.props.theme) {
+            this.store.dispatch<ChatActions>({ type: 'Set_Theme', theme: new Theme(this.props.theme) });
         }
     }
 
@@ -298,7 +324,7 @@ export class Chat extends React.Component<ChatProps, {}> {
     render() {
         const state = this.store.getState();
         konsole.log('BotChat.Chat state', state);
-
+        console.log(state);
         // only render real stuff after we know our dimensions
         return (
             <Provider store={ this.store }>
@@ -309,7 +335,7 @@ export class Chat extends React.Component<ChatProps, {}> {
                 >
                 {
                     !!state.format.chatTitle &&
-                        <div className="wc-header">
+                        <div className="wc-header" style={headerStyleCreator(state.customSetting.theme)}>
                             <span>{ typeof state.format.chatTitle === 'string' ? state.format.chatTitle : state.format.strings.title }</span>
                         </div>
                 }

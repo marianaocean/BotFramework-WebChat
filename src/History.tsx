@@ -5,13 +5,16 @@ import { ActivityView } from './ActivityView';
 import { activityWithSuggestedActions } from './activityWithSuggestedActions';
 import { classList, doCardAction, IDoCardAction } from './Chat';
 import * as konsole from './Konsole';
-import { ChatState, FormatState, SizeState } from './Store';
+import { ChatState, CustomSettingState, FormatState, SizeState } from './Store';
 import { sendMessage } from './Store';
+import { backgroundColorCreator } from './StyleUtil';
+import { Theme } from './Theme';
 
 export interface HistoryProps {
     activities: Activity[];
     disabled: boolean;
     format: FormatState;
+    customSetting: CustomSettingState;
     hasActivityWithSuggestedActions: Activity;
     size: SizeState;
     showLanguageSelector: boolean;
@@ -106,6 +109,7 @@ export class HistoryView extends React.Component<HistoryProps, {}> {
                 attachmentLayout: 'carousel'
             } }
             format={ null }
+            customSetting={ null }
             fromMe={ false }
             onClickActivity={ null }
             onClickRetry={ null }
@@ -140,6 +144,7 @@ export class HistoryView extends React.Component<HistoryProps, {}> {
                     (activity.type !== 'message' || activity.text || (activity.attachments && !!activity.attachments.length)) &&
                         <WrappedActivity
                             format={ this.props.format }
+                            customSetting={ this.props.customSetting }
                             key={ 'message' + index }
                             activity={ activity }
                             showTimestamp={ index === this.props.activities.length - 1 || (index + 1 < this.props.activities.length && suitableInterval(activity, this.props.activities[index + 1])) }
@@ -181,6 +186,7 @@ export class HistoryView extends React.Component<HistoryProps, {}> {
                 ref={ div => this.scrollMe = div || this.scrollMe }
                 role="log"
                 tabIndex={ 0 }
+                style={backgroundColorCreator(this.props.customSetting.theme)}
             >
                 <div className="wc-message-group-content" ref={ div => { if (div) { this.scrollContent = div; } }}>
                     { content }
@@ -195,6 +201,7 @@ export const History = connect(
         // passed down to HistoryView
         activities: state.history.activities,
         format: state.format,
+        customSetting: state.customSetting,
         hasActivityWithSuggestedActions: !!activityWithSuggestedActions(state.history.activities),
         size: state.size,
         // only used to create helper functions below
@@ -214,6 +221,7 @@ export const History = connect(
         // from stateProps
         activities: stateProps.activities,
         format: stateProps.format,
+        customSetting: stateProps.customSetting,
         hasActivityWithSuggestedActions: stateProps.hasActivityWithSuggestedActions,
         size: stateProps.size,
         showLanguageSelector: stateProps.showLanguageSelector,
@@ -263,6 +271,7 @@ const suitableInterval = (current: Activity, next: Activity) =>
 export interface WrappedActivityProps {
     activity: Activity;
     format: FormatState;
+    customSetting: CustomSettingState;
     fromMe: boolean;
     onClickActivity: (event: React.KeyboardEvent<HTMLDivElement> | React.MouseEvent<HTMLDivElement>) => void;
     onClickRetry: React.MouseEventHandler<HTMLAnchorElement>;
@@ -324,6 +333,39 @@ export class WrappedActivity extends React.Component<WrappedActivityProps, {}> {
             'wc-message-content',
             this.props.selected && 'selected'
         );
+        const icontype = this.props.customSetting && this.props.customSetting.icon ? this.props.customSetting.icon.type : false;
+        const messageStyleCreator = (theme: Theme, who: string) => {
+            const messageStyle: { backgroundColor: string, color: string } = { backgroundColor: null, color: null};
+            if (theme) {
+                if (who === 'bot') {
+                    if (theme.messageFromBotBgColor) {
+                        messageStyle.backgroundColor = theme.messageFromBotBgColor;
+                    }
+                    if (theme.messageFromBotTextColor) {
+                        messageStyle.color = theme.messageFromBotTextColor;
+                    }
+                } else {
+                    if (theme.messageFromMeBgColor) {
+                        messageStyle.backgroundColor = theme.messageFromMeBgColor;
+                    }
+                    if (theme.messageFromBotTextColor) {
+                        messageStyle.color = theme.messageFromMeTextColor;
+                    }
+                }
+            } else {
+                return null;
+            }
+            return messageStyle;
+        };
+        const fillStyleCreator = (bgColor: string) => {
+            if (bgColor) {
+                return {fill: bgColor};
+            } else {
+                return null;
+            }
+        };
+        const messageStyle = this.props.customSetting && messageStyleCreator(this.props.customSetting.theme, who);
+        const calloutColor = messageStyle && fillStyleCreator(messageStyle.backgroundColor);
         return (
                 <div
                     className={ wrapperClassName }
@@ -333,16 +375,21 @@ export class WrappedActivity extends React.Component<WrappedActivityProps, {}> {
                     role={ selectable ? 'button' : undefined }
                     tabIndex={ selectable ? 0 : undefined }
                 >
-                    <div className={ 'wc-message wc-message-from-' + who } ref={ div => this.messageDiv = div }>
-                        <div className={ contentClassName }>
+                {
+                    who === 'bot' && !!icontype && <div className="custom-icon">
+                        <img src={ (icontype === 'string' && 'https://dummyimage.com/600x400/6e9e44/ffffff&text=' || '') + this.props.customSetting.icon.name } alt="icon"></img>
+                    </div>
+                }
+                    <div className={ classList('wc-message', 'wc-message-from-' + who, !!icontype && 'with-custom-icon')} ref={ div => this.messageDiv = div }>
+                        <div className={ contentClassName } style={messageStyle}>
                             <svg className="wc-message-callout">
-                                <path className="point-left" d="m0,6 l6 6 v-12 z" />
-                                <path className="point-right" d="m6,6 l-6 6 v-12 z" />
+                                <path className="point-left" d="m0,6 l6 6 v-12 z" style={calloutColor} />
+                                <path className="point-right" d="m6,6 l-6 6 v-12 z" style={calloutColor} />
                             </svg>
                                 { this.props.children }
                         </div>
                     </div>
-                    <div className={ 'wc-message-from wc-message-from-' + who }>{ timeLine }</div>
+                    <div className={ classList('wc-message-from', 'wc-message-from-' + who, !!icontype && 'with-custom-icon')}>{ timeLine }</div>
                 </div>
         );
     }

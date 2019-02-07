@@ -4,6 +4,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import * as konsole from './Konsole';
 import { Speech } from './SpeechModule';
 import { defaultStrings, strings, Strings } from './Strings';
+import { Theme } from './Theme';
 import { ActivityOrID } from './Types';
 
 // Reducers - perform state transformations
@@ -92,8 +93,52 @@ export function checkLocale(ComparingLocale: string, ComparedLocale: string) {
     return checkGroup.some(locale => locale.indexOf(ComparingLocale) >= 0 && locale.indexOf(ComparedLocale) >= 0);
 }
 
+export function openPath(path: string) {
+    window.open(path);
+}
+
+export interface CustomSettingState {
+    icon: {type: string, name: string};
+    theme: Theme;
+}
+
+export type CustomSettingAction = {
+    type: 'Set_Icon',
+    icon: { type: string, name: string }
+} | {
+    type: 'Set_Theme',
+    theme: Theme
+};
+
+export const customSetting: Reducer<CustomSettingState> = (
+    state: CustomSettingState = {
+        icon: null,
+        theme: null
+    },
+    action: CustomSettingAction
+) => {
+    switch (action.type) {
+        case 'Set_Icon':
+            return {
+                ...state,
+                icon: {
+                    ...action.icon,
+                    name: action.icon.name || 'chatbot'
+                }
+            };
+        case 'Set_Theme':
+            return {
+                ...state,
+                theme: action.theme
+            };
+        default:
+            return state;
+    }
+};
+
 export interface CustomMenuState {
     showMenu: boolean;
+    border: any;
     allMessages: any[];
     sendMessage: string;
     activity: Activity;
@@ -102,7 +147,8 @@ export interface CustomMenuState {
 export type CustomMenuAction = {
     type: 'Set_Custom_Menu_Setting',
     showMenu: boolean,
-    allMessages: any[]
+    allMessages: any[],
+    border: any
 } | {
     type: 'Send_Menu_Message',
     activity: Activity,
@@ -112,6 +158,7 @@ export type CustomMenuAction = {
 export const customMenu: Reducer<CustomMenuState> = (
     state: CustomMenuState = {
         showMenu: false,
+        border: null,
         allMessages: [],
         sendMessage: null,
         activity: null
@@ -123,7 +170,8 @@ export const customMenu: Reducer<CustomMenuState> = (
             return {
                 ...state,
                 showMenu: action.showMenu,
-                allMessages: action.allMessages
+                allMessages: action.allMessages,
+                border: action.border
             };
         case 'Send_Menu_Message':
             return {
@@ -695,7 +743,7 @@ export const adaptiveCards: Reducer<AdaptiveCardsState> = (
     }
 };
 
-export type ChatActions = ChangeLanguageAction | CustomMenuAction | ShellAction | FormatAction | SizeAction | ConnectionAction | HistoryAction | AdaptiveCardsAction;
+export type ChatActions = ChangeLanguageAction | CustomMenuAction | CustomSettingAction | ShellAction | FormatAction | SizeAction | ConnectionAction | HistoryAction | AdaptiveCardsAction;
 
 const nullAction = { type: null } as ChatActions;
 
@@ -708,6 +756,7 @@ export interface ChatState {
     size: SizeState;
     changeLanguage: ChangeLanguageState;
     customMenu: CustomMenuState;
+    customSetting: CustomSettingState;
 }
 
 const speakFromMsg = (msg: Message, fallbackLocale: string) => {
@@ -1018,7 +1067,8 @@ export const createStore = () =>
             shell,
             size,
             changeLanguage,
-            customMenu
+            customMenu,
+            customSetting
         }),
         applyMiddleware(createEpicMiddleware(combineEpics(
             updateSelectedActivityEpic,

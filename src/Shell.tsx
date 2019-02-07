@@ -6,15 +6,16 @@ import { Speech } from './SpeechModule';
 import { ChatActions, ListeningState, sendFiles, sendMessage } from './Store';
 import { ChatState } from './Store';
 import { Strings } from './Strings';
+import { consoleStyleCreator } from './StyleUtil';
+import { Theme } from './Theme';
 
 interface Props {
     inputText: string;
     strings: Strings;
     listeningState: ListeningState;
     showUploadButton: boolean;
-
+    theme: Theme;
     onChangeText: (inputText: string) => void;
-
     sendMessage: (inputText: string) => void;
     sendFiles: (files: FileList) => void;
     stopListening: () => void;
@@ -123,7 +124,7 @@ class ShellContainer extends React.Component<Props> implements ShellFunctions {
         const placeholder = this.props.listeningState === ListeningState.STARTED ? this.props.strings.listeningIndicator : this.props.strings.consolePlaceholder;
 
         return (
-            <div className={ className }>
+            <div className={ className } style={consoleStyleCreator(this.props.theme)}>
                 {
                     this.props.showUploadButton &&
                         <label
@@ -206,6 +207,7 @@ export const Shell = connect(
         // only used to create helper functions below
         locale: state.format.locale,
         user: state.connection.user,
+        theme: state.customSetting.theme,
         listeningState: state.shell.listeningState
     }), {
         // passed down to ShellContainer
@@ -220,6 +222,7 @@ export const Shell = connect(
         inputText: stateProps.inputText,
         showUploadButton: stateProps.showUploadButton,
         strings: stateProps.strings,
+        theme: stateProps.theme,
         listeningState: stateProps.listeningState,
         // from dispatchProps
         onChangeText: dispatchProps.onChangeText,
