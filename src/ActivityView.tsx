@@ -14,6 +14,7 @@ const Attachments = (props: {
     onCardAction: IDoCardAction;
     onImageLoad: () => void;
     size: SizeState;
+    showIcon: boolean;
 }) => {
     const { attachments, attachmentLayout, ...otherProps } = props;
 
@@ -49,6 +50,7 @@ export interface ActivityViewProps {
     onCardAction: IDoCardAction;
     onImageLoad: () => void;
     size: SizeState;
+    showIcon: boolean;
 }
 
 export class ActivityView extends React.Component<ActivityViewProps, {}> {
@@ -88,6 +90,7 @@ export class ActivityView extends React.Component<ActivityViewProps, {}> {
                             onCardAction={ props.onCardAction }
                             onImageLoad={ props.onImageLoad }
                             size={ props.size }
+                            showIcon={ props.showIcon }
                         />
                     </div>
                 );

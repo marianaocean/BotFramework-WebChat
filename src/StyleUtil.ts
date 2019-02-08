@@ -73,3 +73,35 @@ export const consoleStyleCreator = (theme: Theme) => {
     }
     return consoleStyle;
 };
+
+export const messageStyleCreator = (theme: Theme, who: string) => {
+    const messageStyle: { backgroundColor: string, color: string } = { backgroundColor: null, color: null};
+    if (theme) {
+        if (who === 'bot') {
+            if (theme.messageFromBotBgColor) {
+                messageStyle.backgroundColor = theme.messageFromBotBgColor;
+            }
+            if (theme.messageFromBotTextColor) {
+                messageStyle.color = theme.messageFromBotTextColor;
+            }
+        } else {
+            if (theme.messageFromMeBgColor) {
+                messageStyle.backgroundColor = theme.messageFromMeBgColor;
+            }
+            if (theme.messageFromBotTextColor) {
+                messageStyle.color = theme.messageFromMeTextColor;
+            }
+        }
+    } else {
+        return null;
+    }
+    return messageStyle;
+};
+
+export const fillStyleCreator = (bgColor: string) => {
+    if (bgColor) {
+        return {fill: bgColor};
+    } else {
+        return null;
+    }
+};

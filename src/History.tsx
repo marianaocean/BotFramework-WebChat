@@ -7,8 +7,7 @@ import { classList, doCardAction, IDoCardAction } from './Chat';
 import * as konsole from './Konsole';
 import { ChatState, CustomSettingState, FormatState, SizeState } from './Store';
 import { sendMessage } from './Store';
-import { backgroundColorCreator } from './StyleUtil';
-import { Theme } from './Theme';
+import { backgroundColorCreator, fillStyleCreator, messageStyleCreator } from './StyleUtil';
 
 export interface HistoryProps {
     activities: Activity[];
@@ -166,6 +165,7 @@ export class HistoryView extends React.Component<HistoryProps, {}> {
                                 onCardAction={ (type: CardActionTypes, value: string | object) => this.doCardAction(type, value) }
                                 onImageLoad={ () => this.autoscroll() }
                                 size={ this.props.size }
+                                showIcon={ !!this.props.customSetting.icon }
                             />
                         </WrappedActivity>
                 );
@@ -303,6 +303,11 @@ export class WrappedActivity extends React.Component<WrappedActivityProps, {}> {
             case null:
                 timeLine = <span>{ this.props.format.strings.messageFailed }</span>;
                 break;
+            case 'waitingString':
+            case 'waitingImage':
+            case 'qrcode':
+                timeLine = <br/>;
+                break;
             case 'retry':
                 timeLine =
                     <span>
@@ -334,36 +339,11 @@ export class WrappedActivity extends React.Component<WrappedActivityProps, {}> {
             this.props.selected && 'selected'
         );
         const icontype = this.props.customSetting && this.props.customSetting.icon ? this.props.customSetting.icon.type : false;
-        const messageStyleCreator = (theme: Theme, who: string) => {
-            const messageStyle: { backgroundColor: string, color: string } = { backgroundColor: null, color: null};
-            if (theme) {
-                if (who === 'bot') {
-                    if (theme.messageFromBotBgColor) {
-                        messageStyle.backgroundColor = theme.messageFromBotBgColor;
-                    }
-                    if (theme.messageFromBotTextColor) {
-                        messageStyle.color = theme.messageFromBotTextColor;
-                    }
-                } else {
-                    if (theme.messageFromMeBgColor) {
-                        messageStyle.backgroundColor = theme.messageFromMeBgColor;
-                    }
-                    if (theme.messageFromBotTextColor) {
-                        messageStyle.color = theme.messageFromMeTextColor;
-                    }
-                }
-            } else {
-                return null;
-            }
-            return messageStyle;
-        };
-        const fillStyleCreator = (bgColor: string) => {
-            if (bgColor) {
-                return {fill: bgColor};
-            } else {
-                return null;
-            }
-        };
+        const wcMessageClass = classList(
+            'wc-message',
+            'wc-message-from-' + who,
+            !!icontype && 'with-custom-icon',
+            !!this.props.activity && this.props.activity.id === 'waitingImage' &&  'wc-waiting-message' );
         const messageStyle = this.props.customSetting && messageStyleCreator(this.props.customSetting.theme, who);
         const calloutColor = messageStyle && fillStyleCreator(messageStyle.backgroundColor);
         return (
@@ -380,8 +360,8 @@ export class WrappedActivity extends React.Component<WrappedActivityProps, {}> {
                         <img src={ (icontype === 'string' && 'https://dummyimage.com/600x400/6e9e44/ffffff&text=' || '') + this.props.customSetting.icon.name } alt="icon"></img>
                     </div>
                 }
-                    <div className={ classList('wc-message', 'wc-message-from-' + who, !!icontype && 'with-custom-icon')} ref={ div => this.messageDiv = div }>
-                        <div className={ contentClassName } style={messageStyle}>
+                    <div className={wcMessageClass} ref={ div => this.messageDiv = div }>
+                        <div className={ contentClassName } style={ messageStyle }>
                             <svg className="wc-message-callout">
                                 <path className="point-left" d="m0,6 l6 6 v-12 z" style={calloutColor} />
                                 <path className="point-right" d="m6,6 l-6 6 v-12 z" style={calloutColor} />

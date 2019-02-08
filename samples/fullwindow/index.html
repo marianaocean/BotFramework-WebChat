@@ -35,8 +35,8 @@
   <body>
     <div id="BotChatGoesHere"></div>
     <script src="../../botchat.js"></script>
-    <script type="module">
-      import { customMenu } from './customMenu.js';
+    <script src="./customMenu.js"></script>
+    <script>
       const params = BotChat.queryParams(location.search);
 
       const user = {
@@ -55,7 +55,7 @@
       };
       
       const icon = {
-        type: 'url',
+        type: 'image', // image | message
         name: '../../image.jpg'
       };
 
@@ -67,6 +67,19 @@
         // messageFromMeTextColor: '',
         // messageFromBotBgColor: '',
         // messageFromMeBgColor: '#3366FF'
+      }
+      const waitingMessage = {
+        type: 'image/gif', // select from image/png | image/jpg | image/jpeg | image/gif | message
+        // type: 'message',
+        content: '../../giftest.gif'
+      }
+
+      const urlToQrcode = {
+        type: 'message', // defaults to 'page' to open a new page for the qrcode, set to 'message' to make bot send a message for the qrcode 
+        // apiSetting: {
+        //   service: 'obotAI', // defaults to use google charts
+        //   key: ''
+        // }
       }
 
       window['botchatDebug'] = params['debug'] && params['debug'] === 'true';
@@ -80,10 +93,12 @@
         speechOptions: speechOptions,
         // locale: 'es-es', // override locale to Spanish
         showUploadButton: false,
-        icon: icon,
-        customMenu: customMenu,
-        // theme: theme,
+        icon,
+        customMenu,
+        // theme, // use for change color of webchat
+        waitingMessage, // webchat show message before receive response message
         showLanguageSelector: true,
+        urlToQrcode,
         directLine: {
           secret: params['s'],
           token: params['t'],

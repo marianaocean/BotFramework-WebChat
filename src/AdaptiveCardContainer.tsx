@@ -9,10 +9,12 @@ import { AjaxRequest, AjaxResponse } from 'rxjs/observable/dom/AjaxObservable';
 import * as adaptivecardsHostConfig from '../adaptivecards-hostconfig.json';
 import { classList, IDoCardAction } from './Chat';
 import * as konsole from './Konsole';
-import { AdaptiveCardsState, ChatState } from './Store';
+import { AdaptiveCardsState, ChatState, pushQrcodeMessage } from './Store';
+import { UrlToQrcode } from './UrlToQrcode.js';
 
 export interface Props {
     className?: string;
+    customSetting: any;
     disabled?: boolean;
     hostConfig: HostConfig;
     jsonCard?: IAdaptiveCard;
@@ -20,6 +22,7 @@ export interface Props {
     onCardAction: IDoCardAction;
     onClick?: (e: React.MouseEvent<HTMLElement>) => void;
     onImageLoad?: () => any;
+    pushQrcodeMessage: (url: string) => void;
 }
 
 export interface State {
@@ -118,6 +121,15 @@ class AdaptiveCardContainer extends React.Component<Props, State> {
         } else if (action instanceof OpenUrlAction) {
             // TODO: Should we let this one bubble to Chat.tsx?
             //       this.props.onCardAction('openUrl', action.url) might work
+            if (this.props.customSetting && this.props.customSetting.urlToQrcode) {
+                const urlToQrcode = this.props.customSetting.urlToQrcode as UrlToQrcode;
+                if (urlToQrcode.type === 'page') {
+                    window.open(urlToQrcode.getQrcodePath(action.url));
+                } else if (urlToQrcode.type === 'message') {
+                    this.props.pushQrcodeMessage(urlToQrcode.getQrcodePath(action.url));
+                }
+                return;
+            }
             window.open(action.url);
         } else if (action instanceof SubmitAction) {
             if (action.data !== undefined) {
@@ -272,11 +284,16 @@ class AdaptiveCardContainer extends React.Component<Props, State> {
 
 export default connect(
     (state: ChatState) => ({
-        hostConfig: state.adaptiveCards.hostConfig
+        customSetting: state.customSetting,
+        hostConfig: state.adaptiveCards.hostConfig,
+        locale: state.format.locale
     }),
-    {},
+    {
+        pushQrcodeMessage
+    },
     (stateProps: any, dispatchProps: any, ownProps: any): Props => ({
         ...ownProps,
-        ...stateProps
+        ...stateProps,
+        pushQrcodeMessage: (url: string) => dispatchProps.pushQrcodeMessage(url, stateProps.locale)
     })
 )(AdaptiveCardContainer);

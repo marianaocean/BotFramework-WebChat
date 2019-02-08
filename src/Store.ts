@@ -1,11 +1,13 @@
 import { HostConfig } from 'adaptivecards';
-import { Activity, ConnectionStatus, IBotConnection, Media, MediaType, Message, User } from 'botframework-directlinejs';
+import { Activity, Attachment, ConnectionStatus, IBotConnection, Media, MediaType, Message, User } from 'botframework-directlinejs';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import * as konsole from './Konsole';
 import { Speech } from './SpeechModule';
 import { defaultStrings, strings, Strings } from './Strings';
 import { Theme } from './Theme';
 import { ActivityOrID } from './Types';
+import { UrlToQrcode } from './UrlToQrcode';
+import { WaitingMessage } from './WaitingMessage';
 
 // Reducers - perform state transformations
 
@@ -19,10 +21,10 @@ export enum ListeningState {
 }
 
 export const languageChangeWords: any[] = [
-    { text: 'japanese', language: 'ja-JP', message: 'こんにちは、日本語を設定しました', displayMessage: '言語切り替え中', displayName: '言語スイッチャ', recognizerLanguage: 'ja-JP' },
-    { text: 'tchinese', language: 'zh-hant', message: '您好，語言已經設置為中文', displayMessage: '語言切換中', displayName: '語言切換器', recognizerLanguage: 'cmn-Hant-TW' },
-    { text: 'chinese', language: 'zh', message: '您好，语言已经设定为中文', displayMessage: '语言切换中', displayName: '语言切换器', recognizerLanguage: 'zh' },
-    { text: 'english', language: 'en-US', message: 'Hello,Language has been set to English', displayMessage: 'changing language', displayName: 'language switcher', recognizerLanguage: 'en-US' }
+    { text: 'japanese', language: 'ja-JP', message: 'こんにちは、日本語を設定しました', recognizerLanguage: 'ja-JP' },
+    { text: 'tchinese', language: 'zh-hant', message: '您好，語言已經設置為中文', recognizerLanguage: 'cmn-Hant-TW' },
+    { text: 'chinese', language: 'zh', message: '您好，语言已经设定为中文', recognizerLanguage: 'zh' },
+    { text: 'english', language: 'en-US', message: 'Hello,Language has been set to English', recognizerLanguage: 'en-US' }
 ];
 
 export const sendMessage = (text: string, from: User, locale: string) => ({
@@ -66,6 +68,20 @@ export const resetChangeLanguage = () => ({
     type: 'Reset_Change_Language'
 } as ChatActions);
 
+export const pushQrcodeMessage = (url: string, locale: string) => ({
+    type: 'Push_Qrcode_Message',
+    activity: {
+        id: 'qrcode',
+        type: 'message',
+        from: {id: null, name: 'qrcode'} as User,
+        locale,
+        attachments: [{
+            contentType: 'image/jpg' as MediaType,
+            contentUrl: url
+        }] as Media[]
+    }
+} as ChatActions);
+
 export const sendFiles = (files: FileList, from: User, locale: string) => ({
     type: 'Send_Message',
     activity: {
@@ -93,13 +109,11 @@ export function checkLocale(ComparingLocale: string, ComparedLocale: string) {
     return checkGroup.some(locale => locale.indexOf(ComparingLocale) >= 0 && locale.indexOf(ComparedLocale) >= 0);
 }
 
-export function openPath(path: string) {
-    window.open(path);
-}
-
 export interface CustomSettingState {
     icon: {type: string, name: string};
     theme: Theme;
+    waitingMessage: WaitingMessage;
+    urlToQrcode: UrlToQrcode;
 }
 
 export type CustomSettingAction = {
@@ -108,12 +122,20 @@ export type CustomSettingAction = {
 } | {
     type: 'Set_Theme',
     theme: Theme
+} | {
+    type: 'Set_Waiting_Message',
+    waitingMessage: WaitingMessage
+} | {
+    type: 'Use_Qrcode',
+    urlToQrcode: UrlToQrcode
 };
 
 export const customSetting: Reducer<CustomSettingState> = (
     state: CustomSettingState = {
         icon: null,
-        theme: null
+        theme: null,
+        waitingMessage: null,
+        urlToQrcode: null
     },
     action: CustomSettingAction
 ) => {
@@ -130,6 +152,16 @@ export const customSetting: Reducer<CustomSettingState> = (
             return {
                 ...state,
                 theme: action.theme
+            };
+        case 'Set_Waiting_Message':
+            return {
+                ...state,
+                waitingMessage: action.waitingMessage
+            };
+        case 'Use_Qrcode':
+            return {
+                ...state,
+                urlToQrcode: action.urlToQrcode
             };
         default:
             return state;
@@ -495,7 +527,7 @@ export interface HistoryState {
 }
 
 export type HistoryAction = {
-    type: 'Receive_Message' | 'Send_Message' | 'Show_Typing' | 'Receive_Sent_Message' | 'Push_Menu_Message',
+    type: 'Receive_Message' | 'Send_Message' | 'Show_Typing' | 'Receive_Sent_Message' | 'Push_Menu_Message' | 'Push_Waiting_Message' | 'Push_Qrcode_Message',
     activity: Activity
 } | {
     type: 'Send_Message_Try' | 'Send_Message_Fail' | 'Send_Message_Retry',
@@ -514,7 +546,7 @@ export type HistoryAction = {
     type: 'Clear_Typing',
     id: string
 } | {
-    type: 'Changed_Language' | 'Sent_Menu_Message' | 'Send_Menu_Message_Fail'
+    type: 'Changed_Language' | 'Sent_Menu_Message' | 'Send_Menu_Message_Fail' | 'Remove_Waiting_Message' | 'Change_Language_Fail'
 } | {
     type: 'Change_Language',
     activity: Activity,
@@ -539,8 +571,8 @@ export const history: Reducer<HistoryState> = (
     konsole.log('history action', action);
     switch (action.type) {
         case 'Receive_Sent_Message': {
-            // if (!action.activity.channelData || !action.activity.channelData.clientActivityId) {
-            if (action.activity.channelData && action.activity.channelData.postBack) {
+            if (!action.activity.channelData || !action.activity.channelData.clientActivityId) {
+            // if (action.activity.channelData && action.activity.channelData.postBack) {
                 // only postBack messages don't have clientActivityId, and these shouldn't be added to the history
                 return state;
             }
@@ -558,9 +590,7 @@ export const history: Reducer<HistoryState> = (
             // else fall through and treat this as a new message
         }
         case 'Receive_Message':
-            console.log('RE', state, action);
             if (state.activities.find(a => a.id === action.activity.id)) { return state; } // don't allow duplicate messages
-
             return {
                 ...state,
                 activities: [
@@ -569,7 +599,6 @@ export const history: Reducer<HistoryState> = (
                     ...state.activities.filter(activity => activity.from.id !== action.activity.from.id && activity.type === 'typing')
                 ]
             };
-
         case 'Send_Message':
             return {
                 ...state,
@@ -584,50 +613,41 @@ export const history: Reducer<HistoryState> = (
                 ],
                 clientActivityCounter: state.clientActivityCounter + 1
             };
-
-        case 'Change_Language':
-            const languageIndex = languageChangeWords.findIndex(word => word.text === action.language);
-            const changedLanguageActivity = {
-                id: (new Date()).toISOString(),
-                ...action.activity,
-                text: languageIndex > -1 ? languageChangeWords[languageIndex].displayMessage : 'changing Language',
-                from: {
-                    name: languageIndex > -1 ? languageChangeWords[languageIndex].displayName : 'language switcher',
-                    id: Math.random().toString()
-                }
-            };
+        case 'Push_Waiting_Message':
             return {
                 ...state,
                 activities: [
                     ...state.activities.filter(activity => activity.type !== 'typing'),
-                    {
-                        ...changedLanguageActivity,
-                        timestamp: (new Date()).toISOString(),
-                        channelData: { clientActivityId: state.clientActivityBase + state.clientActivityCounter }
-                    },
-                    ...state.activities.filter(activity => activity.type === 'typing')
-                ],
-                clientActivityCounter: state.clientActivityCounter + 1
+                    action.activity,
+                    ...state.activities.filter(activity => activity.from.id !== action.activity.from.id && activity.type === 'typing')
+                ]
             };
+        case 'Push_Qrcode_Message':
+            return {
+                ...state,
+                activities: [
+                    ...state.activities.filter(activity => activity.type !== 'typing'),
+                    action.activity,
+                    ...state.activities.filter(activity => activity.from.id !== action.activity.from.id && activity.type === 'typing')
+                ]
+            };
+        case 'Remove_Waiting_Message':
+            return {
+                ...state,
+                activities: [...state.activities.filter(activity => activity.id !== 'waitingString' && activity.id !== 'waitingImage')]
+            };
+        case 'Change_Language':
         case 'Changed_Language':
             return {
                 ...state,
                 clientActivityCounter: state.clientActivityCounter + 1
             };
-        case 'Push_Menu_Message':
+        case 'Change_Language_Fail':
             return {
                 ...state,
-                activities: [
-                    ...state.activities.filter(activity => activity.type !== 'typing'),
-                    {
-                        ...action.activity,
-                        timestamp: (new Date()).toISOString(),
-                        channelData: { clientActivityId: state.clientActivityBase + state.clientActivityCounter }
-                    },
-                    ...state.activities.filter(activity => activity.type === 'typing')
-                ],
-                clientActivityCounter: state.clientActivityCounter + 1
+                clientActivityCounter: state.clientActivityCounter - 1
             };
+        case 'Push_Menu_Message':
         case 'Sent_Menu_Message':
             return {
                 ...state,
@@ -811,9 +831,6 @@ const changeLanguageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
     .flatMap(action => {
         const state = store.getState();
         const activity = {
-            channelData: {
-                clientActivityId: state.history.clientActivityBase + (state.history.clientActivityCounter - 1)
-            },
             ...action.activity
         };
         if (state.history.clientActivityCounter === 1) {
@@ -828,7 +845,7 @@ const changeLanguageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
         }
         return state.connection.botConnection.postActivity(activity)
         .map(id => ({type: 'Changed_Language'} as HistoryAction))
-        .catch(error => Observable.of({ type: 'Changed_Language' } as HistoryAction));
+        .catch(error => Observable.of({ type: 'Change_Language_Fail' } as HistoryAction));
     });
 
 const receiveChangedLanguageMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
@@ -847,7 +864,58 @@ const receiveChangedLanguageMessageEpic: Epic<ChatActions, ChatState> = (action$
         }
         return nullAction;
     });
-
+const waitingMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
+    action$.ofType(
+        'Send_Message_Succeed',
+        'Change_Language',
+        'Send_Menu_Message'
+    )
+    .map( action => {
+        const state = store.getState();
+        let activity = {};
+        if (!state.customSetting.waitingMessage || !state.customSetting.waitingMessage.type || !state.customSetting.waitingMessage.content) {
+            return nullAction;
+        }
+        if (state.customSetting.waitingMessage) {
+            const waitingMessage = state.customSetting.waitingMessage;
+            if (waitingMessage.type && waitingMessage.type === 'message') {
+                activity = {
+                    id: 'waitingString',
+                    type: 'message',
+                    text: waitingMessage.content,
+                    from: {id: null, name: 'waiting'},
+                    locale: state.format.locale,
+                    textFormat: 'plain',
+                    timestamp: (new Date()).toISOString()
+                };
+            } else if (waitingMessage.type) {
+                activity = {
+                    id: 'waitingImage',
+                    type: 'message',
+                    from: {id: null, name: 'waiting'},
+                    locale: state.format.locale,
+                    attachments: [{
+                        contentType: waitingMessage.type as MediaType,
+                        contentUrl: waitingMessage.content
+                    }] as Media[]
+                };
+            }
+        }
+        return ({type: 'Push_Waiting_Message', activity} as HistoryAction);
+        // return nullAction;
+    });
+const receiveMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
+    action$.ofType(
+        'Receive_Message',
+        'Reset_Change_Language'
+    )
+    .map( action => {
+        const state = store.getState();
+        if (!state.customSetting.waitingMessage || !state.customSetting.waitingMessage.type || !state.customSetting.waitingMessage.content) {
+            return nullAction;
+        }
+        return ({type: 'Remove_Waiting_Message'} as HistoryAction);
+    });
 const sendMenuMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
     action$.ofType('Send_Menu_Message')
     .map( action => {
@@ -872,10 +940,7 @@ const pushMenuMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
     .flatMap( action => {
         const state = store.getState();
         const activity = {
-            ...state.customMenu.activity,
-            channelData: {
-                clientActivityId: state.history.clientActivityBase + (state.history.clientActivityCounter - 1)
-            }
+            ...state.customMenu.activity
         };
         if (state.history.clientActivityCounter === 1) {
             const capabilities = {
@@ -1086,7 +1151,9 @@ export const createStore = () =>
             changeLanguageEpic,
             receiveChangedLanguageMessageEpic,
             sendMenuMessageEpic,
-            pushMenuMessageEpic
+            pushMenuMessageEpic,
+            receiveMessageEpic,
+            waitingMessageEpic
         )))
     );
 

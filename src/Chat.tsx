@@ -15,6 +15,8 @@ import { ChatActions, createStore, sendMessage } from './Store';
 import { colorCodeMatch, headerStyleCreator } from './StyleUtil';
 import { Theme } from './Theme';
 import { ActivityOrID, FormatOptions } from './Types';
+import { UrlToQrcode } from './UrlToQrcode';
+import { WaitingMessage } from './WaitingMessage';
 
 export interface ChatProps {
     adaptiveCardsHostConfig: any;
@@ -33,6 +35,8 @@ export interface ChatProps {
     showLanguageSelector?: boolean;
     customMenu: any;
     theme: any;
+    waitingMessage: any;
+    urlToQrcode: any;
     speechOptions?: SpeechOptions;
     user: User;
     botName?: string;
@@ -130,9 +134,9 @@ export class Chat extends React.Component<ChatProps, {}> {
 
         if (props.icon) {
             let icontype: string = 'none';
-            if (['url', 'uri'].indexOf(props.icon.type.toLowerCase()) >= 0) {
+            if (['image'].indexOf(props.icon.type.toLowerCase()) >= 0) {
                 icontype = 'url';
-            } else if (['string', 'String'].indexOf(props.icon.type.toLowerCase()) >= 0) {
+            } else if (['message'].indexOf(props.icon.type.toLowerCase()) >= 0) {
                 icontype = 'string';
             }
             this.store.dispatch<ChatActions>({type: 'Set_Icon', icon: {...props.icon, type: icontype}});
@@ -141,6 +145,15 @@ export class Chat extends React.Component<ChatProps, {}> {
         if (this.props.theme) {
             this.store.dispatch<ChatActions>({ type: 'Set_Theme', theme: new Theme(this.props.theme) });
         }
+
+        if (this.props.waitingMessage) {
+            this.store.dispatch<ChatActions>({ type: 'Set_Waiting_Message', waitingMessage: new WaitingMessage(this.props.waitingMessage) });
+        }
+
+        if (this.props.urlToQrcode) {
+            this.store.dispatch<ChatActions>({type: 'Use_Qrcode', urlToQrcode: new UrlToQrcode(this.props.urlToQrcode)});
+        }
+
     }
 
     private handleIncomingActivity(activity: Activity) {
@@ -324,7 +337,6 @@ export class Chat extends React.Component<ChatProps, {}> {
     render() {
         const state = this.store.getState();
         konsole.log('BotChat.Chat state', state);
-        console.log(state);
         // only render real stuff after we know our dimensions
         return (
             <Provider store={ this.store }>

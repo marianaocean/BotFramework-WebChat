@@ -13,6 +13,7 @@ export interface CarouselProps {
     onCardAction: IDoCardAction;
     onImageLoad: () => void;
     size: SizeState;
+    showIcon: boolean;
 }
 
 export class Carousel extends React.PureComponent<CarouselProps, {}> {
@@ -25,7 +26,11 @@ export class Carousel extends React.PureComponent<CarouselProps, {}> {
 
     private updateContentWidth() {
         // after the attachments have been rendered, we can now measure their actual width
-        const width = this.props.size.width - this.props.format.carouselMargin;
+        let width = this.props.size.width - this.props.format.carouselMargin;
+
+        if (this.props.showIcon) {
+            width -= 40;
+        }
 
         // important: remove any hard styling so that we can measure the natural width
         this.root.style.width = '';

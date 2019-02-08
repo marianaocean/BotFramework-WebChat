@@ -78,7 +78,6 @@
     height: $customMenuHeight;
     text-align: center;
     border-top: 2px solid;
-    // border-image: url("border.png") 4 round;
     border-color: $c15;
     border-top-style: solid;
     border-top-width: 5px;
@@ -169,4 +168,9 @@
         height: 100%;
         object-fit: cover;
     }
+}
+
+.wc-waiting-message {
+    max-width: 100px;
+    max-height: 100px;
 }
