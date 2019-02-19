@@ -3,19 +3,28 @@
 @import "includes/card-size";
 
 .wc-custom-menu {
-    height: 0;
+    opacity: 0;
+    z-index: -10;
 }
 
 .wc-custom-menu.wc-custom-menu-show {
-    height: $customMenuHeight;
+    opacity: 1;
+    z-index: 0;
+}
+
+.wc-custom-menu-toggle button {
+    background: url('../img/s_toggle_custommenu_up.svg') no-repeat;
+    background-size: contain;
+    height:80%;
+    margin-bottom: -25px;
+}
+
+.wc-custom-menu-toggle.wc-custom-menu-show button {
+    background: url('../img/s_toggle_custommenu_dwn.svg') no-repeat;
+    background-size: contain;
+    margin-bottom: 0;
 }
 
 .wc-transition-on {
-    transition: all 0.2s;
-}
-
-@media screen and (min-width: 740px) {
-    .wc-custom-menu.wc-custom-menu-show {
-        height: $wideCustomMenuHeight;
-    }
+    transition: bottom 0.2s, opacity 0.1s;
 }

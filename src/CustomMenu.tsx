@@ -4,13 +4,12 @@ import { connect } from 'react-redux';
 import { classList } from './Chat';
 import { ChatActions, CustomMenuState, CustomSettingState } from './Store';
 import { ChatState, checkLocale, sendMenuMessage, toggleMenu } from './Store';
-import { borderStyleCreator, buttonStyleCreator } from './StyleUtil';
+import { buttonStyleCreator } from './StyleUtil';
 import { Theme } from './Theme';
 
 interface Props {
     locale: string;
     allMessages: any[];
-    border: any;
     customMenu: CustomMenuState;
     customSetting: CustomSettingState;
     sendMenuMessage: (message: string) => void;
@@ -47,6 +46,7 @@ class Menu extends React.Component<Props> {
             this.props.customMenu.menuToggleSetting && this.props.customMenu.menuToggleSetting.transition === 'on' && 'wc-transition-on'
         );
         const UNDEFINED = 'undefined';
+        const commonIconsLength = this.props.customMenu.commonIcons ? this.props.customMenu.commonIcons.length : 0;
         const all = this.props.allMessages.find(messages => checkLocale(messages.locale, this.props.locale)) || {messages: []};
         const list = [];
         for (let i = 6; i > all.messages.length ; i--) {
@@ -63,7 +63,7 @@ class Menu extends React.Component<Props> {
                 </button>
             </div>
             {
-                <div className={ menuClass } style={borderStyleCreator(this.props.border)}>
+                <div className={ menuClass }>
                     {
                         all.messages.map((message: any, index: any) => {
                             if (index >= 6) {
@@ -71,11 +71,9 @@ class Menu extends React.Component<Props> {
                             } else {
                                 return message.sendingMessage ?
                                 <button key={index} onClick={() => this.sendMenuMessage(message.sendingMessage)} style={buttonStyleCreator(this.props.customSetting.theme)}>
-                                <img src={ message.imgUrl ||
-                                    'https://dummyimage.com/600x400/'
-                                    + (this.props.customSetting.theme && this.props.customSetting.theme.themeColor && this.props.customSetting.theme.themeColor.slice(1) || '6e9e44')
-                                    + (this.props.customSetting.theme && this.props.customSetting.theme.textColor && this.props.customSetting.theme.textColor.slice(1) || '/ffffff') + '&text='
-                                    + ( message.sendingMessage || all.defaultMessage || UNDEFINED )} alt={ message.sendingMessage || all.defaultMessage || UNDEFINED }></img>
+                                {
+                                    !(message.imgUrl && message.imgUrl === 'no') && (this.props.customMenu.commonIcons || message.imgUrl) && <img src={ message.imgUrl || (index < commonIconsLength && this.props.customMenu.commonIcons[index]) || (commonIconsLength > 0 && this.props.customMenu.commonIcons[commonIconsLength - 1]) || UNDEFINED} alt={ message.sendingMessage || all.defaultMessage || UNDEFINED }></img>
+                                }
                                 <span>{ message.buttonText || message.sendingMessage || all.defaultMessage || UNDEFINED }</span></button>
                                 :
                                 this.createDisabledButton(index, (all.defaultMessage || UNDEFINED));
@@ -95,7 +93,6 @@ export const CustomMenu = connect(
         locale: state.format.locale,
         user: state.connection.user,
         allMessages: state.customMenu.allMessages,
-        border: state.customMenu.border,
         customMenu: state.customMenu,
         customSetting: state.customSetting
     }),
@@ -107,7 +104,6 @@ export const CustomMenu = connect(
         // from stateProps
         locale: stateProps.locale,
         allMessages: stateProps.allMessages,
-        border: stateProps.border,
         customMenu: stateProps.customMenu,
         customSetting: stateProps.customSetting,
         sendMenuMessage: (message: string) => dispatchProps.sendMenuMessage(message, stateProps.user, stateProps.locale),

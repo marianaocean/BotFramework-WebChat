@@ -21,10 +21,10 @@ export enum ListeningState {
 }
 
 export const languageChangeWords: any[] = [
-    { text: 'japanese', language: 'ja-JP', message: 'こんにちは、日本語を設定しました', recognizerLanguage: 'ja-JP' },
-    { text: 'tchinese', language: 'zh-hant', message: '您好，語言已經設置為中文', recognizerLanguage: 'cmn-Hant-TW' },
-    { text: 'chinese', language: 'zh', message: '您好，语言已经设定为中文', recognizerLanguage: 'zh' },
-    { text: 'english', language: 'en-US', message: 'Hello,Language has been set to English', recognizerLanguage: 'en-US' }
+    { text: 'japanese', language: 'ja-JP', message: 'こんにちは、日本語を設定しました。', recognizerLanguage: 'ja-JP' },
+    { text: 'tchinese', language: 'zh-hant', message: '您好，語言已經設定為繁體中文。', recognizerLanguage: 'cmn-Hant-TW' },
+    { text: 'chinese', language: 'zh', message: '您好，语言已经设定为简体中文。', recognizerLanguage: 'zh' },
+    { text: 'english', language: 'en-US', message: 'Hello,Language has been set to English.', recognizerLanguage: 'en-US' }
 ];
 
 export const sendMessage = (text: string, from: User, locale: string) => ({
@@ -175,8 +175,8 @@ export const customSetting: Reducer<CustomSettingState> = (
 export interface CustomMenuState {
     showMenu: boolean;
     menuToggleSetting: any;
-    border: any;
     allMessages: any[];
+    commonIcons: string[];
     sendMessage: string;
     activity: Activity;
 }
@@ -185,8 +185,8 @@ export type CustomMenuAction = {
     type: 'Set_Custom_Menu_Setting',
     showMenu: boolean,
     menuToggleSetting: any,
-    allMessages: any[],
-    border: any
+    commonIcons: string[],
+    allMessages: any[]
 } | {
     type: 'Send_Menu_Message',
     activity: Activity,
@@ -199,7 +199,7 @@ export const customMenu: Reducer<CustomMenuState> = (
     state: CustomMenuState = {
         showMenu: false,
         menuToggleSetting: null,
-        border: null,
+        commonIcons: [],
         allMessages: [],
         sendMessage: null,
         activity: null
@@ -212,8 +212,8 @@ export const customMenu: Reducer<CustomMenuState> = (
                 ...state,
                 showMenu: action.showMenu,
                 menuToggleSetting: action.menuToggleSetting,
-                allMessages: action.allMessages,
-                border: action.border
+                commonIcons: action.commonIcons,
+                allMessages: action.allMessages
             };
         case 'Send_Menu_Message':
             return {
