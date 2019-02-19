@@ -123,6 +123,7 @@ export class Chat extends React.Component<ChatProps, {}> {
                 this.store.dispatch<ChatActions>({
                     type: 'Set_Custom_Menu_Setting',
                     showMenu: props.customMenu.showMenu,
+                    menuToggleSetting: props.customMenu.menuToggleSetting,
                     allMessages: props.customMenu.allMessages,
                     border: {
                         ...props.customMenu.borderStyle,

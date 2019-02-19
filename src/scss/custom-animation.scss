@@ -1,0 +1,21 @@
+@import "includes/colors";
+@import "includes/settings";
+@import "includes/card-size";
+
+.wc-custom-menu {
+    height: 0;
+}
+
+.wc-custom-menu.wc-custom-menu-show {
+    height: $customMenuHeight;
+}
+
+.wc-transition-on {
+    transition: all 0.2s;
+}
+
+@media screen and (min-width: 740px) {
+    .wc-custom-menu.wc-custom-menu-show {
+        height: $wideCustomMenuHeight;
+    }
+}

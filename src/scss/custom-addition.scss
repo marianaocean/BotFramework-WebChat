@@ -1,0 +1,43 @@
+@import "includes/colors";
+@import "includes/settings";
+@import "includes/card-size";
+
+.wc-custom-menu-toggle {
+    position: absolute;
+    bottom: $consoleHeight;
+    width: 100%;
+    height: $customMenuToggleHeight;
+    button {
+        margin-left: 2em;
+        height: 100%;
+        width: $customMenuToggleHeight * 2;
+    }
+}
+
+.wc-custom-menu-toggle.wc-custom-menu-show {
+    bottom: $consoleHeight + $customMenuHeight;
+    margin-bottom: 0.5em;
+}
+
+.wc-message-groups {
+    bottom: $consoleHeight + $customMenuHeight + $customMenuToggleHeight !important;
+    margin-bottom: 0.5em;
+}
+
+.no-custom-menu {
+    bottom: $consoleHeight + $customMenuToggleHeight !important;
+}
+
+@media screen and (min-width: 740px) {
+    .wc-custom-menu-toggle.wc-custom-menu-show {
+        bottom: $consoleHeight + $wideCustomMenuHeight;
+    }
+
+    .wc-message-groups {
+        bottom: $consoleHeight + $wideCustomMenuHeight + $customMenuToggleHeight !important;
+    }
+
+    .no-custom-menu {
+        bottom: $consoleHeight + $customMenuToggleHeight !important;
+    }
+}

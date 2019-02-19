@@ -91,6 +91,10 @@ export const sendFiles = (files: FileList, from: User, locale: string) => ({
         locale
     }} as ChatActions);
 
+export const toggleMenu = () => ({
+    type: 'Toggle_Menu'
+} as ChatActions);
+
 const attachmentsFromFiles = (files: FileList) => {
     const attachments: Media[] = [];
     for (let i = 0, numFiles = files.length; i < numFiles; i++) {
@@ -170,6 +174,7 @@ export const customSetting: Reducer<CustomSettingState> = (
 
 export interface CustomMenuState {
     showMenu: boolean;
+    menuToggleSetting: any;
     border: any;
     allMessages: any[];
     sendMessage: string;
@@ -179,17 +184,21 @@ export interface CustomMenuState {
 export type CustomMenuAction = {
     type: 'Set_Custom_Menu_Setting',
     showMenu: boolean,
+    menuToggleSetting: any,
     allMessages: any[],
     border: any
 } | {
     type: 'Send_Menu_Message',
     activity: Activity,
     message: string
+} | {
+    type: 'Toggle_Menu'
 };
 
 export const customMenu: Reducer<CustomMenuState> = (
     state: CustomMenuState = {
         showMenu: false,
+        menuToggleSetting: null,
         border: null,
         allMessages: [],
         sendMessage: null,
@@ -202,6 +211,7 @@ export const customMenu: Reducer<CustomMenuState> = (
             return {
                 ...state,
                 showMenu: action.showMenu,
+                menuToggleSetting: action.menuToggleSetting,
                 allMessages: action.allMessages,
                 border: action.border
             };
@@ -212,6 +222,11 @@ export const customMenu: Reducer<CustomMenuState> = (
                     ...action.activity
                 },
                 sendMessage: action.message
+            };
+        case 'Toggle_Menu':
+            return {
+                ...state,
+                showMenu: !state.showMenu
             };
         default:
             return state;
