@@ -63,7 +63,7 @@ class Menu extends React.Component<Props> {
                 </button>
             </div>
             {
-                <div className={ menuClass }>
+                (this.props.customMenu.menuToggleSetting.transition || this.props.customMenu.showMenu) && <div className={ menuClass }>
                     {
                         all.messages.map((message: any, index: any) => {
                             if (index >= 6) {

@@ -33,6 +33,7 @@ export interface ChatProps {
     showUploadButton?: boolean;
     icon: {type: string, name: string};
     showLanguageSelector?: boolean;
+    languageSet: any[];
     customMenu: any;
     theme: any;
     waitingMessage: any;
@@ -116,6 +117,10 @@ export class Chat extends React.Component<ChatProps, {}> {
 
         if (props.showLanguageSelector) {
             this.store.dispatch<ChatActions>({ type: 'Set_Language_Setting', display: props.showLanguageSelector});
+        }
+
+        if (props.languageSet) {
+            this.store.dispatch<ChatActions>({ type: 'Set_Language_Set', languages: props.languageSet });
         }
 
         if (props.customMenu) {

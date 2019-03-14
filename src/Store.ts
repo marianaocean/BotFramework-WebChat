@@ -24,7 +24,10 @@ export const languageChangeWords: any[] = [
     { text: 'japanese', language: 'ja-JP', message: 'こんにちは、日本語を設定しました。', recognizerLanguage: 'ja-JP' },
     { text: 'tchinese', language: 'zh-hant', message: '您好，語言已經設定為繁體中文。', recognizerLanguage: 'cmn-Hant-TW' },
     { text: 'chinese', language: 'zh', message: '您好，语言已经设定为简体中文。', recognizerLanguage: 'zh' },
-    { text: 'english', language: 'en-US', message: 'Hello,Language has been set to English.', recognizerLanguage: 'en-US' }
+    { text: 'english', language: 'en-US', message: 'Hello,Language has been set to English.', recognizerLanguage: 'en-US' },
+    { text: 'korean', language: 'ko-kr', message: '안녕하세요，언어가 한국어로 설정되었습니다.', recognizerLanguage: 'ko-KR' },
+    { text: 'russian', language: 'ru-ru', message: 'Привет, Язык установлен на русский язык.', recognizerLanguage: 'ru-RU' },
+    { text: 'thai', language: 'th-th', message: 'สวัสดีภาษาได้รับการตั้งค่าเป็นภาษาไทยแล้ว.', recognizerLanguage: 'th-TH' }
 ];
 
 export const sendMessage = (text: string, from: User, locale: string) => ({
@@ -108,8 +111,9 @@ const attachmentsFromFiles = (files: FileList) => {
     return attachments;
 };
 
+export const LANGUAGE_COUNT = 7;
 export function checkLocale(ComparingLocale: string, ComparedLocale: string) {
-    const checkGroup = [['ja', 'ja-JP', 'ja-jp'], ['en', 'en-US', 'EN'], ['zh-hant', 'cmn-Hant-TW'], ['zh-hans', 'zh', 'zh-CN']];
+    const checkGroup = [['ja', 'ja-JP', 'ja-jp'], ['en', 'en-US', 'EN'], ['zh-hant', 'cmn-Hant-TW'], ['zh-hans', 'zh', 'zh-CN'], ['ko', 'ko-kr', 'ko-KR'], ['ru', 'ru-ru', 'ru-RU'], ['th', 'th-th', 'th-TH']];
     return checkGroup.some(locale => locale.indexOf(ComparingLocale) >= 0 && locale.indexOf(ComparedLocale) >= 0);
 }
 
@@ -237,6 +241,7 @@ export interface ChangeLanguageState {
     isChangingLanguage: boolean;
     recognizer: Speech.BrowserSpeechRecognizer;
     display: boolean;
+    languages: string[];
 }
 
 export type ChangeLanguageAction = {
@@ -252,13 +257,17 @@ export type ChangeLanguageAction = {
 } | {
     type: 'Set_Language_Setting',
     display: boolean
+} | {
+    type: 'Set_Language_Set',
+    languages: any[]
 };
 
 export const changeLanguage: Reducer<ChangeLanguageState> = (
     state: ChangeLanguageState = {
         isChangingLanguage: false,
         recognizer: null,
-        display: false
+        display: false,
+        languages: ['ja', 'en', 'zh-hans', 'zh-hant', 'ko', 'ru', 'th']
     },
     action: ChangeLanguageAction
 ) => {
@@ -291,6 +300,11 @@ export const changeLanguage: Reducer<ChangeLanguageState> = (
             return {
                 ...state,
                 display: action.display
+            };
+        case 'Set_Language_Set':
+            return {
+                ...state,
+                languages: action.languages
             };
         default:
             return state;
@@ -881,7 +895,7 @@ const receiveChangedLanguageMessageEpic: Epic<ChatActions, ChatState> = (action$
     });
 const waitingMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
     action$.ofType(
-        'Send_Message_Succeed',
+        'Send_Message',
         'Change_Language',
         'Send_Menu_Message'
     )
