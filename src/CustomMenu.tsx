@@ -18,6 +18,8 @@ interface Props {
 
 class Menu extends React.Component<Props> {
 
+    private menuToggle: HTMLButtonElement;
+
     constructor(props: Props) {
         super(props);
     }
@@ -31,6 +33,7 @@ class Menu extends React.Component<Props> {
     }
 
     private toggleMenu() {
+        this.menuToggle.classList.toggle('active');
         this.props.toggleMenu();
     }
 
@@ -54,7 +57,7 @@ class Menu extends React.Component<Props> {
         }
         return (<div>
             <div className={ menuToggleClass }>
-                <button onClick={() => this.toggleMenu()}>
+                <button onClick={() => this.toggleMenu()} ref={(thisButton: HTMLButtonElement) => { this.menuToggle = thisButton; }}>
                  {
                      this.props.customMenu.menuToggleSetting && this.props.customMenu.menuToggleSetting.type === 'image' && this.props.customMenu.menuToggleSetting ?
                      <img src={this.props.customMenu.menuToggleSetting.content} alt={this.props.customMenu.menuToggleSetting.content}></img> :
