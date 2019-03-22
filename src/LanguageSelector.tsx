@@ -75,8 +75,10 @@ class LanguageSelector extends React.Component<Props> {
             const buttonObject = buttonSetList.find(
                 (bs: any) => checkLocale(bs.locale, lg)
             );
-            displayActiveButtons.push(buttonObject.activeButton(index));
-            displayDisabeldButtons.push(buttonObject.disabledButton(index));
+            if (buttonObject) {
+                displayActiveButtons.push(buttonObject.activeButton(index));
+                displayDisabeldButtons.push(buttonObject.disabledButton(index));
+            }
         });
         return (
             <div className={ className }>

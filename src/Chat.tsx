@@ -119,7 +119,7 @@ export class Chat extends React.Component<ChatProps, {}> {
             this.store.dispatch<ChatActions>({ type: 'Set_Language_Setting', display: props.showLanguageSelector});
         }
 
-        if (props.languageSet) {
+        if (props.languageSet && props.languageSet.length > 0) {
             this.store.dispatch<ChatActions>({ type: 'Set_Language_Set', languages: props.languageSet });
         }
 
