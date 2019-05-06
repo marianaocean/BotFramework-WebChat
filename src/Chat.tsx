@@ -113,6 +113,7 @@ export class Chat extends React.Component<ChatProps, {}> {
             this.store.dispatch<ChatActions>({ type: 'Save_Setting', recognizer: props.speechOptions.speechRecognizer });
             Speech.SpeechRecognizer.setSpeechRecognizer(props.speechOptions.speechRecognizer);
             Speech.SpeechSynthesizer.setSpeechSynthesizer(props.speechOptions.speechSynthesizer);
+            this.store.dispatch<ChatActions>({ type: 'Set_Auto_Listen', autoListenAfterSpeak: props.speechOptions.autoListenAfterSpeak, alwaysSpeak: props.speechOptions.alwaysSpeak });
         }
 
         if (props.showLanguageSelector) {

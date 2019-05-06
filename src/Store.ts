@@ -122,6 +122,8 @@ export interface CustomSettingState {
     theme: Theme;
     waitingMessage: WaitingMessage;
     urlToQrcode: UrlToQrcode;
+    autoListenAfterSpeak: boolean;
+    alwaysSpeak: boolean;
 }
 
 export type CustomSettingAction = {
@@ -136,6 +138,10 @@ export type CustomSettingAction = {
 } | {
     type: 'Use_Qrcode',
     urlToQrcode: UrlToQrcode
+} | {
+    type: 'Set_Auto_Listen',
+    autoListenAfterSpeak: boolean,
+    alwaysSpeak: boolean
 };
 
 export const customSetting: Reducer<CustomSettingState> = (
@@ -143,7 +149,9 @@ export const customSetting: Reducer<CustomSettingState> = (
         icon: null,
         theme: null,
         waitingMessage: null,
-        urlToQrcode: null
+        urlToQrcode: null,
+        autoListenAfterSpeak: false,
+        alwaysSpeak: false
     },
     action: CustomSettingAction
 ) => {
@@ -170,6 +178,12 @@ export const customSetting: Reducer<CustomSettingState> = (
             return {
                 ...state,
                 urlToQrcode: action.urlToQrcode
+            };
+        case 'Set_Auto_Listen':
+            return {
+                ...state,
+                autoListenAfterSpeak: action.autoListenAfterSpeak,
+                alwaysSpeak: action.alwaysSpeak
             };
         default:
             return state;
@@ -553,6 +567,7 @@ export interface HistoryState {
     clientActivityBase: string;
     clientActivityCounter: number;
     selectedActivity: Activity;
+    speakerStatus: boolean;
 }
 
 export type HistoryAction = {
@@ -575,7 +590,7 @@ export type HistoryAction = {
     type: 'Clear_Typing',
     id: string
 } | {
-    type: 'Changed_Language' | 'Sent_Menu_Message' | 'Send_Menu_Message_Fail' | 'Remove_Waiting_Message' | 'Change_Language_Fail'
+    type: 'Changed_Language' | 'Sent_Menu_Message' | 'Send_Menu_Message_Fail' | 'Remove_Waiting_Message' | 'Change_Language_Fail' | 'Turn_On_Speaker'
 } | {
     type: 'Change_Language',
     activity: Activity,
@@ -593,7 +608,8 @@ export const history: Reducer<HistoryState> = (
         activities: [],
         clientActivityBase: Date.now().toString() + Math.random().toString().substr(1) + '.',
         clientActivityCounter: 0,
-        selectedActivity: null
+        selectedActivity: null,
+        speakerStatus: false
     },
     action: HistoryAction
 ) => {
@@ -759,7 +775,11 @@ export const history: Reducer<HistoryState> = (
                 activities: copyArrayWithUpdatedItem(state.activities, i, newActivity),
                 selectedActivity: state.selectedActivity === activity ? newActivity : state.selectedActivity
             };
-
+        case 'Turn_On_Speaker':
+            return {
+                ...state,
+                speakerStatus: true
+            };
         default:
             return state;
     }
@@ -811,6 +831,7 @@ export interface ChatState {
 const speakFromMsg = (msg: Message, fallbackLocale: string) => {
     let speak = msg.speak;
 
+    const localeChangeMessage = languageChangeWords.find(lcw => lcw.message === msg.text);
     if (!speak && msg.textFormat == null || msg.textFormat === 'plain') {
         speak = msg.text;
     }
@@ -820,17 +841,20 @@ const speakFromMsg = (msg: Message, fallbackLocale: string) => {
     if (!speak && msg.attachments && msg.attachments.length > 0) {
         for (let i = 0; i < msg.attachments.length; i++) {
             const anymsg = msg as any;
-            if (anymsg.attachments[i].content && anymsg.attachments[i].content.speak) {
-                speak = anymsg.attachments[i].content.speak;
+            // if (anymsg.attachments[i].content && anymsg.attachments[i].content.speak) {
+            if (anymsg.attachments[i].content && anymsg.attachments[i].content.title) {
+                speak = anymsg.attachments[i].content.title;
                 break;
             }
         }
     }
-
+    if (speak) {
+        speak = speak.replace(/http(|s):\/\/.*/, '');
+    }
     return {
         type : 'Speak_SSML',
         ssml: speak,
-        locale: msg.locale || fallbackLocale,
+        locale: (localeChangeMessage && localeChangeMessage.language) || msg.locale || fallbackLocale,
         autoListenAfterSpeak : (msg.inputHint === 'expectingInput') || (msg.channelData && msg.channelData.botState === 'WaitingForAnswerToQuestion')
     };
 };
@@ -933,6 +957,13 @@ const waitingMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
         return ({type: 'Push_Waiting_Message', activity} as HistoryAction);
         // return nullAction;
     });
+
+const turnOnSpeakerEpic: Epic<ChatActions, ChatState> = (action$, store) =>
+    action$.ofType('Push_Waiting_Message')
+    .map( action => {
+        return {type: 'Turn_On_Speaker'} as HistoryAction;
+    });
+
 const receiveMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
     action$.ofType(
         'Receive_Message',
@@ -1030,7 +1061,7 @@ const speakSSMLEpic: Epic<ChatActions, ChatState> = (action$, store) =>
 
         let onSpeakingStarted = null;
         let onSpeakingFinished = () => nullAction;
-        if (action.autoListenAfterSpeak) {
+        if (action.autoListenAfterSpeak || store.getState().customSetting.autoListenAfterSpeak) {
             onSpeakingStarted = () => Speech.SpeechRecognizer.warmup() ;
             onSpeakingFinished = () => ({ type: 'Listening_Starting' } as ShellAction);
         }
@@ -1043,7 +1074,8 @@ const speakSSMLEpic: Epic<ChatActions, ChatState> = (action$, store) =>
 
 const speakOnMessageReceivedEpic: Epic<ChatActions, ChatState> = (action$, store) =>
     action$.ofType('Receive_Message')
-    .filter(action => (action.activity as Message) && store.getState().shell.lastInputViaSpeech)
+    // .filter(action => (action.activity as Message) && store.getState().shell.lastInputViaSpeech)
+    .filter(action => (action.activity as Message) && store.getState().history.speakerStatus && (store.getState().customSetting.alwaysSpeak || store.getState().shell.lastInputViaSpeech))
     .map(action => speakFromMsg(action.activity as Message, store.getState().format.locale) as ShellAction);
 
 const stopSpeakingEpic: Epic<ChatActions, ChatState> = action$ =>
@@ -1182,7 +1214,8 @@ export const createStore = () =>
             sendMenuMessageEpic,
             pushMenuMessageEpic,
             receiveMessageEpic,
-            waitingMessageEpic
+            waitingMessageEpic,
+            turnOnSpeakerEpic
         )))
     );
 

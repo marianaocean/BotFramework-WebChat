@@ -80,7 +80,7 @@ class Menu extends React.Component<Props> {
                             }
                         })
                     }
-                    {list}
+                    { list }
                 </div>
             }
         </div>);
