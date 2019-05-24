@@ -12,8 +12,6 @@ import * as konsole from './Konsole';
 import { Speech } from './SpeechModule';
 import { SpeechOptions } from './SpeechOptions';
 import { ChatActions, createStore, sendMessage } from './Store';
-import { colorCodeMatch, headerStyleCreator } from './StyleUtil';
-import { Theme } from './Theme';
 import { ActivityOrID, FormatOptions } from './Types';
 import { UrlToQrcode } from './UrlToQrcode';
 import { WaitingMessage } from './WaitingMessage';
@@ -31,16 +29,16 @@ export interface ChatProps {
     selectedActivity?: BehaviorSubject<ActivityOrID>;
     sendTyping?: boolean;
     showUploadButton?: boolean;
-    icon: {type: string, name: string};
+    icon: {type: string, content: string};
     showLanguageSelector?: boolean;
     languageSet: any[];
     customMenu: any;
-    theme: any;
     waitingMessage: any;
     urlToQrcode: any;
     speechOptions?: SpeechOptions;
     user: User;
     botName?: string;
+    session?: boolean;
 }
 
 import { CustomMenu } from './CustomMenu';
@@ -146,10 +144,6 @@ export class Chat extends React.Component<ChatProps, {}> {
             this.store.dispatch<ChatActions>({type: 'Set_Icon', icon: {...props.icon, type: icontype}});
         }
 
-        if (this.props.theme) {
-            this.store.dispatch<ChatActions>({ type: 'Set_Theme', theme: new Theme(this.props.theme) });
-        }
-
         if (this.props.waitingMessage) {
             this.store.dispatch<ChatActions>({ type: 'Set_Waiting_Message', waitingMessage: new WaitingMessage(this.props.waitingMessage) });
         }
@@ -165,7 +159,7 @@ export class Chat extends React.Component<ChatProps, {}> {
         switch (activity.type) {
             case 'message':
                 this.store.dispatch<ChatActions>({ type: activity.from.id === state.connection.user.id ? 'Receive_Sent_Message' : 'Receive_Message', activity });
-                if (activity.from.id !== state.connection.user.id) {
+                if (activity.from.id !== state.connection.user.id && this.props.botName) {
                     const botName = this.props.botName;
                     localStorage.setItem('obotConversationId_' + botName,  activity.conversation.id);
                     localStorage.setItem('obotConversationIdTimestamp_' + botName,  Date.now().toString());
@@ -351,7 +345,7 @@ export class Chat extends React.Component<ChatProps, {}> {
                 >
                 {
                     !!state.format.chatTitle &&
-                        <div className="wc-header" style={headerStyleCreator(state.customSetting.theme)}>
+                        <div className="wc-header">
                             <span>{ typeof state.format.chatTitle === 'string' ? state.format.chatTitle : state.format.strings.title }</span>
                         </div>
                 }

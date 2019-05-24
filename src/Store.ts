@@ -4,7 +4,6 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import * as konsole from './Konsole';
 import { Speech } from './SpeechModule';
 import { defaultStrings, strings, Strings } from './Strings';
-import { Theme } from './Theme';
 import { ActivityOrID } from './Types';
 import { UrlToQrcode } from './UrlToQrcode';
 import { WaitingMessage } from './WaitingMessage';
@@ -118,8 +117,7 @@ export function checkLocale(ComparingLocale: string, ComparedLocale: string) {
 }
 
 export interface CustomSettingState {
-    icon: {type: string, name: string};
-    theme: Theme;
+    icon: { type: string, content: string };
     waitingMessage: WaitingMessage;
     urlToQrcode: UrlToQrcode;
     autoListenAfterSpeak: boolean;
@@ -128,10 +126,7 @@ export interface CustomSettingState {
 
 export type CustomSettingAction = {
     type: 'Set_Icon',
-    icon: { type: string, name: string }
-} | {
-    type: 'Set_Theme',
-    theme: Theme
+    icon: { type: string, content: string }
 } | {
     type: 'Set_Waiting_Message',
     waitingMessage: WaitingMessage
@@ -147,7 +142,6 @@ export type CustomSettingAction = {
 export const customSetting: Reducer<CustomSettingState> = (
     state: CustomSettingState = {
         icon: null,
-        theme: null,
         waitingMessage: null,
         urlToQrcode: null,
         autoListenAfterSpeak: false,
@@ -161,13 +155,8 @@ export const customSetting: Reducer<CustomSettingState> = (
                 ...state,
                 icon: {
                     ...action.icon,
-                    name: action.icon.name || 'chatbot'
+                    content: action.icon.content || 'chatbot'
                 }
-            };
-        case 'Set_Theme':
-            return {
-                ...state,
-                theme: action.theme
             };
         case 'Set_Waiting_Message':
             return {
@@ -908,9 +897,11 @@ const receiveChangedLanguageMessageEpic: Epic<ChatActions, ChatState> = (action$
         const i = languageChangeWords.findIndex(word => word.message === action.activity.text);
         if (i > -1) {
             const setLanguage = languageChangeWords[i].language;
-            const setRecognizerLanguage = setLanguage === 'zh-hant' ? languageChangeWords[i].recognizerLanguage : setLanguage;
-            const recognizer = state.changeLanguage.recognizer;
-            recognizer.setLanguage(setRecognizerLanguage);
+            if (state.changeLanguage.recognizer) {
+                const setRecognizerLanguage = setLanguage === 'zh-hant' ? languageChangeWords[i].recognizerLanguage : setLanguage;
+                const recognizer = state.changeLanguage.recognizer;
+                recognizer.setLanguage(setRecognizerLanguage);
+            }
             // Speech.SpeechRecognizer.setSpeechRecognizer(new Speech.BrowserSpeechRecognizer(setRecognizerLanguage));
             // Speech.SpeechSynthesizer.setSpeechSynthesizer(new Speech.BrowserSpeechSynthesizer());
             return ({ type: 'Set_Locale', locale: setLanguage } as FormatAction );

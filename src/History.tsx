@@ -7,7 +7,6 @@ import { classList, doCardAction, IDoCardAction } from './Chat';
 import * as konsole from './Konsole';
 import { ChatState, CustomSettingState, FormatState, SizeState } from './Store';
 import { sendMessage } from './Store';
-import { backgroundColorCreator, fillStyleCreator, messageStyleCreator } from './StyleUtil';
 
 export interface HistoryProps {
     activities: Activity[];
@@ -186,7 +185,6 @@ export class HistoryView extends React.Component<HistoryProps, {}> {
                 ref={ div => this.scrollMe = div || this.scrollMe }
                 role="log"
                 tabIndex={ 0 }
-                style={backgroundColorCreator(this.props.customSetting.theme)}
             >
                 <div className="wc-message-group-content" ref={ div => { if (div) { this.scrollContent = div; } }}>
                     { content }
@@ -344,8 +342,6 @@ export class WrappedActivity extends React.Component<WrappedActivityProps, {}> {
             'wc-message-from-' + who,
             !!icontype && 'with-custom-icon',
             !!this.props.activity && this.props.activity.id === 'waitingImage' &&  'wc-waiting-message' );
-        const messageStyle = this.props.customSetting && messageStyleCreator(this.props.customSetting.theme, who);
-        const calloutColor = messageStyle && fillStyleCreator(messageStyle.backgroundColor);
         return (
                 <div
                     className={ wrapperClassName }
@@ -356,15 +352,19 @@ export class WrappedActivity extends React.Component<WrappedActivityProps, {}> {
                     tabIndex={ selectable ? 0 : undefined }
                 >
                 {
-                    who === 'bot' && !!icontype && <div className="custom-icon">
-                        <img src={ (icontype === 'string' && 'https://dummyimage.com/600x400/6e9e44/ffffff&text=' || '') + this.props.customSetting.icon.name } alt="icon"></img>
-                    </div>
+                    who === 'bot' && !!icontype &&
+                    (
+                        icontype === 'url' ?
+                            <div className="custom-icon"><img src={ this.props.customSetting.icon.content } alt="icon"></img></div>
+                        :
+                            <div className="custom-icon"><span>{ this.props.customSetting.icon.content }</span></div>
+                    )
                 }
                     <div className={wcMessageClass} ref={ div => this.messageDiv = div }>
-                        <div className={ contentClassName } style={ messageStyle }>
+                        <div className={ contentClassName }>
                             <svg className="wc-message-callout">
-                                <path className="point-left" d="m0,6 l6 6 v-12 z" style={calloutColor} />
-                                <path className="point-right" d="m6,6 l-6 6 v-12 z" style={calloutColor} />
+                                <path className="point-left" d="m0,6 l6 6 v-12 z" />
+                                <path className="point-right" d="m6,6 l-6 6 v-12 z" />
                             </svg>
                                 { this.props.children }
                         </div>

@@ -4,8 +4,6 @@ import { connect } from 'react-redux';
 import { classList } from './Chat';
 import { ChatActions, CustomMenuState, CustomSettingState } from './Store';
 import { ChatState, checkLocale, sendMenuMessage, toggleMenu } from './Store';
-import { buttonStyleCreator } from './StyleUtil';
-import { Theme } from './Theme';
 
 interface Props {
     locale: string;
@@ -70,7 +68,7 @@ class Menu extends React.Component<Props> {
                                 return null;
                             } else {
                                 return message.sendingMessage ?
-                                <button key={index} onClick={() => this.sendMenuMessage(message.sendingMessage)} style={buttonStyleCreator(this.props.customSetting.theme)}>
+                                <button key={index} onClick={() => this.sendMenuMessage(message.sendingMessage)}>
                                 {
                                     !(message.imgUrl && message.imgUrl === 'no') && (this.props.customMenu.commonIcons || message.imgUrl) && <img src={ message.imgUrl || (index < commonIconsLength && this.props.customMenu.commonIcons[index]) || (commonIconsLength > 0 && this.props.customMenu.commonIcons[commonIconsLength - 1]) || UNDEFINED} alt={ message.sendingMessage || all.defaultMessage || UNDEFINED }></img>
                                 }
