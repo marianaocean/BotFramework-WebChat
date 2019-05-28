@@ -125,13 +125,9 @@ export interface CustomSettingState {
 }
 
 export type CustomSettingAction = {
-    type: 'Set_Icon',
-    icon: { type: string, content: string }
-} | {
-    type: 'Set_Waiting_Message',
-    waitingMessage: WaitingMessage
-} | {
-    type: 'Use_Qrcode',
+    type: 'Set_Custom_Settings',
+    icon: { type: string, content: string },
+    waitingMessage: WaitingMessage,
     urlToQrcode: UrlToQrcode
 } | {
     type: 'Set_Auto_Listen',
@@ -150,22 +146,11 @@ export const customSetting: Reducer<CustomSettingState> = (
     action: CustomSettingAction
 ) => {
     switch (action.type) {
-        case 'Set_Icon':
+        case 'Set_Custom_Settings':
             return {
                 ...state,
-                icon: {
-                    ...action.icon,
-                    content: action.icon.content || 'chatbot'
-                }
-            };
-        case 'Set_Waiting_Message':
-            return {
-                ...state,
-                waitingMessage: action.waitingMessage
-            };
-        case 'Use_Qrcode':
-            return {
-                ...state,
+                icon: !!action.icon ? { ...action.icon, content: action.icon.content || 'chatbot' } : null,
+                waitingMessage: !!action.waitingMessage ? action.waitingMessage : null,
                 urlToQrcode: action.urlToQrcode
             };
         case 'Set_Auto_Listen':
@@ -218,7 +203,6 @@ export const customMenu: Reducer<CustomMenuState> = (
             return {
                 ...state,
                 showMenu: action.showMenu,
-                menuToggleSetting: action.menuToggleSetting,
                 commonIcons: action.commonIcons,
                 allMessages: action.allMessages
             };
@@ -259,9 +243,7 @@ export type ChangeLanguageAction = {
     recognizer: any
 } | {
     type: 'Set_Language_Setting',
-    display: boolean
-} | {
-    type: 'Set_Language_Set',
+    display: boolean,
     languages: any[]
 };
 
@@ -270,7 +252,7 @@ export const changeLanguage: Reducer<ChangeLanguageState> = (
         isChangingLanguage: false,
         recognizer: null,
         display: false,
-        languages: ['ja', 'en', 'zh-hans', 'zh-hant', 'ko', 'ru', 'th']
+        languages: null
     },
     action: ChangeLanguageAction
 ) => {
@@ -302,11 +284,7 @@ export const changeLanguage: Reducer<ChangeLanguageState> = (
         case 'Set_Language_Setting':
             return {
                 ...state,
-                display: action.display
-            };
-        case 'Set_Language_Set':
-            return {
-                ...state,
+                display: action.display,
                 languages: action.languages
             };
         default:

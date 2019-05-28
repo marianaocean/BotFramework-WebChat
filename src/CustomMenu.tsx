@@ -36,12 +36,15 @@ class Menu extends React.Component<Props> {
         const menuClass = classList(
             'wc-custom-menu',
             this.props.customMenu.showMenu && 'wc-custom-menu-show',
-            this.props.customMenu.menuToggleSetting && this.props.customMenu.menuToggleSetting.transition === 'on' && 'wc-transition-on'
+            'wc-transition-on'
         );
         const menuToggleClass = classList(
             'wc-custom-menu-toggle',
             this.props.customMenu.showMenu && 'wc-custom-menu-show',
-            this.props.customMenu.menuToggleSetting && this.props.customMenu.menuToggleSetting.transition === 'on' && 'wc-transition-on'
+            'wc-transition-on'
+        );
+        const menuToggleButtonClass = classList(
+            !this.props.customMenu.showMenu && 'active'
         );
         const UNDEFINED = 'undefined';
         const commonIconsLength = this.props.customMenu.commonIcons ? this.props.customMenu.commonIcons.length : 0;
@@ -52,35 +55,27 @@ class Menu extends React.Component<Props> {
         }
         return (<div>
             <div className={ menuToggleClass }>
-                <button onClick={() => this.toggleMenu()}>
-                 {
-                     this.props.customMenu.menuToggleSetting && this.props.customMenu.menuToggleSetting.type === 'image' && this.props.customMenu.menuToggleSetting ?
-                     <img src={this.props.customMenu.menuToggleSetting.content} alt={this.props.customMenu.menuToggleSetting.content}></img> :
-                     this.props.customMenu.menuToggleSetting.content
-                 }
-                </button>
+                <button className={ menuToggleButtonClass } onClick={() => this.toggleMenu()}>toggle</button>
             </div>
-            {
-                (this.props.customMenu.menuToggleSetting.transition || this.props.customMenu.showMenu) && <div className={ menuClass }>
-                    {
-                        all.messages.map((message: any, index: any) => {
-                            if (index >= 6) {
-                                return null;
-                            } else {
-                                return message.sendingMessage ?
-                                <button key={index} onClick={() => this.sendMenuMessage(message.sendingMessage)}>
-                                {
-                                    !(message.imgUrl && message.imgUrl === 'no') && (this.props.customMenu.commonIcons || message.imgUrl) && <img src={ message.imgUrl || (index < commonIconsLength && this.props.customMenu.commonIcons[index]) || (commonIconsLength > 0 && this.props.customMenu.commonIcons[commonIconsLength - 1]) || UNDEFINED} alt={ message.sendingMessage || all.defaultMessage || UNDEFINED }></img>
-                                }
-                                <span>{ message.buttonText || message.sendingMessage || all.defaultMessage || UNDEFINED }</span></button>
-                                :
-                                this.createDisabledButton(index, (all.defaultMessage || UNDEFINED));
+            <div className={ menuClass }>
+                {
+                    all.messages.map((message: any, index: any) => {
+                        if (index >= 6) {
+                            return null;
+                        } else {
+                            return message.sendingMessage ?
+                            <button key={index} onClick={() => this.sendMenuMessage(message.sendingMessage)}>
+                            {
+                                !(message.imgUrl && message.imgUrl === 'no') && (this.props.customMenu.commonIcons || message.imgUrl) && <img src={ message.imgUrl || (index < commonIconsLength && this.props.customMenu.commonIcons[index]) || (commonIconsLength > 0 && this.props.customMenu.commonIcons[commonIconsLength - 1]) || UNDEFINED} alt={ message.sendingMessage || all.defaultMessage || UNDEFINED }></img>
                             }
-                        })
-                    }
-                    { list }
-                </div>
-            }
+                            <span>{ message.buttonText || message.sendingMessage || all.defaultMessage || UNDEFINED }</span></button>
+                            :
+                            this.createDisabledButton(index, (all.defaultMessage || UNDEFINED));
+                        }
+                    })
+                }
+                { list }
+            </div>
         </div>);
     }
 

@@ -29,9 +29,9 @@ export interface ChatProps {
     selectedActivity?: BehaviorSubject<ActivityOrID>;
     sendTyping?: boolean;
     showUploadButton?: boolean;
-    icon: {type: string, content: string};
+    icon: {type: string, content: string, name?: string};
     showLanguageSelector?: boolean;
-    languageSet: any[];
+    languages: any[];
     customMenu: any;
     waitingMessage: any;
     urlToQrcode: any;
@@ -39,6 +39,7 @@ export interface ChatProps {
     user: User;
     botName?: string;
     session?: boolean;
+    mobileSupport: boolean;
 }
 
 import { CustomMenu } from './CustomMenu';
@@ -114,12 +115,8 @@ export class Chat extends React.Component<ChatProps, {}> {
             this.store.dispatch<ChatActions>({ type: 'Set_Auto_Listen', autoListenAfterSpeak: props.speechOptions.autoListenAfterSpeak, alwaysSpeak: props.speechOptions.alwaysSpeak });
         }
 
-        if (props.showLanguageSelector) {
-            this.store.dispatch<ChatActions>({ type: 'Set_Language_Setting', display: props.showLanguageSelector});
-        }
-
-        if (props.languageSet && props.languageSet.length > 0) {
-            this.store.dispatch<ChatActions>({ type: 'Set_Language_Set', languages: props.languageSet });
+        if (props.languages) {
+            this.store.dispatch<ChatActions>({ type: 'Set_Language_Setting', display: true, languages: props.languages });
         }
 
         if (props.customMenu) {
@@ -134,24 +131,28 @@ export class Chat extends React.Component<ChatProps, {}> {
             }
         }
 
-        if (props.icon) {
-            let icontype: string = 'none';
-            if (['image'].indexOf(props.icon.type.toLowerCase()) >= 0) {
-                icontype = 'url';
-            } else if (['message'].indexOf(props.icon.type.toLowerCase()) >= 0) {
-                icontype = 'string';
+        if (props.icon || this.props.waitingMessage || this.props.urlToQrcode) {
+            let pIcon = null;
+            let pWaitingMessage = null;
+            let pUrlToQrcode = null;
+            if (props.icon) {
+                let icontype: string = 'none';
+                if (['image'].indexOf(props.icon.type.toLowerCase()) >= 0) {
+                    icontype = 'url';
+                } else if (['message'].indexOf(props.icon.type.toLowerCase()) >= 0) {
+                    icontype = 'string';
+                }
+                pIcon = {...props.icon, type: icontype};
             }
-            this.store.dispatch<ChatActions>({type: 'Set_Icon', icon: {...props.icon, type: icontype}});
-        }
+            if (this.props.waitingMessage) {
+                pWaitingMessage = new WaitingMessage(this.props.waitingMessage);
+            }
+            if (this.props.urlToQrcode) {
+                pUrlToQrcode = new UrlToQrcode(this.props.urlToQrcode);
+            }
 
-        if (this.props.waitingMessage) {
-            this.store.dispatch<ChatActions>({ type: 'Set_Waiting_Message', waitingMessage: new WaitingMessage(this.props.waitingMessage) });
+            this.store.dispatch<ChatActions>({ type: 'Set_Custom_Settings', icon: pIcon, waitingMessage: pWaitingMessage, urlToQrcode: pUrlToQrcode });
         }
-
-        if (this.props.urlToQrcode) {
-            this.store.dispatch<ChatActions>({type: 'Use_Qrcode', urlToQrcode: new UrlToQrcode(this.props.urlToQrcode)});
-        }
-
     }
 
     private handleIncomingActivity(activity: Activity) {
