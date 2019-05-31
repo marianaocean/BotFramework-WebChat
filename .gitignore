@@ -22,6 +22,10 @@ botchat.js
 botchat.js.map
 botchat-es5.js
 botchat-es5.js.map
+chatbot-es5.js
+chatbot-es5.js.map
+chatbot.js
+chatbot.js.map
 CognitiveServices.js
 CognitiveServices.js.map
 *.css
@@ -32,3 +36,4 @@ image.png
 image.jpg
 giftest.gif
 samples/test
+samples/web-chat

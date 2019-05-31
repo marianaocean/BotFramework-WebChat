@@ -68,7 +68,7 @@ const chatConfig = {
     output: {
         libraryTarget: 'umd',
         library: 'BotChat',
-        filename: './botchat.js'
+        filename: './chatbot.js'
     }
 }
 
@@ -77,7 +77,7 @@ const chatWithPolyfillConfig = {
     output: {
         libraryTarget: 'umd',
         library: 'BotChat',
-        filename: './botchat-es5.js'
+        filename: './chatbot-es5.js'
     }
 }
 

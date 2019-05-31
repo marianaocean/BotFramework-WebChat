@@ -68,11 +68,20 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
     }
 
     if (props.speechOptions) {
-        props.speechOptions = {
-            ...props.speechOptions,
-            speechRecognizer: props.speechOptions.speechRecognizer || new Speech.BrowserSpeechRecognizer('ja-JP'),
-            speechSynthesizer: props.speechOptions.speechSynthesizer || new Speech.BrowserSpeechSynthesizer()
-        };
+
+        if ( props.speechOptions.speechRecognizer && props.speechOptions.speechSynthesizer ) {
+            props.speechOptions = {
+                ...props.speechOptions
+            };
+        } else if ((window as any).webkitSpeechRecognition) {
+            props.speechOptions = {
+                ...props.speechOptions,
+                speechRecognizer: new Speech.BrowserSpeechRecognizer('ja-JP'),
+                speechSynthesizer: new Speech.BrowserSpeechSynthesizer()
+            };
+        } else {
+            props.speechOptions = null;
+        }
     }
 
     if (!props.directLine) {
@@ -80,7 +89,7 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
     } else {
         props.directLine = {
             ...props.directLine,
-            webSocket: !props.session,
+            webSocket: false,
             conversationId: cid
         };
     }
