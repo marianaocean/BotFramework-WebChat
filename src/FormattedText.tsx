@@ -16,8 +16,11 @@ export const FormattedText = (props: IFormattedTextProps) => {
         case 'xml':
         case 'plain':
             return renderPlainText(props.text);
-        default:
+        case 'markdown':
+        // default:
             return renderMarkdown(props.text, props.onImageLoad);
+        default:
+            return renderDefault(props.text);
     }
 };
 
@@ -75,4 +78,21 @@ const renderMarkdown = (
     }
 
     return <div className="format-markdown" dangerouslySetInnerHTML={{ __html }} />;
+};
+
+const renderDefault = (
+    text: string
+) => {
+    // tslint:disable-next-line:variable-name
+    let __html;
+
+    if (text.trim()) {
+        const src = text
+            .replace(/<(.*?)>/g, (match, text) => `&lt;${text}&gt;`)
+            .replace(/(http[s]{1}:\/\/\w+\S+(\.\w\S+)+?)\s/g, (match, link) => `<a href='${ link }' target='_blank'>${ link }</a>`)
+            .replace(/(\n|\r)/g, '<br/>');
+        __html = '<p>' + src + '</p>';
+    }
+
+    return <div className="ws-message-default-format" dangerouslySetInnerHTML={{ __html }} />;
 };

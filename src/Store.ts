@@ -816,7 +816,10 @@ const speakFromMsg = (msg: Message, fallbackLocale: string) => {
         }
     }
     if (speak) {
-        speak = speak.replace(/http(|s):\/\/.*/, '');
+        const urlStartAt = speak.search(/http[s]{0,1}:\/\/.*/);
+        if (urlStartAt >= 0) {
+            speak = speak.slice(0, urlStartAt);
+        }
     }
     return {
         type : 'Speak_SSML',
