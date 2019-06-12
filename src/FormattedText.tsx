@@ -89,8 +89,8 @@ const renderDefault = (
     if (text.trim()) {
         const src = text
             .replace(/<(.*?)>/g, (match, text) => `&lt;${text}&gt;`)
-            .replace(/(http[s]{1}:\/\/\w+\S+(\.\w\S+)+?)\s/g, (match, link) => `<a href='${ link }' target='_blank'>${ link }</a>`)
-            .replace(/(\n|\r)/g, '<br/>');
+            .replace(/(http[s]{0,1}:\/\/\w+\S+(\.\w\S+)+?)(\s|$)/g, (match, link) => `<a href='${ link }' target='_blank'>${ link }</a>`)
+            .replace(/(\n|\r)+/g, '<br/>');
         __html = '<p>' + src + '</p>';
     }
 
