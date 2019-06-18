@@ -16,6 +16,11 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
 
     let cid = null;
 
+    if (typeof localStorage === 'undefined') {
+        console.log('localStorage disable');
+        props.session = false;
+    }
+
     if (props.session) {
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
         cid = localStorage.getItem('obotConversationId_' + botName);
@@ -89,7 +94,7 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
     } else {
         props.directLine = {
             ...props.directLine,
-            webSocket: false,
+            webSocket: !!props.directLine.webSocket,
             conversationId: cid
         };
     }
