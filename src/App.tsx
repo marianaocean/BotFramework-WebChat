@@ -141,10 +141,14 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
         };
     }
 
-    konsole.log('BotChat.App props', props);
-    ReactDOM.render(React.createElement(AppContainer, props), container);
+    const lazyLoad = props.botExtensions && props.botExtensions.lazyLoad;
 
+    if (!lazyLoad || !controller) {
+        konsole.log('BotChat.App props', props);
+        ReactDOM.render(React.createElement(AppContainer, props), container);
+    }
     if (controller && document.body.contains(controller)) {
+
         Array.prototype.forEach.call(controller.getElementsByTagName('div'), (thisDiv: HTMLDivElement) => {
             thisDiv.addEventListener(
                 'click',
@@ -158,6 +162,11 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
         const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         let pageTop = 0;
         controller.addEventListener('click', () => {
+            if (lazyLoad) {
+                if (container.getElementsByClassName('wc-app').length === 0) {
+                    ReactDOM.render(React.createElement(AppContainer, props), container);
+                }
+            }
             const computedStyle = window.getComputedStyle(container, null);
             const isChatOpened = computedStyle.visibility;
             if (isChatOpened === 'hidden' || isChatOpened === '') {

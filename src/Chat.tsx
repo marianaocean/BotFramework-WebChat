@@ -40,6 +40,7 @@ export interface ChatProps {
     botName?: string;
     session?: boolean;
     mobileSupport: boolean;
+    botExtensions: any;
 }
 
 import { CustomMenu } from './CustomMenu';
