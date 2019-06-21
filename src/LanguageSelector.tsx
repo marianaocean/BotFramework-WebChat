@@ -8,6 +8,7 @@ import { Strings } from './Strings';
 
 interface Props {
     isChangingLanguage: boolean;
+    locale: string;
     languages: string[];
     changeLanguageTo: (language: string) => void;
     resetChangeLanguage: () => void;
@@ -28,40 +29,44 @@ class LanguageSelector extends React.Component<Props> {
         const className = classList(
             'wc-language-selector'
         );
+        const generateButtonClass = (locale: string) => classList(
+            'wc-language-selector-button',
+            checkLocale(this.props.locale, locale) && 'active'
+        );
         const buttonSetList = [
             {
                 locale: 'ja',
-                activeButton: (i: number) => <button onClick={ () => this.changeLanguageTo('japanese') } key={i}>日<span className="responsive-hide">本語</span></button>,
+                activeButton: (i: number) => <button className={ generateButtonClass('ja') } onClick={ () => this.changeLanguageTo('japanese') } key={i}>日<span className="responsive-hide">本語</span></button>,
                 disabledButton: (i: number) => <button className="button-disabled" disabled key={i + LANGUAGE_COUNT}>日<span className="responsive-hide">本語</span></button>
             },
             {
                 locale: 'en',
-                activeButton: (i: number) => <button onClick={ () => this.changeLanguageTo('english') } key={i} >EN<span className="responsive-hide">GLISH</span></button>,
+                activeButton: (i: number) => <button className={ generateButtonClass('en') } onClick={ () => this.changeLanguageTo('english') } key={i} >EN<span className="responsive-hide">GLISH</span></button>,
                 disabledButton: (i: number) => <button className="button-disabled" disabled key={i + LANGUAGE_COUNT}>EN<span className="responsive-hide">GLISH</span></button>
             },
             {
                 locale: 'zh-hant',
-                activeButton: (i: number) => <button onClick={ () => this.changeLanguageTo('tchinese') } key={i} >繁<span className="responsive-hide">體中文</span></button>,
+                activeButton: (i: number) => <button className={ generateButtonClass('zh-hant') } onClick={ () => this.changeLanguageTo('tchinese') } key={i} >繁<span className="responsive-hide">體中文</span></button>,
                 disabledButton: (i: number) => <button className="button-disabled" disabled key={i + LANGUAGE_COUNT}>繁<span className="responsive-hide">體中文</span></button>
             },
             {
                 locale: 'zh-hans',
-                activeButton: (i: number) => <button onClick={ () => this.changeLanguageTo('chinese') } key={i} >简<span className="responsive-hide">体中文</span></button>,
+                activeButton: (i: number) => <button className={ generateButtonClass('zh-hans') } onClick={ () => this.changeLanguageTo('chinese') } key={i} >简<span className="responsive-hide">体中文</span></button>,
                 disabledButton: (i: number) => <button className="button-disabled" disabled key={i + LANGUAGE_COUNT}>简<span className="responsive-hide">体中文</span></button>
             },
             {
                 locale: 'ko',
-                activeButton: (i: number) => <button onClick={ () => this.changeLanguageTo('korean') } key={i} >韓<span className="responsive-hide">国語</span></button>,
+                activeButton: (i: number) => <button className={ generateButtonClass('ko') } onClick={ () => this.changeLanguageTo('korean') } key={i} >韓<span className="responsive-hide">国語</span></button>,
                 disabledButton: (i: number) => <button className="button-disabled" disabled key={i + LANGUAGE_COUNT}>韓<span className="responsive-hide">国語</span></button>
             },
             {
                 locale: 'ru',
-                activeButton: (i: number) => <button onClick={ () => this.changeLanguageTo('russian') } key={i} >Ru<span className="responsive-hide">ssian</span></button>,
+                activeButton: (i: number) => <button className={ generateButtonClass('ru') } onClick={ () => this.changeLanguageTo('russian') } key={i} >Ru<span className="responsive-hide">ssian</span></button>,
                 disabledButton: (i: number) => <button className="button-disabled" disabled key={i + LANGUAGE_COUNT}>Ru<span className="responsive-hide">ssian</span></button>
             },
             {
                 locale: 'th',
-                activeButton: (i: number) => <button onClick={ () => this.changeLanguageTo('thai') } key={i} >Th<span className="responsive-hide">ai</span></button>,
+                activeButton: (i: number) => <button className={ generateButtonClass('th') } onClick={ () => this.changeLanguageTo('thai') } key={i} >Th<span className="responsive-hide">ai</span></button>,
                 disabledButton: (i: number) => <button className="button-disabled" disabled key={i + LANGUAGE_COUNT}>Th<span className="responsive-hide">ai</span></button>
             }
         ];
@@ -112,6 +117,7 @@ export const Languages = connect(
     }, (stateProps: any, dispatchProps: any, ownProps: any): Props => ({
         // helper functions
         isChangingLanguage: stateProps.isChangingLanguage,
+        locale: stateProps.locale,
         strings: stateProps.strings,
         languages: stateProps.languages,
         changeLanguageTo: (language: string) => dispatchProps.changeLanguageTo(language, stateProps.user, stateProps.locale),

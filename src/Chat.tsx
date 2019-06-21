@@ -39,7 +39,6 @@ export interface ChatProps {
     user: User;
     botName?: string;
     session?: boolean;
-    mobileSupport: boolean;
     botExtensions: any;
 }
 

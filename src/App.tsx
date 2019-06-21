@@ -142,12 +142,97 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
     }
 
     const lazyLoad = props.botExtensions && props.botExtensions.lazyLoad;
+    let mobileScrollFix = false;
+    let pcScrollFix = false;
+    if (props.botExtensions && props.botExtensions.backgroundFix && props.botExtensions.backgroundFix instanceof Array) {
+        mobileScrollFix = props.botExtensions.backgroundFix.findIndex((fx: string) => fx === 'mobile') > -1;
+        pcScrollFix = props.botExtensions.backgroundFix.findIndex((fx: string) => fx === 'pc') > -1;
+    }
 
     if (!lazyLoad || !controller) {
         konsole.log('BotChat.App props', props);
         ReactDOM.render(React.createElement(AppContainer, props), container);
     }
     if (controller && document.body.contains(controller)) {
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        let scrollbarSize: number = null;
+        let enterCount: number = 0;
+        let pageTop = 0;
+        if (!isMobile && pcScrollFix) {
+            const handleMouseEnter = () => {
+                if (!isMobile && pcScrollFix && enterCount <= 0) {
+                    enterCount ++ ;
+                    scrollbarSize = window.innerWidth - document.body.clientWidth;
+                    fixChatPosition(scrollbarSize);
+                    fixControllerPosition(scrollbarSize);
+                    document.body.style.overflowY = 'hidden';
+                    document.body.style.width = (window.innerWidth - scrollbarSize) + 'px';
+                }
+            };
+
+            const handleMouseLeave = () => {
+                enterCount -- ;
+                if (!isMobile && pcScrollFix) {
+                    container.style.right = '';
+                    container.style.width = '';
+                    unfixControllerPosition();
+                    document.body.style.overflowY = '';
+                    document.body.style.width = '';
+                }
+            };
+
+            const fixChatPosition = (scrollbarSize: number) => {
+                let containerRight = container.style.right;
+                let containerWidth = container.style.width;
+                let computedStyle = null;
+                if (!containerRight || !containerWidth) {
+                    computedStyle = window.getComputedStyle(container);
+                }
+                if (computedStyle) {
+                    containerRight = computedStyle.right;
+                    containerWidth = computedStyle.width;
+                }
+                container.style.right = (getSizeNumFromStr(containerRight) + scrollbarSize) + 'px';
+                container.style.width = getSizeNumFromStr(containerWidth) + 'px';
+            };
+
+            const fixControllerPosition = (scrollbarSize: number) => {
+                Array.prototype.forEach.call(controller.getElementsByTagName('div'), (thisDiv: HTMLDivElement) => {
+                    let divRight = thisDiv.style.marginRight;
+                    if (!divRight) {
+                        divRight = window.getComputedStyle(thisDiv).marginRight;
+                    }
+                    thisDiv.style.marginRight = (getSizeNumFromStr(divRight) + scrollbarSize) + 'px';
+                });
+            };
+
+            const unfixControllerPosition = () => {
+                Array.prototype.forEach.call(controller.getElementsByTagName('div'), (thisDiv: HTMLDivElement) => {
+                    thisDiv.style.marginRight = '';
+                });
+            };
+
+            container.addEventListener(
+                'mouseenter', () => {
+                    handleMouseEnter();
+                }
+            );
+
+            container.addEventListener(
+                'mouseleave', () => {
+                    handleMouseLeave();
+                }
+            );
+        }
+
+        const getSizeNumFromStr = (str: string) => {
+            try {
+                return parseFloat(str.match(/^[0-9]+(.\d+){0,1}/i)[0]);
+            } catch (error) {
+                return 0;
+            }
+        };
 
         Array.prototype.forEach.call(controller.getElementsByTagName('div'), (thisDiv: HTMLDivElement) => {
             thisDiv.addEventListener(
@@ -158,9 +243,6 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
             );
         });
         container.style.transition = 'opacity .5s';
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-        let pageTop = 0;
         controller.addEventListener('click', () => {
             if (lazyLoad) {
                 if (container.getElementsByClassName('wc-app').length === 0) {
@@ -177,19 +259,21 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
                 container.style.opacity = '0';
             }
 
-            if (isMobile && props.mobileSupport) {
+            if (isMobile && mobileScrollFix) {
                 if (container.style.visibility === 'visible') {
                     document.body.style.overflow = 'hidden';
                     if (isIOS) {
                         pageTop = window.scrollY;
                         const setTop = (-1) * pageTop;
                         document.body.style.position = 'fixed';
+                        document.body.style.width = '100%';
                         document.body.style.top = setTop + 'px';
                     }
                 } else {
                     document.body.style.overflow = null;
                     if (isIOS) {
                         document.body.style.position = '';
+                        document.body.style.width = '';
                         window.scroll(0, pageTop);
                         pageTop = 0;
                     }

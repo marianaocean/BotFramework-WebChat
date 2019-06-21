@@ -881,7 +881,9 @@ const receiveChangedLanguageMessageEpic: Epic<ChatActions, ChatState> = (action$
             if (state.changeLanguage.recognizer) {
                 const setRecognizerLanguage = setLanguage === 'zh-hant' ? languageChangeWords[i].recognizerLanguage : setLanguage;
                 const recognizer = state.changeLanguage.recognizer;
-                recognizer.setLanguage(setRecognizerLanguage);
+                if (recognizer && typeof recognizer.setLanguage === 'function') {
+                    recognizer.setLanguage(setRecognizerLanguage);
+                }
             }
             // Speech.SpeechRecognizer.setSpeechRecognizer(new Speech.BrowserSpeechRecognizer(setRecognizerLanguage));
             // Speech.SpeechSynthesizer.setSpeechSynthesizer(new Speech.BrowserSpeechSynthesizer());
