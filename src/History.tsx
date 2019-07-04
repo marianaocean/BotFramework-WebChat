@@ -84,12 +84,19 @@ export class HistoryView extends React.Component<HistoryProps, {}> {
     private autoscroll() {
         const vAlignBottomPadding = Math.max(0, measurePaddedHeight(this.scrollMe) - this.scrollContent.offsetHeight);
         this.scrollContent.style.marginTop = vAlignBottomPadding + 'px';
-
-        const lastActivity = this.props.activities[this.props.activities.length - 1];
+        let i = 1;
+        let lastActivity = this.props.activities[this.props.activities.length - i];
+        const skipWaitingMessage = !this.props.customSetting || this.props.customSetting.scrollToBottom <= 1;
+        while (lastActivity && skipWaitingMessage && ['waitingString', 'waitingImage'].indexOf(lastActivity.id) >= 0 && i < this.props.activities.length) {
+            i++;
+            lastActivity = this.props.activities[this.props.activities.length - i];
+        }
+        // const lastActivity = this.props.activities[this.props.activities.length - 1];
         const lastActivityFromMe = lastActivity && this.props.isFromMe && this.props.isFromMe(lastActivity);
+        const lastActivityIsWaitingMessage = lastActivity && ['waitingString', 'waitingImage'].indexOf(lastActivity.id) >= 0;
 
         // Validating if we are at the bottom of the list or the last activity was triggered by the user.
-        if (this.scrollToBottom || lastActivityFromMe) {
+        if (this.scrollToBottom || lastActivityFromMe || (this.props.customSetting && (this.props.customSetting.scrollToBottom >= 3 || (this.props.customSetting.scrollToBottom >= 2 && lastActivityIsWaitingMessage)))) {
             this.scrollMe.scrollTop = this.scrollMe.scrollHeight - this.scrollMe.offsetHeight;
         }
     }

@@ -122,13 +122,15 @@ export interface CustomSettingState {
     urlToQrcode: UrlToQrcode;
     autoListenAfterSpeak: boolean;
     alwaysSpeak: boolean;
+    scrollToBottom: number;
 }
 
 export type CustomSettingAction = {
     type: 'Set_Custom_Settings',
     icon: { type: string, content: string },
     waitingMessage: WaitingMessage,
-    urlToQrcode: UrlToQrcode
+    urlToQrcode: UrlToQrcode,
+    scrollToBottom: number
 } | {
     type: 'Set_Auto_Listen',
     autoListenAfterSpeak: boolean,
@@ -141,7 +143,8 @@ export const customSetting: Reducer<CustomSettingState> = (
         waitingMessage: null,
         urlToQrcode: null,
         autoListenAfterSpeak: false,
-        alwaysSpeak: false
+        alwaysSpeak: false,
+        scrollToBottom: 1
     },
     action: CustomSettingAction
 ) => {
@@ -151,7 +154,8 @@ export const customSetting: Reducer<CustomSettingState> = (
                 ...state,
                 icon: !!action.icon ? { ...action.icon, content: action.icon.content || 'chatbot' } : null,
                 waitingMessage: !!action.waitingMessage ? action.waitingMessage : null,
-                urlToQrcode: action.urlToQrcode
+                urlToQrcode: action.urlToQrcode,
+                scrollToBottom: action.scrollToBottom
             };
         case 'Set_Auto_Listen':
             return {
@@ -879,7 +883,8 @@ const receiveChangedLanguageMessageEpic: Epic<ChatActions, ChatState> = (action$
         if (i > -1) {
             const setLanguage = languageChangeWords[i].language;
             if (state.changeLanguage.recognizer) {
-                const setRecognizerLanguage = setLanguage === 'zh-hant' ? languageChangeWords[i].recognizerLanguage : setLanguage;
+                // const setRecognizerLanguage = ['zh-hant', 'th-th'].indexOf(setLanguage) >= 0 ? languageChangeWords[i].recognizerLanguage : setLanguage;
+                const setRecognizerLanguage = languageChangeWords[i].recognizerLanguage;
                 const recognizer = state.changeLanguage.recognizer;
                 if (recognizer && typeof recognizer.setLanguage === 'function') {
                     recognizer.setLanguage(setRecognizerLanguage);

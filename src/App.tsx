@@ -124,6 +124,10 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
         };
     }
 
+    if (props.botExtensions && ['sendword', 'waiting', 'all'].indexOf(props.botExtensions.scrollToBottom)) {
+        props.botExtensions.scrollToBottom = ['sendword', 'waiting', 'all'].indexOf(props.botExtensions.scrollToBottom) + 1;
+    }
+
     if (props.languages) {
 
         if ( !(props.languages instanceof Array) ) {

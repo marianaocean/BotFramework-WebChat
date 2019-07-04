@@ -131,10 +131,11 @@ export class Chat extends React.Component<ChatProps, {}> {
             }
         }
 
-        if (props.icon || this.props.waitingMessage || this.props.urlToQrcode) {
+        if (props.icon || this.props.waitingMessage || this.props.urlToQrcode || (this.props.botExtensions && this.props.botExtensions.scrollToBottom > 1)) {
             let pIcon = null;
             let pWaitingMessage = null;
             let pUrlToQrcode = null;
+            let pScrollToBottom = 1;
             if (props.icon) {
                 let icontype: string = 'none';
                 if (['image'].indexOf(props.icon.type.toLowerCase()) >= 0) {
@@ -150,8 +151,10 @@ export class Chat extends React.Component<ChatProps, {}> {
             if (this.props.urlToQrcode) {
                 pUrlToQrcode = new UrlToQrcode(this.props.urlToQrcode);
             }
-
-            this.store.dispatch<ChatActions>({ type: 'Set_Custom_Settings', icon: pIcon, waitingMessage: pWaitingMessage, urlToQrcode: pUrlToQrcode });
+            if (this.props.botExtensions && this.props.botExtensions.scrollToBottom > 1) {
+                pScrollToBottom = this.props.botExtensions.scrollToBottom;
+            }
+            this.store.dispatch<ChatActions>({ type: 'Set_Custom_Settings', icon: pIcon, waitingMessage: pWaitingMessage, urlToQrcode: pUrlToQrcode, scrollToBottom: pScrollToBottom });
         }
     }
 

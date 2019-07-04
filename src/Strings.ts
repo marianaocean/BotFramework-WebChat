@@ -38,6 +38,23 @@ const localizedStrings: LocalizedStrings = {
         uploadFile: 'Upload file',
         speak: 'Speak'
     },
+    'th-th': {
+        title: 'พูดคุย',
+        send: 'ส่ง',
+        unknownFile: '[ไฟล์ประเภท \'%1\']',
+        unknownCard: '[การ์ดที่ไม่รู้จัก \'%1\']',
+        receiptVat: 'ภาษีมูลค่าเพิ่ม',
+        receiptTax: 'ภาษี',
+        receiptTotal: 'ทั้งหมด',
+        messageRetry: 'ลองใหม่อีกครั้ง',
+        messageFailed: 'ไม่สามารถส่ง',
+        messageSending: 'การส่ง',
+        timeSent: ' ที่ %1',
+        consolePlaceholder: 'พิมพ์ข้อความของคุณ ...',
+        listeningIndicator: 'ฟัง ...',
+        uploadFile: 'อัพโหลดไฟล์',
+        speak: 'พูด'
+    },
     'ja-jp': {
         title: 'チャット',
         send: '送信',
