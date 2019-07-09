@@ -198,7 +198,7 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
                     containerWidth = computedStyle.width;
                 }
                 container.style.right = (getSizeNumFromStr(containerRight) + scrollbarSize) + 'px';
-                container.style.width = getSizeNumFromStr(containerWidth) + 'px';
+                container.style.setProperty('width', getSizeNumFromStr(containerWidth) + 'px', 'important');
             };
 
             const fixControllerPosition = (scrollbarSize: number) => {
