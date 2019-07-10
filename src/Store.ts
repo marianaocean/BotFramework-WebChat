@@ -19,6 +19,15 @@ export enum ListeningState {
     STOPPING
 }
 
+export const ALL_ALLOWED_LANGUAGES_MAP = [
+    {locale: 'ja', text: '日本語'},
+    {locale: 'en', text: '英語'},
+    {locale: 'zh-hant', text: '繁中国語'},
+    {locale: 'zh-hans', text: '簡中国語'},
+    {locale: 'ko', text: '韓国語'},
+    {locale: 'ru', text: 'ロシア語'},
+    {locale: 'th', text: 'タイ語'}
+];
 export const languageChangeWords: any[] = [
     { text: 'japanese', language: 'ja-JP', message: 'こんにちは、日本語を設定しました。', recognizerLanguage: 'ja-JP' },
     { text: 'tchinese', language: 'zh-hant', message: '您好，語言已經設定為繁體中文。', recognizerLanguage: 'cmn-Hant-TW' },
@@ -112,7 +121,15 @@ const attachmentsFromFiles = (files: FileList) => {
 
 export const LANGUAGE_COUNT = 7;
 export function checkLocale(ComparingLocale: string, ComparedLocale: string) {
-    const checkGroup = [['ja', 'ja-JP', 'ja-jp'], ['en', 'en-US', 'EN'], ['zh-hant', 'cmn-Hant-TW'], ['zh-hans', 'zh', 'zh-CN'], ['ko', 'ko-kr', 'ko-KR'], ['ru', 'ru-ru', 'ru-RU'], ['th', 'th-th', 'th-TH']];
+    const checkGroup = [
+        ['ja', 'ja-JP', 'ja-jp'],
+        ['en', 'en-US', 'EN'],
+        ['zh-hant', 'cmn-Hant-TW'],
+        ['zh-hans', 'zh', 'zh-CN'],
+        ['ko', 'ko-kr', 'ko-KR'],
+        ['ru', 'ru-ru', 'ru-RU'],
+        ['th', 'th-th', 'th-TH']
+    ];
     return checkGroup.some(locale => locale.indexOf(ComparingLocale) >= 0 && locale.indexOf(ComparedLocale) >= 0);
 }
 
@@ -123,6 +140,8 @@ export interface CustomSettingState {
     autoListenAfterSpeak: boolean;
     alwaysSpeak: boolean;
     scrollToBottom: number;
+    configurable: boolean;
+    showConfig: boolean;
 }
 
 export type CustomSettingAction = {
@@ -135,6 +154,8 @@ export type CustomSettingAction = {
     type: 'Set_Auto_Listen',
     autoListenAfterSpeak: boolean,
     alwaysSpeak: boolean
+} | {
+    type: 'Toggle_Always_Speak' | 'Enable_Configuration' | 'Toggle_Config'　| 'Toggle_Auto_Listen_After_Speak'
 };
 
 export const customSetting: Reducer<CustomSettingState> = (
@@ -144,7 +165,9 @@ export const customSetting: Reducer<CustomSettingState> = (
         urlToQrcode: null,
         autoListenAfterSpeak: false,
         alwaysSpeak: false,
-        scrollToBottom: 1
+        scrollToBottom: 1,
+        configurable: false,
+        showConfig: false
     },
     action: CustomSettingAction
 ) => {
@@ -162,6 +185,26 @@ export const customSetting: Reducer<CustomSettingState> = (
                 ...state,
                 autoListenAfterSpeak: action.autoListenAfterSpeak,
                 alwaysSpeak: action.alwaysSpeak
+            };
+        case 'Toggle_Always_Speak':
+            return {
+                ...state,
+                alwaysSpeak: !state.alwaysSpeak
+            };
+        case 'Enable_Configuration':
+            return {
+                ...state,
+                configurable: true
+            };
+        case 'Toggle_Config':
+            return {
+                ...state,
+                showConfig: !state.showConfig
+            };
+        case 'Toggle_Auto_Listen_After_Speak':
+            return {
+                ...state,
+                autoListenAfterSpeak: !state.autoListenAfterSpeak
             };
         default:
             return state;
@@ -249,6 +292,10 @@ export type ChangeLanguageAction = {
     type: 'Set_Language_Setting',
     display: boolean,
     languages: any[]
+} | {
+    type: 'Change_Using_Languages',
+    language: string,
+    add: boolean
 };
 
 export const changeLanguage: Reducer<ChangeLanguageState> = (
@@ -291,6 +338,18 @@ export const changeLanguage: Reducer<ChangeLanguageState> = (
                 display: action.display,
                 languages: action.languages
             };
+        case 'Change_Using_Languages':
+            if (!!action.add) {
+                return {
+                    ...state,
+                    languages: state.languages.concat(action.language)
+                };
+            } else {
+                return {
+                    ...state,
+                    languages: state.languages.filter((language: string) => !checkLocale(language, action.language))
+                };
+            }
         default:
             return state;
     }
