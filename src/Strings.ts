@@ -14,6 +14,10 @@ export interface Strings {
     listeningIndicator: string;
     uploadFile: string;
     speak: string;
+    alwaysSpeak: string;
+    autoListenAfterSpeak: string;
+    close: string;
+    config: string;
 }
 
 interface LocalizedStrings {
@@ -36,7 +40,11 @@ const localizedStrings: LocalizedStrings = {
         consolePlaceholder: 'Type your message...',
         listeningIndicator: 'Listening...',
         uploadFile: 'Upload file',
-        speak: 'Speak'
+        speak: 'Speak',
+        alwaysSpeak: 'always speak',
+        autoListenAfterSpeak: 'auto listen after speak',
+        close: 'close',
+        config: 'Configs'
     },
     'th-th': {
         title: 'พูดคุย',
@@ -53,7 +61,11 @@ const localizedStrings: LocalizedStrings = {
         consolePlaceholder: 'พิมพ์ข้อความของคุณ ...',
         listeningIndicator: 'ฟัง ...',
         uploadFile: 'อัพโหลดไฟล์',
-        speak: 'พูด'
+        speak: 'พูด',
+        alwaysSpeak: '',
+        autoListenAfterSpeak: '',
+        close: 'ปิด',
+        config: 'การกำหนดค่า'
     },
     'ja-jp': {
         title: 'チャット',
@@ -70,7 +82,11 @@ const localizedStrings: LocalizedStrings = {
         consolePlaceholder: 'メッセージを入力してください...',
         listeningIndicator: '聴いてます...',
         uploadFile: '',
-        speak: ''
+        speak: '',
+        alwaysSpeak: '常時読み上げ',
+        autoListenAfterSpeak: '読み上げ後自動音声入力',
+        close: '閉じる',
+        config: '設定'
     },
     'nb-no': {
         title: 'Chat',
@@ -87,7 +103,11 @@ const localizedStrings: LocalizedStrings = {
         consolePlaceholder: 'Skriv inn melding...',
         listeningIndicator: 'Lytter...',
         uploadFile: 'Last opp fil',
-        speak: 'Snakk'
+        speak: 'Snakk',
+        alwaysSpeak: '',
+        autoListenAfterSpeak: '',
+        close: '',
+        config: ''
     },
     'da-dk': {
         title: 'Chat',
@@ -104,7 +124,11 @@ const localizedStrings: LocalizedStrings = {
         consolePlaceholder: 'Skriv din besked...',
         listeningIndicator: 'Lytter...',
         uploadFile: '',
-        speak: ''
+        speak: '',
+        alwaysSpeak: '',
+        autoListenAfterSpeak: '',
+        close: '',
+        config: ''
     },
     'de-de': {
         title: 'Chat',
@@ -121,7 +145,11 @@ const localizedStrings: LocalizedStrings = {
         consolePlaceholder: 'Verfasse eine Nachricht...',
         listeningIndicator: 'Hören...',
         uploadFile: '',
-        speak: ''
+        speak: '',
+        alwaysSpeak: '',
+        autoListenAfterSpeak: '',
+        close: '',
+        config: ''
     },
     'pl-pl': {
         title: 'Chat',
@@ -138,7 +166,11 @@ const localizedStrings: LocalizedStrings = {
         consolePlaceholder: 'Wpisz swoją wiadomość...',
         listeningIndicator: 'Słuchanie...',
         uploadFile: 'Wyślij plik',
-        speak: 'Mów'
+        speak: 'Mów',
+        alwaysSpeak: '',
+        autoListenAfterSpeak: '',
+        close: '',
+        config: ''
     },
     'ru-ru': {
         title: 'Чат',
@@ -155,7 +187,11 @@ const localizedStrings: LocalizedStrings = {
         consolePlaceholder: 'Введите ваше сообщение...',
         listeningIndicator: 'прослушивание...',
         uploadFile: '',
-        speak: ''
+        speak: '',
+        alwaysSpeak: '',
+        autoListenAfterSpeak: '',
+        close: 'близко',
+        config: 'настройки'
     },
     'nl-nl': {
         title: 'Chat',
@@ -172,7 +208,11 @@ const localizedStrings: LocalizedStrings = {
         consolePlaceholder: 'Typ je bericht...',
         listeningIndicator: 'Aan het luisteren...',
         uploadFile: 'Bestand uploaden',
-        speak: 'Spreek'
+        speak: 'Spreek',
+        alwaysSpeak: '',
+        autoListenAfterSpeak: '',
+        close: '',
+        config: ''
     },
     'lv-lv': {
         title: 'Tērzēšana',
@@ -189,7 +229,11 @@ const localizedStrings: LocalizedStrings = {
         consolePlaceholder: 'Ierakstiet savu ziņu...',
         listeningIndicator: 'Klausoties...',
         uploadFile: '',
-        speak: ''
+        speak: '',
+        alwaysSpeak: '',
+        autoListenAfterSpeak: '',
+        close: '',
+        config: ''
     },
     'pt-br': {
         title: 'Bate-papo',
@@ -206,7 +250,11 @@ const localizedStrings: LocalizedStrings = {
         consolePlaceholder: 'Digite sua mensagem...',
         listeningIndicator: 'Ouvindo...',
         uploadFile: 'Subir arquivo',
-        speak: 'Falar'
+        speak: 'Falar',
+        alwaysSpeak: '',
+        autoListenAfterSpeak: '',
+        close: '',
+        config: ''
     },
     'fr-fr': {
         title: 'Chat',
@@ -223,7 +271,11 @@ const localizedStrings: LocalizedStrings = {
         consolePlaceholder: 'Écrivez votre message...',
         listeningIndicator: 'Écoute...',
         uploadFile: '',
-        speak: ''
+        speak: '',
+        alwaysSpeak: '',
+        autoListenAfterSpeak: '',
+        close: '',
+        config: ''
     },
     'es-es': {
         title: 'Chat',
@@ -240,7 +292,11 @@ const localizedStrings: LocalizedStrings = {
         consolePlaceholder: 'Escribe tu mensaje...',
         listeningIndicator: 'Escuchando...',
         uploadFile: '',
-        speak: ''
+        speak: '',
+        alwaysSpeak: '',
+        autoListenAfterSpeak: '',
+        close: '',
+        config: ''
     },
     'el-gr': {
         title: 'Συνομιλία',
@@ -257,7 +313,11 @@ const localizedStrings: LocalizedStrings = {
         consolePlaceholder: 'Πληκτρολόγηση μηνύματος...',
         listeningIndicator: 'Ακούγοντας...',
         uploadFile: '',
-        speak: ''
+        speak: '',
+        alwaysSpeak: '',
+        autoListenAfterSpeak: '',
+        close: '',
+        config: ''
     },
     'it-it': {
         title: 'Chat',
@@ -274,7 +334,11 @@ const localizedStrings: LocalizedStrings = {
         consolePlaceholder: 'Scrivi il tuo messaggio...',
         listeningIndicator: 'Ascoltando...',
         uploadFile: '',
-        speak: ''
+        speak: '',
+        alwaysSpeak: '',
+        autoListenAfterSpeak: '',
+        close: '',
+        config: ''
     },
     'zh-hans': {
         title: '聊天',
@@ -291,7 +355,11 @@ const localizedStrings: LocalizedStrings = {
         consolePlaceholder: '输入你的消息...',
         listeningIndicator: '正在倾听...',
         uploadFile: '上传文件',
-        speak: '发言'
+        speak: '发言',
+        alwaysSpeak: '总是读出消息',
+        autoListenAfterSpeak: '读出消息后启动语音输入',
+        close: '关闭',
+        config: '设定'
     },
     'zh-hant': {
         title: '聊天',
@@ -308,7 +376,11 @@ const localizedStrings: LocalizedStrings = {
         consolePlaceholder: '輸入你的訊息...',
         listeningIndicator: '正在聆聽...',
         uploadFile: '上載檔案',
-        speak: '發言'
+        speak: '發言',
+        alwaysSpeak: '總是讀出消息',
+        autoListenAfterSpeak: '讀出消息後啟動語音輸入',
+        close: '關閉',
+        config: '設定'
     },
     'zh-yue': {
         title: '傾偈',
@@ -325,7 +397,11 @@ const localizedStrings: LocalizedStrings = {
         consolePlaceholder: '輸入你嘅訊息...',
         listeningIndicator: '聽緊你講嘢...',
         uploadFile: '上載檔案',
-        speak: '講嘢'
+        speak: '講嘢',
+        alwaysSpeak: '',
+        autoListenAfterSpeak: '',
+        close: '',
+        config: ''
     },
     'cs-cz': {
         title: 'Chat',
@@ -342,7 +418,11 @@ const localizedStrings: LocalizedStrings = {
         consolePlaceholder: 'Napište svou zprávu...',
         listeningIndicator: 'Poslouchám...',
         uploadFile: 'Nahrát soubor',
-        speak: 'Použít hlas'
+        speak: 'Použít hlas',
+        alwaysSpeak: '',
+        autoListenAfterSpeak: '',
+        close: '',
+        config: ''
     },
     'ko-kr': {
         title: '채팅',
@@ -359,7 +439,11 @@ const localizedStrings: LocalizedStrings = {
         consolePlaceholder: '메세지를 입력하세요...',
         listeningIndicator: '수신중...',
         uploadFile: '',
-        speak: ''
+        speak: '',
+        alwaysSpeak: '대화자동읽기',
+        autoListenAfterSpeak: '자동읽기후,마이크켜기',
+        close: '닫기',
+        config: '설정'
     },
     'hu-hu' : {
         title: 'Csevegés',
@@ -376,7 +460,11 @@ const localizedStrings: LocalizedStrings = {
         consolePlaceholder: 'Írja be üzenetét...',
         listeningIndicator: 'Figyelés...',
         uploadFile: '',
-        speak: ''
+        speak: '',
+        alwaysSpeak: '',
+        autoListenAfterSpeak: '',
+        close: '',
+        config: ''
     },
     'sv-se' : {
         title: 'Chatt',
@@ -393,7 +481,11 @@ const localizedStrings: LocalizedStrings = {
         consolePlaceholder: 'Skriv ett meddelande...',
         listeningIndicator: 'Lyssnar...',
         uploadFile: '',
-        speak: ''
+        speak: '',
+        alwaysSpeak: '',
+        autoListenAfterSpeak: '',
+        close: '',
+        config: ''
     },
     'tr-tr' : {
         title: 'Sohbet',
@@ -410,7 +502,11 @@ const localizedStrings: LocalizedStrings = {
         consolePlaceholder: 'İletinizi yazın...',
         listeningIndicator: 'Dinliyor...',
         uploadFile: '',
-        speak: ''
+        speak: '',
+        alwaysSpeak: '',
+        autoListenAfterSpeak: '',
+        close: '',
+        config: ''
    },
    'pt-pt' : {
         title: 'Chat',
@@ -427,7 +523,11 @@ const localizedStrings: LocalizedStrings = {
         consolePlaceholder: 'Escreva a sua mensagem...',
         listeningIndicator: 'A Escutar...',
         uploadFile: '',
-        speak: ''
+        speak: '',
+        alwaysSpeak: '',
+        autoListenAfterSpeak: '',
+        close: '',
+        config: ''
    },
    'fi-fi' : {
         title: 'Chat',
@@ -444,7 +544,11 @@ const localizedStrings: LocalizedStrings = {
         consolePlaceholder: 'Kirjoita viesti...',
         listeningIndicator: 'Kuuntelee...',
         uploadFile: 'Lataa tiedosto',
-        speak: 'Puhu'
+        speak: 'Puhu',
+        alwaysSpeak: '',
+        autoListenAfterSpeak: '',
+        close: '',
+        config: ''
     },
     'he-il': {
         title: 'צ\'אט',
@@ -461,7 +565,11 @@ const localizedStrings: LocalizedStrings = {
         consolePlaceholder: 'כתוב כאן...',
         listeningIndicator: 'מאזין...',
         uploadFile: 'העלה קובץ',
-        speak: 'דבר'
+        speak: 'דבר',
+        alwaysSpeak: '',
+        autoListenAfterSpeak: '',
+        close: '',
+        config: ''
     }
 };
 
