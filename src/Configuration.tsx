@@ -47,16 +47,16 @@ class Configs extends React.Component<Props> {
             </div>
             <div className="wc-configs-body">
                 <p>
-                    <label htmlFor="alwaysSpeakCheckbox">
-                        { this.props.format && this.props.format.strings.alwaysSpeak || 'always speak' }:
-                    </label>
                     <input id="alwaysSpeakCheckbox" type="checkbox" onChange={ this._toggleAlwaysSpeak } checked={ !!this.props.customSetting.alwaysSpeak }/>
+                    <label htmlFor="alwaysSpeakCheckbox">
+                        { this.props.format && this.props.format.strings.alwaysSpeak || 'always speak' }
+                    </label>
                 </p>
                 <p>
-                    <label htmlFor="autoListenAfterSpeakCheckbox">
-                        { this.props.format && this.props.format.strings.autoListenAfterSpeak || 'auto listen after speak' }:
-                    </label>
                     <input id="autoListenAfterSpeakCheckbox" type="checkbox" onChange={ this._toggleAutoListenAfterSpeak } checked={ !!this.props.customSetting.autoListenAfterSpeak }/>
+                    <label htmlFor="autoListenAfterSpeakCheckbox">
+                        { this.props.format && this.props.format.strings.autoListenAfterSpeak || 'auto listen after speak' }
+                    </label>
                 </p>
             </div>
             <div className="wc-configs-footer">
