@@ -45,7 +45,6 @@ export interface ChatProps {
 import { Configuration } from './Configuration';
 import { CustomMenu } from './CustomMenu';
 import { History } from './History';
-import { IntervalController } from './IntervalController';
 import { Languages } from './LanguageSelector';
 import { MessagePane } from './MessagePane';
 import { Shell, ShellFunctions } from './Shell';
@@ -53,7 +52,6 @@ import { Shell, ShellFunctions } from './Shell';
 export class Chat extends React.Component<ChatProps, {}> {
 
     private store = createStore();
-    private intervalController: IntervalController = null;
     private botConnection: IBotConnection;
 
     private activitySubscription: Subscription;
@@ -78,7 +76,7 @@ export class Chat extends React.Component<ChatProps, {}> {
         super(props);
 
         if (props.botExtensions && props.botExtensions.intervalTime && typeof props.botExtensions.intervalTime === 'number' && props.botExtensions.intervalTime > 0) {
-            this.intervalController = new IntervalController({store: this.store, intervalTime: props.botExtensions.intervalTime});
+            this.store.dispatch<ChatActions>({type: 'Enable_Interval_Controller', store: this.store, timeInterval: props.botExtensions.intervalTime});
         }
         konsole.log('BotChat.Chat props', props);
 
@@ -171,18 +169,26 @@ export class Chat extends React.Component<ChatProps, {}> {
         const state = this.store.getState();
         switch (activity.type) {
             case 'message':
-                if (this.intervalController) {
+                if (state.customSetting.intervalController.available) {
                     if (activity.from.id === state.connection.user.id) {
                         this.store.dispatch<ChatActions>({ type: 'Receive_Sent_Message', activity });
-                        this.intervalController.clearAll();
                     } else if (this.historyCheck(activity, this.props.botName)) {
                         this.store.dispatch<ChatActions>({type: 'Receive_Message', activity});
                     } else {
-                        this.intervalController.pushActivity(activity);
-                        localStorage.setItem('obotConversationLastActivityID_' + this.props.botName, activity.id);
+                        state.customSetting.intervalController.pushActivity(activity);
+                        try {
+                            localStorage.setItem('obotConversationLastActivityID_' + this.props.botName, activity.id);
+                        } catch (err) {
+                            console.error('localStorage not work');
+                        }
                     }
                 } else {
                     this.store.dispatch<ChatActions>({ type: activity.from.id === state.connection.user.id ? 'Receive_Sent_Message' : 'Receive_Message', activity });
+                    try {
+                        localStorage.setItem('obotConversationLastActivityID_' + this.props.botName, activity.id);
+                    } catch (err) {
+                        console.error('localStorage not work');
+                    }
                 }
                 if (activity.from.id !== state.connection.user.id && this.props.botName && this.props.session) {
                     const botName = this.props.botName;

@@ -133,6 +133,7 @@ export interface CustomSettingState {
     scrollToBottom: number;
     configurable: boolean;
     showConfig: boolean;
+    intervalController: IntervalController;
 }
 
 export type CustomSettingAction = {
@@ -147,6 +148,13 @@ export type CustomSettingAction = {
     alwaysSpeak: boolean
 } | {
     type: 'Toggle_Always_Speak' | 'Enable_Configuration' | 'Toggle_Config'　| 'Toggle_Auto_Listen_After_Speak'
+} | {
+    type: 'Enable_Interval_Controller',
+    store: any,
+    timeInterval: number
+} | {
+    type: 'Set_Interval_Time',
+    scale: number
 };
 
 export const customSetting: Reducer<CustomSettingState> = (
@@ -158,7 +166,8 @@ export const customSetting: Reducer<CustomSettingState> = (
         alwaysSpeak: false,
         scrollToBottom: 1,
         configurable: false,
-        showConfig: false
+        showConfig: false,
+        intervalController: new IntervalController({})
     },
     action: CustomSettingAction
 ) => {
@@ -196,6 +205,17 @@ export const customSetting: Reducer<CustomSettingState> = (
             return {
                 ...state,
                 autoListenAfterSpeak: !state.autoListenAfterSpeak
+            };
+        case 'Enable_Interval_Controller':
+            state.intervalController.setTimeInterval(action.timeInterval);
+            state.intervalController.setStore(action.store);
+            return {
+                ...state
+            };
+        case 'Set_Interval_Time':
+            state.intervalController.setTimeInterval(state.intervalController.timeInterval + action.scale);
+            return {
+                ...state
             };
         default:
             return state;
@@ -1195,6 +1215,7 @@ const sendTypingEpic: Epic<ChatActions, ChatState> = (action$, store) =>
 import { combineReducers, createStore as reduxCreateStore, Store } from 'redux';
 import { combineEpics, createEpicMiddleware } from 'redux-observable';
 import { activityWithSuggestedActions } from './activityWithSuggestedActions';
+import { IntervalController } from './IntervalController';
 
 export const createStore = () =>
     reduxCreateStore(
