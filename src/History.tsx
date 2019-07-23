@@ -310,6 +310,7 @@ export class WrappedActivity extends React.Component<WrappedActivityProps, {}> {
                 break;
             case 'waitingString':
             case 'waitingImage':
+            case 'waitingInterval':
             case 'qrcode':
                 timeLine = <br/>;
                 break;

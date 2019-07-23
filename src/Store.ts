@@ -147,7 +147,7 @@ export type CustomSettingAction = {
     autoListenAfterSpeak: boolean,
     alwaysSpeak: boolean
 } | {
-    type: 'Toggle_Always_Speak' | 'Enable_Configuration' | 'Toggle_Config'　| 'Toggle_Auto_Listen_After_Speak'
+    type: 'Toggle_Always_Speak' | 'Enable_Configuration' | 'Toggle_Config'　| 'Toggle_Auto_Listen_After_Speak' | 'Wait_Interval' | 'Turn_On_Settings'
 } | {
     type: 'Enable_Interval_Controller',
     store: any,
@@ -217,6 +217,9 @@ export const customSetting: Reducer<CustomSettingState> = (
             return {
                 ...state
             };
+        case 'Turn_On_Settings':
+            state.intervalController.turnToUsing();
+            return state;
         default:
             return state;
     }
@@ -615,7 +618,7 @@ export type HistoryAction = {
     type: 'Clear_Typing',
     id: string
 } | {
-    type: 'Changed_Language' | 'Sent_Menu_Message' | 'Send_Menu_Message_Fail' | 'Remove_Waiting_Message' | 'Change_Language_Fail' | 'Turn_On_Speaker'
+    type: 'Changed_Language' | 'Sent_Menu_Message' | 'Send_Menu_Message_Fail' | 'Remove_Waiting_Message' | 'Change_Language_Fail' | 'Turn_On_Settings'
 } | {
     type: 'Change_Language',
     activity: Activity,
@@ -704,7 +707,7 @@ export const history: Reducer<HistoryState> = (
         case 'Remove_Waiting_Message':
             return {
                 ...state,
-                activities: [...state.activities.filter(activity => activity.id !== 'waitingString' && activity.id !== 'waitingImage')]
+                activities: [...state.activities.filter(activity => ['waitingString', 'waitingImage', 'waitingInterval'].indexOf(activity.id) < 0)]
             };
         case 'Change_Language':
         case 'Changed_Language':
@@ -800,7 +803,7 @@ export const history: Reducer<HistoryState> = (
                 activities: copyArrayWithUpdatedItem(state.activities, i, newActivity),
                 selectedActivity: state.selectedActivity === activity ? newActivity : state.selectedActivity
             };
-        case 'Turn_On_Speaker':
+        case 'Turn_On_Settings':
             return {
                 ...state,
                 speakerStatus: true
@@ -994,7 +997,63 @@ const waitingMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
 const turnOnSpeakerEpic: Epic<ChatActions, ChatState> = (action$, store) =>
     action$.ofType('Push_Waiting_Message')
     .map( action => {
-        return {type: 'Turn_On_Speaker'} as HistoryAction;
+        return {type: 'Turn_On_Settings'} as ChatActions;
+    });
+
+const waitIntervalEpic: Epic<ChatActions, ChatState> = (action$, store) =>
+    action$.ofType('Wait_Interval')
+    .map( action => {
+        const state = store.getState();
+        if (!state.customSetting.intervalController.available) {
+            return nullAction;
+        }
+        const isLastWaiting = state.history.activities &&
+                              state.history.activities.length > 0 &&
+                              state.history.activities.slice(-1)[0] &&
+                              ['waitingString', 'waitingImage', 'waitingInterval'].indexOf(state.history.activities.slice(-1)[0].id) >= 0;
+        if (isLastWaiting) {
+            return nullAction;
+        } else {
+            let waitIntervalActivity: Activity = null;
+            if (!state.customSetting.waitingMessage || !state.customSetting.waitingMessage.type || !state.customSetting.waitingMessage.content) {
+                waitIntervalActivity = {
+                    id: 'waitingInterval',
+                    type: 'message',
+                    text: 'waiting for the next message',
+                    from: {id: null, name: 'waiting'},
+                    locale: state.format.locale,
+                    textFormat: 'plain',
+                    timestamp: (new Date()).toISOString()
+                };
+            } else {
+                if (state.customSetting.waitingMessage) {
+                    const waitingMessage = state.customSetting.waitingMessage;
+                    if (waitingMessage.type && waitingMessage.type === 'message') {
+                        waitIntervalActivity = {
+                            id: 'waitingInterval',
+                            type: 'message',
+                            text: waitingMessage.content,
+                            from: {id: null, name: 'waiting'},
+                            locale: state.format.locale,
+                            textFormat: 'plain',
+                            timestamp: (new Date()).toISOString()
+                        };
+                    } else if (waitingMessage.type) {
+                        waitIntervalActivity = {
+                            id: 'waitingInterval',
+                            type: 'message',
+                            from: {id: null, name: 'waiting'},
+                            locale: state.format.locale,
+                            attachments: [{
+                                contentType: waitingMessage.type as MediaType,
+                                contentUrl: waitingMessage.content
+                            }] as Media[]
+                        };
+                    }
+                }
+            }
+            return ({type: 'Push_Waiting_Message', activity: waitIntervalActivity} as HistoryAction);
+        }
     });
 
 const receiveMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
@@ -1004,10 +1063,10 @@ const receiveMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
     )
     .map( action => {
         const state = store.getState();
-        if (!state.customSetting.waitingMessage || !state.customSetting.waitingMessage.type || !state.customSetting.waitingMessage.content) {
-            return nullAction;
+        if ((state.customSetting.waitingMessage && state.customSetting.waitingMessage.type && state.customSetting.waitingMessage.content) || state.customSetting.intervalController.available) {
+            return ({type: 'Remove_Waiting_Message'} as HistoryAction);
         }
-        return ({type: 'Remove_Waiting_Message'} as HistoryAction);
+        return nullAction;
     });
 const sendMenuMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
     action$.ofType('Send_Menu_Message')
@@ -1249,7 +1308,8 @@ export const createStore = () =>
             pushMenuMessageEpic,
             receiveMessageEpic,
             waitingMessageEpic,
-            turnOnSpeakerEpic
+            turnOnSpeakerEpic,
+            waitIntervalEpic
         )))
     );
 

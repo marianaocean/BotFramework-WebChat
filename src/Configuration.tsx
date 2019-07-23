@@ -87,7 +87,7 @@ class Configs extends React.Component<Props> {
                     </label>
                 </p>
                 {
-                    this.props.customSetting.intervalController.configurable &&
+                    false && this.props.customSetting.intervalController.configurable &&
                     (
                         <p>
                             <label id="timeIntervalTitle">{ this.props.format && this.props.format.strings.timeInterval || 'time interval (s)' }</label>

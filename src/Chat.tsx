@@ -75,7 +75,7 @@ export class Chat extends React.Component<ChatProps, {}> {
     constructor(props: ChatProps) {
         super(props);
 
-        if (props.botExtensions && props.botExtensions.intervalTime && typeof props.botExtensions.intervalTime === 'number' && props.botExtensions.intervalTime > 0) {
+        if (props.botExtensions && props.botExtensions.intervalTime && typeof props.botExtensions.intervalTime === 'number' && props.botExtensions.intervalTime >= 1) {
             this.store.dispatch<ChatActions>({type: 'Enable_Interval_Controller', store: this.store, timeInterval: props.botExtensions.intervalTime});
         }
         konsole.log('BotChat.Chat props', props);

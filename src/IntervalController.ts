@@ -13,13 +13,16 @@ export class IntervalController {
     public timeInterval: number;
     private activitiesQueue: Activity[];
     private status: boolean;
+    private onUsing: boolean;
     private timer: number;
+    private watcher: number;
 
     constructor(props: IntervalControllerProps) {
         this.store = props.store || null;
         this.timeInterval = props.timeInterval || 0;
         this.activitiesQueue = [];
         this.status = false;
+        this.onUsing = false;
     }
 
     public pushActivity(activity: Activity) {
@@ -29,13 +32,26 @@ export class IntervalController {
         }
     }
 
-    public isRunning() {
-        return this.status;
+    public get isWaiting() {
+        return this.activitiesQueue.length > 0;
     }
 
     private run() {
         this.status = true;
         this.shiftActivity(this.activitiesQueue);
+        this.startWatch();
+    }
+
+    private startWatch() {
+        this.watcher = window.setInterval(
+            () => { this.waitInterval(); }, 400
+        );
+    }
+
+    private waitInterval() {
+        if (this.isWaiting) {
+            this.store.dispatch<ChatActions>({type: 'Wait_Interval'});
+        }
     }
 
     private shiftActivity(activities: Activity[]) {
@@ -47,6 +63,7 @@ export class IntervalController {
             () => {
                 if (activities.length === 0) {
                     self.status = false;
+                    window.clearInterval(self.watcher);
                 } else {
                     self.shiftActivity(activities);
                 }
@@ -69,11 +86,15 @@ export class IntervalController {
     }
 
     public get available() {
-        return !!this.store && this.timeInterval > 0;
+        return !!this.store && this.onUsing && this.timeInterval > 0;
     }
 
     public get configurable() {
         return !!this.store;
+    }
+
+    public turnToUsing() {
+        this.onUsing = true;
     }
 
 }
