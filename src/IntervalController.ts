@@ -39,7 +39,7 @@ export class IntervalController {
     private run() {
         this.status = true;
         this.shiftActivity(this.activitiesQueue);
-        this.startWatch();
+        // this.startWatch();
     }
 
     private startWatch() {
@@ -63,7 +63,7 @@ export class IntervalController {
             () => {
                 if (activities.length === 0) {
                     self.status = false;
-                    window.clearInterval(self.watcher);
+                    // window.clearInterval(self.watcher);
                 } else {
                     self.shiftActivity(activities);
                 }

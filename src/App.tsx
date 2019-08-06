@@ -6,7 +6,7 @@ import { Speech } from './SpeechModule';
 
 export type AppProps = ChatProps;
 
-export const App = (props: AppProps, container: HTMLElement, controller: HTMLElement = null) => {
+export const App = (props: AppProps, container: HTMLElement, controller: HTMLElement = null, callAfterRender: () => void) => {
     if (!props.botName) {
         console.error('please set botName');
         return;
@@ -246,21 +246,34 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
                 }
             );
         });
-        container.style.transition = 'opacity .5s';
         controller.addEventListener('click', () => {
             if (lazyLoad) {
                 if (container.getElementsByClassName('wc-app').length === 0) {
                     ReactDOM.render(React.createElement(AppContainer, props), container);
+                    if (typeof callAfterRender === 'function') {
+                        callAfterRender();
+                    }
                 }
             }
+
+            const nowDisplay = container.style.display;
+            if (nowDisplay) {
+                container.style.display = 'block';
+                container.style.transition = '';
+                container.style.opacity = '0';
+                container.style.visibility = 'hidden';
+            }
+
             const computedStyle = window.getComputedStyle(container, null);
             const isChatOpened = computedStyle.visibility;
             if (isChatOpened === 'hidden' || isChatOpened === '') {
-                container.style.visibility = 'visible';
+                container.style.transition = 'opacity .5s';
                 container.style.opacity = '1';
+                container.style.visibility = 'visible';
             } else {
-                container.style.visibility = 'hidden';
+                container.style.transition = 'opacity .5s, visibility 0s .5s';
                 container.style.opacity = '0';
+                container.style.visibility = 'hidden';
             }
 
             if (isMobile && mobileScrollFix) {
