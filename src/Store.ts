@@ -618,7 +618,7 @@ export type HistoryAction = {
     type: 'Clear_Typing',
     id: string
 } | {
-    type: 'Changed_Language' | 'Sent_Menu_Message' | 'Send_Menu_Message_Fail' | 'Remove_Waiting_Message' | 'Change_Language_Fail' | 'Turn_On_Settings'
+    type: 'Changed_Language' | 'Sent_Menu_Message' | 'Send_Menu_Message_Fail' | 'Remove_Waiting_Message' | 'Change_Language_Fail' | 'Turn_On_Settings' | 'Submit_Form'
 } | {
     type: 'Change_Language',
     activity: Activity,
@@ -808,6 +808,7 @@ export const history: Reducer<HistoryState> = (
                 ...state,
                 speakerStatus: true
             };
+        case 'Submit_Form':
         default:
             return state;
     }
@@ -957,7 +958,8 @@ const waitingMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
     action$.ofType(
         'Send_Message',
         'Change_Language',
-        'Send_Menu_Message'
+        'Send_Menu_Message',
+        'Submit_Form'
     )
     .map( action => {
         const state = store.getState();

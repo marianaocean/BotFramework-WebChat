@@ -9,7 +9,7 @@ import { AjaxRequest, AjaxResponse } from 'rxjs/observable/dom/AjaxObservable';
 import * as adaptivecardsHostConfig from '../adaptivecards-hostconfig.json';
 import { classList, IDoCardAction } from './Chat';
 import * as konsole from './Konsole';
-import { AdaptiveCardsState, ChatState, pushQrcodeMessage } from './Store';
+import { AdaptiveCardsState, ChatActions, ChatState, pushQrcodeMessage } from './Store';
 import { UrlToQrcode } from './UrlToQrcode.js';
 
 export interface Props {
@@ -23,6 +23,7 @@ export interface Props {
     onClick?: (e: React.MouseEvent<HTMLElement>) => void;
     onImageLoad?: () => any;
     pushQrcodeMessage: (url: string) => void;
+    submitForm: () => void;
 }
 
 export interface State {
@@ -135,9 +136,11 @@ class AdaptiveCardContainer extends React.Component<Props, State> {
             if (action.data !== undefined) {
                 if (typeof action.data === 'object' && (action.data as BotFrameworkCardAction).__isBotFrameworkCardAction) {
                     const cardAction = (action.data as BotFrameworkCardAction);
-
                     this.props.onCardAction(cardAction.type, cardAction.value);
                 } else {
+                    if (action.data && typeof action.data === 'object' && (action.data as any).type === 'form') {
+                        this.props.submitForm();
+                    }
                     this.props.onCardAction(typeof action.data === 'string' ? 'imBack' : 'postBack', action.data);
                 }
             }
@@ -289,11 +292,13 @@ export default connect(
         locale: state.format.locale
     }),
     {
-        pushQrcodeMessage
+        pushQrcodeMessage,
+        submitForm: () => ({type: 'Submit_Form'} as ChatActions)
     },
     (stateProps: any, dispatchProps: any, ownProps: any): Props => ({
         ...ownProps,
         ...stateProps,
-        pushQrcodeMessage: (url: string) => dispatchProps.pushQrcodeMessage(url, stateProps.locale)
+        pushQrcodeMessage: (url: string) => dispatchProps.pushQrcodeMessage(url, stateProps.locale),
+        submitForm: () => dispatchProps.submitForm()
     })
 )(AdaptiveCardContainer);
