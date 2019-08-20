@@ -959,7 +959,8 @@ const waitingMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
         'Send_Message',
         'Change_Language',
         'Send_Menu_Message',
-        'Submit_Form'
+        'Submit_Form',
+        'History_Did_Mount'
     )
     .map( action => {
         const state = store.getState();

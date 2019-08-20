@@ -24,6 +24,7 @@ export interface HistoryProps {
     isFromMe: (activity: Activity) => boolean;
     isSelected: (activity: Activity) => boolean;
     onClickActivity: (activity: Activity) => React.MouseEventHandler<HTMLDivElement>;
+    historyDidMount: () => void;
 
     onCardAction: () => void;
     doCardAction: IDoCardAction;
@@ -39,6 +40,10 @@ export class HistoryView extends React.Component<HistoryProps, {}> {
 
     constructor(props: HistoryProps) {
         super(props);
+    }
+
+    componentDidMount() {
+        this.props.historyDidMount();
     }
 
     componentWillUpdate(nextProps: HistoryProps) {
@@ -220,6 +225,7 @@ export const History = connect(
         onClickCardAction: () => ({ type: 'Card_Action_Clicked'}),
         onClickRetry: (activity: Activity) => ({ type: 'Send_Message_Retry', clientActivityId: activity.channelData.clientActivityId }),
         setMeasurements: (carouselMargin: number) => ({ type: 'Set_Measurements', carouselMargin }),
+        historyDidMount: () => ({ type: 'History_Did_Mount' }),
         // only used to create helper functions below
         sendMessage
     }, (stateProps: any, dispatchProps: any, ownProps: any): HistoryProps => ({
@@ -242,7 +248,8 @@ export const History = connect(
         isFromMe: (activity: Activity) => !!activity.from && (activity.from.role === 'user' || activity.from.id === stateProps.user.id),
         isSelected: (activity: Activity) => activity === stateProps.selectedActivity,
         onCardAction: ownProps.onCardAction,
-        onClickActivity: (activity: Activity) => stateProps.connectionSelectedActivity && (() => stateProps.connectionSelectedActivity.next({ activity }))
+        onClickActivity: (activity: Activity) => stateProps.connectionSelectedActivity && (() => stateProps.connectionSelectedActivity.next({ activity })),
+        historyDidMount: () => dispatchProps.historyDidMount()
     }), {
         withRef: true
     }
