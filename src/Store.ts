@@ -134,6 +134,7 @@ export interface CustomSettingState {
     configurable: boolean;
     showConfig: boolean;
     intervalController: IntervalController;
+    sessionId?: string;
 }
 
 export type CustomSettingAction = {
@@ -155,6 +156,9 @@ export type CustomSettingAction = {
 } | {
     type: 'Set_Interval_Time',
     scale: number
+} | {
+    type: 'Save_Conversation_Id',
+    conversationId: string
 };
 
 export const customSetting: Reducer<CustomSettingState> = (
@@ -167,7 +171,8 @@ export const customSetting: Reducer<CustomSettingState> = (
         scrollToBottom: 1,
         configurable: false,
         showConfig: false,
-        intervalController: new IntervalController({})
+        intervalController: new IntervalController({}),
+        sessionId: null
     },
     action: CustomSettingAction
 ) => {
@@ -220,6 +225,11 @@ export const customSetting: Reducer<CustomSettingState> = (
         case 'Turn_On_Settings':
             state.intervalController.turnToUsing();
             return state;
+        case 'Save_Conversation_Id':
+            return {
+                ...state,
+                sessionId: action.conversationId
+            };
         default:
             return state;
     }

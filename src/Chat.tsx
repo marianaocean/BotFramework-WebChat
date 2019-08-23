@@ -42,6 +42,10 @@ export interface ChatProps {
     botExtensions: any;
 }
 
+export interface BotCallBacks {
+    startConversation?: (sessionId: string) => void;
+}
+
 import { Configuration } from './Configuration';
 import { CustomMenu } from './CustomMenu';
 import { History } from './History';
@@ -167,6 +171,16 @@ export class Chat extends React.Component<ChatProps, {}> {
 
     private handleIncomingActivity(activity: Activity) {
         const state = this.store.getState();
+        if ((!state.customSetting.sessionId && activity.conversation && activity.conversation.id) || state.customSetting.sessionId !== activity.conversation.id) {
+            this.store.dispatch<ChatActions>({ type: 'Save_Conversation_Id', conversationId: activity.conversation.id });
+
+            if (this.props.botExtensions && this.props.botExtensions.callbacks) {
+                const botCallbacks = this.props.botExtensions.callbacks as BotCallBacks;
+                if (botCallbacks.startConversation && typeof botCallbacks.startConversation === 'function') {
+                    botCallbacks.startConversation(activity.conversation.id);
+                }
+            }
+        }
         switch (activity.type) {
             case 'message':
                 if (state.customSetting.intervalController.available) {
