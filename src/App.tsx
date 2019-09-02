@@ -7,6 +7,13 @@ import { Speech } from './SpeechModule';
 export type AppProps = ChatProps;
 
 export const App = (props: AppProps, container: HTMLElement, controller: HTMLElement = null, callAfterRender: () => void) => {
+
+    if (!!props.fromAppProps) {
+        console.log('please not set fromAppProps');
+        return;
+    }
+    props.fromAppProps = {};
+
     if (!props.botName) {
         console.error('please set botName');
         return;
@@ -246,16 +253,8 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
                 }
             );
         });
-        controller.addEventListener('click', () => {
-            if (lazyLoad) {
-                if (container.getElementsByClassName('wc-app').length === 0) {
-                    ReactDOM.render(React.createElement(AppContainer, props), container);
-                    if (typeof callAfterRender === 'function') {
-                        callAfterRender();
-                    }
-                }
-            }
 
+        const toggleContaienr = () => {
             const nowDisplay = container.style.display;
             if (nowDisplay) {
                 container.style.display = 'block';
@@ -296,6 +295,20 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
                     }
                 }
             }
+        };
+
+        props.fromAppProps.toggleContainer = () => toggleContaienr();
+
+        controller.addEventListener('click', () => {
+            if (lazyLoad) {
+                if (container.getElementsByClassName('wc-app').length === 0) {
+                    ReactDOM.render(React.createElement(AppContainer, props), container);
+                    if (typeof callAfterRender === 'function') {
+                        callAfterRender();
+                    }
+                }
+            }
+            toggleContaienr();
         });
     }
 };

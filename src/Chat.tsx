@@ -40,6 +40,7 @@ export interface ChatProps {
     botName?: string;
     session?: boolean;
     botExtensions: any;
+    fromAppProps?: any;
 }
 
 export interface BotCallBacks {
@@ -74,6 +75,7 @@ export class Chat extends React.Component<ChatProps, {}> {
     private _saveHistoryRef = this.saveHistoryRef.bind(this);
     private _saveShellRef = this.saveShellRef.bind(this);
     private _toggleConfig = this.toggleConfig.bind(this);
+    private _toggleContainer = this.toggleContainer.bind(this);
     // tslint:enable:variable-name
 
     constructor(props: ChatProps) {
@@ -316,6 +318,10 @@ export class Chat extends React.Component<ChatProps, {}> {
         this.store.dispatch<ChatActions>({type: 'Toggle_Config'});
     }
 
+    private toggleContainer() {
+        this.props.fromAppProps.toggleContainer();
+    }
+
     componentDidMount() {
         // Now that we're mounted, we know our dimensions. Put them in the store (this will force a re-render)
         this.setSize();
@@ -411,6 +417,10 @@ export class Chat extends React.Component<ChatProps, {}> {
                 {
                     !!state.format.chatTitle &&
                         <div className="wc-header">
+                            {
+                                !!this.props.fromAppProps && !!this.props.fromAppProps.toggleContainer && typeof this.props.fromAppProps.toggleContainer === 'function' &&
+                                    <span className="wc-bot-toggle" onClick={ this._toggleContainer }></span>
+                            }
                             <span>{ typeof state.format.chatTitle === 'string' ? state.format.chatTitle : state.format.strings.title }</span>
                             {
                                 !!state.customSetting.configurable && <span className="wc-configurature" onClick={ this._toggleConfig }>
