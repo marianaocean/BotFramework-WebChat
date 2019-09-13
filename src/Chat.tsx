@@ -8,6 +8,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { Activity, CardActionTypes, DirectLine, DirectLineOptions, IBotConnection, User } from 'botframework-directlinejs';
 import { Provider } from 'react-redux';
 import { getTabIndex } from './getTabIndex';
+import { UserSaysFetcher } from './helpers/UserSaysFetcher';
 import * as konsole from './Konsole';
 import { Speech } from './SpeechModule';
 import { SpeechOptions } from './SpeechOptions';
@@ -86,10 +87,15 @@ export class Chat extends React.Component<ChatProps, {}> {
         }
         konsole.log('BotChat.Chat props', props);
 
+        const initLocale = props.locale || (window.navigator as any).userLanguage || window.navigator.language || 'en';
         this.store.dispatch<ChatActions>({
             type: 'Set_Locale',
-            locale: props.locale || (window.navigator as any).userLanguage || window.navigator.language || 'en'
+            locale: initLocale
         });
+
+        const userSaysFetcher = new UserSaysFetcher({secret: props.directLine.secret, store: this.store});
+        this.store.dispatch<ChatActions>({type: 'Set_Fetcher', fetcher: userSaysFetcher});
+        userSaysFetcher.fetchData(initLocale);
 
         if (props.adaptiveCardsHostConfig) {
             this.store.dispatch<ChatActions>({

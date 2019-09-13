@@ -3,6 +3,7 @@ import { Activity, Attachment, ConnectionStatus, IBotConnection, Media, MediaTyp
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import * as konsole from './Konsole';
 import { Speech } from './SpeechModule';
+import { fetchInputCompletionDataEpic, inputCompletion, InputCompletionAction, InputCompletionState } from './stores/InputCompletionStore';
 import { defaultStrings, strings, Strings } from './Strings';
 import { ActivityOrID } from './Types';
 import { UrlToQrcode } from './UrlToQrcode';
@@ -851,9 +852,9 @@ export const adaptiveCards: Reducer<AdaptiveCardsState> = (
     }
 };
 
-export type ChatActions = ChangeLanguageAction | CustomMenuAction | CustomSettingAction | ShellAction | FormatAction | SizeAction | ConnectionAction | HistoryAction | AdaptiveCardsAction;
+export type ChatActions = ChangeLanguageAction | CustomMenuAction | CustomSettingAction | InputCompletionAction | ShellAction | FormatAction | SizeAction | ConnectionAction | HistoryAction | AdaptiveCardsAction;
 
-const nullAction = { type: null } as ChatActions;
+export const nullAction = { type: null } as ChatActions;
 
 export interface ChatState {
     adaptiveCards: AdaptiveCardsState;
@@ -865,6 +866,7 @@ export interface ChatState {
     changeLanguage: ChangeLanguageState;
     customMenu: CustomMenuState;
     customSetting: CustomSettingState;
+    inputCompletion: InputCompletionState;
 }
 
 const speakFromMsg = (msg: Message, fallbackLocale: string) => {
@@ -1300,7 +1302,8 @@ export const createStore = () =>
             size,
             changeLanguage,
             customMenu,
-            customSetting
+            customSetting,
+            inputCompletion
         }),
         applyMiddleware(createEpicMiddleware(combineEpics(
             updateSelectedActivityEpic,
@@ -1322,7 +1325,8 @@ export const createStore = () =>
             receiveMessageEpic,
             waitingMessageEpic,
             turnOnSpeakerEpic,
-            waitIntervalEpic
+            waitIntervalEpic,
+            fetchInputCompletionDataEpic
         )))
     );
 

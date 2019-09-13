@@ -2,6 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 
 import { classList } from './Chat';
+import { InputCompletion } from './InputCompletion';
 import { Speech } from './SpeechModule';
 import { ChatActions, ListeningState, sendFiles, sendMessage } from './Store';
 import { ChatState } from './Store';
@@ -122,6 +123,10 @@ class ShellContainer extends React.Component<Props> implements ShellFunctions {
 
         return (
             <div className={ className }>
+                <InputCompletion
+                    currentInput={ this.props.inputText }
+                >
+                </InputCompletion>
                 {
                     this.props.showUploadButton &&
                         <label

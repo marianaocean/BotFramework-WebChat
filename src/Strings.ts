@@ -19,6 +19,7 @@ export interface Strings {
     close: string;
     config: string;
     timeInterval: string;
+    tooManyUserSays: string;
 }
 
 interface LocalizedStrings {
@@ -46,7 +47,8 @@ const localizedStrings: LocalizedStrings = {
         autoListenAfterSpeak: 'auto listen after speak',
         close: 'close',
         config: 'Configs',
-        timeInterval: 'time interval (s)'
+        timeInterval: 'time interval (s)',
+        tooManyUserSays: 'Too many matching user says, please input more for auto completion.'
     },
     'th-th': {
         title: 'พูดคุย',
@@ -68,7 +70,8 @@ const localizedStrings: LocalizedStrings = {
         autoListenAfterSpeak: '',
         close: 'ปิด',
         config: 'การกำหนดค่า',
-        timeInterval: ''
+        timeInterval: '',
+        tooManyUserSays: ''
     },
     'ja-jp': {
         title: 'チャット',
@@ -90,7 +93,8 @@ const localizedStrings: LocalizedStrings = {
         autoListenAfterSpeak: '読み上げ後自動音声入力',
         close: '閉じる',
         config: '設定',
-        timeInterval: 'メッセージ間隔（秒）'
+        timeInterval: 'メッセージ間隔（秒）',
+        tooManyUserSays: 'マッチする質問が多すぎるため、もう少し入力してみてください。'
     },
     'zh-hans': {
         title: '聊天',
@@ -112,7 +116,8 @@ const localizedStrings: LocalizedStrings = {
         autoListenAfterSpeak: '读出消息后启动语音输入',
         close: '关闭',
         config: '设定',
-        timeInterval: '消息间隔（秒）'
+        timeInterval: '消息间隔（秒）',
+        tooManyUserSays: '匹配结果过多，请输入更多内容以匹配'
     },
     'zh-hant': {
         title: '聊天',
@@ -134,7 +139,8 @@ const localizedStrings: LocalizedStrings = {
         autoListenAfterSpeak: '讀出消息後啟動語音輸入',
         close: '關閉',
         config: '設定',
-        timeInterval: '消息間隔（秒）'
+        timeInterval: '消息間隔（秒）',
+        tooManyUserSays: '匹配结果过多，请输入更多内容以匹配'
     },
     'ru-ru': {
         title: 'Чат',
@@ -156,7 +162,8 @@ const localizedStrings: LocalizedStrings = {
         autoListenAfterSpeak: '',
         close: 'близко',
         config: 'настройки',
-        timeInterval: ''
+        timeInterval: '',
+        tooManyUserSays: ''
     },
     'ko-kr': {
         title: '채팅',
@@ -178,7 +185,8 @@ const localizedStrings: LocalizedStrings = {
         autoListenAfterSpeak: '자동읽기후,마이크켜기',
         close: '닫기',
         config: '설정',
-        timeInterval: '메세지간격(초)'
+        timeInterval: '메세지간격(초)',
+        tooManyUserSays: ''
     }
 //     'nb-no': {
 //         title: 'Chat',
