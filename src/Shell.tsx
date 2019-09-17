@@ -13,6 +13,7 @@ interface Props {
     strings: Strings;
     listeningState: ListeningState;
     showUploadButton: boolean;
+    inputCompletionActive: boolean;
     onChangeText: (inputText: string) => void;
     sendMessage: (inputText: string) => void;
     sendFiles: (files: FileList) => void;
@@ -123,10 +124,13 @@ class ShellContainer extends React.Component<Props> implements ShellFunctions {
 
         return (
             <div className={ className }>
-                <InputCompletion
-                    currentInput={ this.props.inputText }
-                >
-                </InputCompletion>
+                {
+                    this.props.inputCompletionActive &&
+                    <InputCompletion
+                        currentInput={ this.props.inputText }
+                    >
+                    </InputCompletion>
+                }
                 {
                     this.props.showUploadButton &&
                         <label
@@ -209,7 +213,8 @@ export const Shell = connect(
         // only used to create helper functions below
         locale: state.format.locale,
         user: state.connection.user,
-        listeningState: state.shell.listeningState
+        listeningState: state.shell.listeningState,
+        fetcher: state.inputCompletion.fetcher
     }), {
         // passed down to ShellContainer
         onChangeText: (input: string) => ({ type: 'Update_Input', input, source: 'text' } as ChatActions),
@@ -224,6 +229,7 @@ export const Shell = connect(
         showUploadButton: stateProps.showUploadButton,
         strings: stateProps.strings,
         listeningState: stateProps.listeningState,
+        inputCompletionActive: !!stateProps.fetcher,
         // from dispatchProps
         onChangeText: dispatchProps.onChangeText,
         // helper functions

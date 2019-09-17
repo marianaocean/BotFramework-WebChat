@@ -45,7 +45,7 @@ export interface ChatProps {
 }
 
 export interface BotCallBacks {
-    startConversation?: (sessionId: string) => void;
+    conversationStarted?: (sessionId: string) => void;
 }
 
 import { Configuration } from './Configuration';
@@ -93,9 +93,11 @@ export class Chat extends React.Component<ChatProps, {}> {
             locale: initLocale
         });
 
-        const userSaysFetcher = new UserSaysFetcher({secret: props.directLine.secret, store: this.store});
-        this.store.dispatch<ChatActions>({type: 'Set_Fetcher', fetcher: userSaysFetcher});
-        userSaysFetcher.fetchData(initLocale);
+        if (!!props.botExtensions.inputCompletion) {
+            const userSaysFetcher = new UserSaysFetcher({secret: props.directLine.secret, store: this.store});
+            this.store.dispatch<ChatActions>({type: 'Set_Fetcher', fetcher: userSaysFetcher});
+            userSaysFetcher.fetchData(initLocale);
+        }
 
         if (props.adaptiveCardsHostConfig) {
             this.store.dispatch<ChatActions>({
@@ -184,8 +186,8 @@ export class Chat extends React.Component<ChatProps, {}> {
 
             if (this.props.botExtensions && this.props.botExtensions.callbacks) {
                 const botCallbacks = this.props.botExtensions.callbacks as BotCallBacks;
-                if (botCallbacks.startConversation && typeof botCallbacks.startConversation === 'function') {
-                    botCallbacks.startConversation(activity.conversation.id);
+                if (botCallbacks.conversationStarted && typeof botCallbacks.conversationStarted === 'function') {
+                    botCallbacks.conversationStarted(activity.conversation.id);
                 }
             }
         }

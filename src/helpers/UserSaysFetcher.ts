@@ -1,7 +1,7 @@
 import { Store } from 'redux';
 import { ChatActions, ChatState } from '../Store';
 
-interface UserSaysFetcherProps {
+export interface UserSaysFetcherProps {
     secret: string;
     store?: Store<ChatState>;
 }
@@ -12,7 +12,7 @@ class UserSaysFetcher {
     private store: Store<ChatState>;
     private isFetching: boolean;
     private fetchDelay: number;
-    private fetchEndPoint: string = 'http://192.168.33.10:8002/input_completion';
+    private fetchEndPoint: string = 'https://obot-input-completion.appspot.com/input_completion';
     constructor(props: UserSaysFetcherProps) {
         this.fetchTasks = [];
         this.secret = props.secret;

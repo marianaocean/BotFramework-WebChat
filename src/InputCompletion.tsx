@@ -14,7 +14,7 @@ interface Props {
     sendMessage: (text: string) => void;
 }
 
-export class InputCompltionView extends React.Component<Props> {
+class InputCompltionView extends React.Component<Props> {
 
     private inputCompletionContainer$: HTMLDivElement = null;
 
