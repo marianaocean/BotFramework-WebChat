@@ -181,16 +181,15 @@ export class Chat extends React.Component<ChatProps, {}> {
 
     private handleIncomingActivity(activity: Activity) {
         const state = this.store.getState();
-        if ((!state.customSetting.sessionId && activity.conversation && activity.conversation.id) || state.customSetting.sessionId !== activity.conversation.id) {
-            this.store.dispatch<ChatActions>({ type: 'Save_Conversation_Id', conversationId: activity.conversation.id });
-
-            if (this.props.botExtensions && this.props.botExtensions.callbacks) {
-                const botCallbacks = this.props.botExtensions.callbacks as BotCallBacks;
-                if (botCallbacks.conversationStarted && typeof botCallbacks.conversationStarted === 'function') {
-                    botCallbacks.conversationStarted(activity.conversation.id);
-                }
-            }
-        }
+        // if ((!state.customSetting.sessionId && activity.conversation && activity.conversation.id) || state.customSetting.sessionId !== activity.conversation.id) {
+        //     this.store.dispatch<ChatActions>({ type: 'Save_Conversation_Id', conversationId: activity.conversation.id });
+        //     if (this.props.botExtensions && this.props.botExtensions.callbacks) {
+        //         const botCallbacks = this.props.botExtensions.callbacks as BotCallBacks;
+        //         if (botCallbacks.conversationStarted && typeof botCallbacks.conversationStarted === 'function') {
+        //             botCallbacks.conversationStarted(activity.conversation.id);
+        //         }
+        //     }
+        // }
         switch (activity.type) {
             case 'message':
                 if (state.customSetting.intervalController.available) {

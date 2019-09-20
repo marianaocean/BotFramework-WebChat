@@ -28,6 +28,9 @@ export interface ShellFunctions {
 class ShellContainer extends React.Component<Props> implements ShellFunctions {
     private textInput: HTMLInputElement;
     private fileInput: HTMLInputElement;
+    private inputCompletion: React.Component;
+    private selectedIndex: number = 0;
+    private completionsLength: number = 0;
 
     private sendMessage() {
         if (this.props.inputText.trim().length > 0) {
@@ -53,10 +56,34 @@ class ShellContainer extends React.Component<Props> implements ShellFunctions {
         }
     }
 
-    private onKeyPress(e: React.KeyboardEvent<HTMLInputElement>) {
+    private onKeyDown(e: React.KeyboardEvent<HTMLElement>) {
         if (e.key === 'Enter') {
-            this.sendMessage();
+            if (this.selectedIndex <= 0) {
+                this.sendMessage();
+            } else {
+                (this.inputCompletion as any).clickSelected();
+            }
+        } else if (['ArrowUp', 'ArrowDown'].indexOf(e.key) > -1 && this.completionsLength > 0) {
+            e.preventDefault();
+            if (e.key === 'ArrowUp') {
+                if (this.selectedIndex === 0) {
+                    this.selectedIndex = this.completionsLength;
+                } else {
+                    this.selectedIndex -= 1;
+                }
+            } else {
+                this.selectedIndex += 1;
+            }
+            if (this.selectedIndex > this.completionsLength || this.selectedIndex < 0) {
+                this.selectedIndex = 0;
+            }
+            (this.inputCompletion as any).selectChild(this.selectedIndex);
         }
+    }
+
+    private receiveCompletionsLength(length: number) {
+        this.completionsLength = length;
+        this.selectedIndex = 0;
     }
 
     private onClickSend() {
@@ -127,7 +154,9 @@ class ShellContainer extends React.Component<Props> implements ShellFunctions {
                 {
                     this.props.inputCompletionActive &&
                     <InputCompletion
+                        ref={ (target: any) => this.inputCompletion = target && target.getWrappedInstance() }
                         currentInput={ this.props.inputText }
+                        passCompletionsLength={(length: number) => this.receiveCompletionsLength(length)}
                     >
                     </InputCompletion>
                 }
@@ -165,7 +194,7 @@ class ShellContainer extends React.Component<Props> implements ShellFunctions {
                         autoFocus
                         value={ this.props.inputText }
                         onChange={ _ => this.props.onChangeText(this.textInput.value) }
-                        onKeyPress={ e => this.onKeyPress(e) }
+                        onKeyDown={ e => this.onKeyDown(e) }
                         onFocus={ () => this.onTextInputFocus() }
                         placeholder={ placeholder }
                         aria-label={ this.props.inputText ? null : placeholder }

@@ -13,6 +13,7 @@ class UserSaysFetcher {
     private isFetching: boolean;
     private fetchDelay: number;
     private fetchEndPoint: string = 'https://obot-input-completion.appspot.com/input_completion';
+    // private fetchEndPoint: string = 'http://192.168.33.10:8002/input_completion';
     constructor(props: UserSaysFetcherProps) {
         this.fetchTasks = [];
         this.secret = props.secret;
