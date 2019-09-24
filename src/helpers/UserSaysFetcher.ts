@@ -12,7 +12,7 @@ class UserSaysFetcher {
     private store: Store<ChatState>;
     private isFetching: boolean;
     private fetchDelay: number;
-    private fetchEndPoint: string = 'https://obot-input-completion.appspot.com/input_completion';
+    private fetchEndPoint: string = 'https://input-completion.obotai.com/input_completion';
     // private fetchEndPoint: string = 'http://192.168.33.10:8002/input_completion';
     constructor(props: UserSaysFetcherProps) {
         this.fetchTasks = [];
@@ -49,12 +49,16 @@ class UserSaysFetcher {
         }
         const req = new XMLHttpRequest();
         req.onload = async e => {
-            const response = await JSON.parse(req.response);
-            this.store.dispatch<ChatActions>({type: 'Set_Data', code: fetchCode, data: response.user_says});
-            if (this.fetchTasks.length > 0) {
-                this.fetch();
-            } else {
-                this.isFetching = false;
+            try {
+                const response = await JSON.parse(req.response);
+                this.store.dispatch<ChatActions>({type: 'Set_Data', code: fetchCode, data: response.user_says});
+                if (this.fetchTasks.length > 0) {
+                    this.fetch();
+                } else {
+                    this.isFetching = false;
+                }
+            } catch (err) {
+                console.error('Input completion in this channel is not effective, please contact with us.');
             }
         };
         req.open('GET', `${this.fetchEndPoint}/${fetchCode}/`, true);

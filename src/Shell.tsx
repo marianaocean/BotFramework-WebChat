@@ -57,13 +57,7 @@ class ShellContainer extends React.Component<Props> implements ShellFunctions {
     }
 
     private onKeyDown(e: React.KeyboardEvent<HTMLElement>) {
-        if (e.key === 'Enter') {
-            if (this.selectedIndex <= 0) {
-                this.sendMessage();
-            } else {
-                (this.inputCompletion as any).clickSelected();
-            }
-        } else if (['ArrowUp', 'ArrowDown'].indexOf(e.key) > -1 && this.completionsLength > 0) {
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].indexOf(e.key) > -1 && this.completionsLength > 0) {
             e.preventDefault();
             if (e.key === 'ArrowUp') {
                 if (this.selectedIndex === 0) {
@@ -71,13 +65,30 @@ class ShellContainer extends React.Component<Props> implements ShellFunctions {
                 } else {
                     this.selectedIndex -= 1;
                 }
-            } else {
+            } else if (e.key === 'ArrowDown') {
                 this.selectedIndex += 1;
+            } else {
+                this.selectedIndex = 0;
             }
             if (this.selectedIndex > this.completionsLength || this.selectedIndex < 0) {
                 this.selectedIndex = 0;
             }
             (this.inputCompletion as any).selectChild(this.selectedIndex);
+        }
+    }
+
+    private onKeyUp(e: React.KeyboardEvent<HTMLElement>) {
+        return;
+    }
+
+    private onKeyPress(e: React.KeyboardEvent<HTMLElement>) {
+        if (e.key === 'Enter') {
+            if (this.selectedIndex <= 0) {
+                e.preventDefault();
+                this.sendMessage();
+            } else {
+                (this.inputCompletion as any).clickSelected();
+            }
         }
     }
 
@@ -195,6 +206,8 @@ class ShellContainer extends React.Component<Props> implements ShellFunctions {
                         value={ this.props.inputText }
                         onChange={ _ => this.props.onChangeText(this.textInput.value) }
                         onKeyDown={ e => this.onKeyDown(e) }
+                        onKeyUp={ e => this.onKeyUp(e) }
+                        onKeyPress={ e => this.onKeyPress(e) }
                         onFocus={ () => this.onTextInputFocus() }
                         placeholder={ placeholder }
                         aria-label={ this.props.inputText ? null : placeholder }

@@ -11,6 +11,7 @@ interface Props {
     datasets: any;
     currentInput: string;
     strings: Strings;
+    active: boolean;
 
     sendMessage: (text: string) => void;
     passCompletionsLength: (length: number) => void;
@@ -35,8 +36,8 @@ class InputCompltionView extends React.Component<Props> {
         const code = fetcherCodeParse(this.props.locale);
         const data = this.props.datasets && this.props.datasets[code];
         const lowerCaseInput = input.toLocaleLowerCase();
-        const result = !!data ? data.filter((text: string) => text.toLowerCase().includes(lowerCaseInput)) : [];
-        return this.inputCompletionsElements(result);
+        const result = !!data ? data.filter((text: string) => text.toLowerCase().indexOf(lowerCaseInput) !== -1) : [];
+        return result;
     }
 
     private inputCompletionsElements = (inputCompletions: string[]) => {
@@ -55,6 +56,9 @@ class InputCompltionView extends React.Component<Props> {
     }
 
     public selectChild = (selectedIndex: number) => {
+        if (!this.inputCompletionContainer$) {
+            return;
+        }
         const length = this.inputCompletionContainer$.children.length;
         if (selectedIndex <= length && selectedIndex > 0) {
             if (this.selectedChild === this.inputCompletionContainer$.children[selectedIndex - 1]) {
@@ -69,7 +73,11 @@ class InputCompltionView extends React.Component<Props> {
             if (!this.isContainerDisplay) {
                 this.containerToggle();
             }
-            this.selectedChild.scrollIntoView();
+            if (this.selectedChild.offsetTop + this.selectedChild.offsetHeight > this.inputCompletionContainer$.scrollTop) {
+                this.selectedChild.scrollIntoView(false);
+            } else if (this.selectedChild.offsetTop + this.inputCompletionContainer$.clientHeight < this.inputCompletionContainer$.scrollTop) {
+                this.selectedChild.scrollIntoView();
+            }
         } else if (selectedIndex === 0 && !!this.selectedChild) {
             this.selectedChild.classList.remove(INPUT_COMPLETION.SELECTED_CLASS_NAME);
             this.selectedChild = null;
@@ -94,17 +102,17 @@ class InputCompltionView extends React.Component<Props> {
     render() {
         const containerClass = classList('wc-input-completion-container', !this.isContainerDisplay && 'hide');
         const inputCompletions = this.inputCompletions(this.props.currentInput);
-        if (inputCompletions.length > 0 && inputCompletions.length < INPUT_COMPLETION.COMPLETIONS_MAXIMUM) {
+        if (inputCompletions.length > 0 && inputCompletions.length <= INPUT_COMPLETION.COMPLETIONS_MAXIMUM) {
             this.props.passCompletionsLength(inputCompletions.length);
         } else {
             this.props.passCompletionsLength(0);
         }
-        return inputCompletions.length > 0 && <div ref={div => this.inputCompletionBox$ = div}>
+        return this.props.active && inputCompletions.length > 0 && <div ref={div => this.inputCompletionBox$ = div}>
             <div className="wc-input-completion-controller" ref={ div => this.inputCompletionController$ = div } onClick={_ => this.containerToggle()}>
-                <span className="wc-input-completion-controller-icon">show/hide</span>
+                <span className="wc-input-completion-controller-icon"></span>
             </div>
             <div ref={ div => this.inputCompletionContainer$ = div } className={ containerClass }>
-            { inputCompletions.length <= INPUT_COMPLETION.COMPLETIONS_MAXIMUM ? inputCompletions :
+            { inputCompletions.length <= INPUT_COMPLETION.COMPLETIONS_MAXIMUM ? this.inputCompletionsElements(inputCompletions) :
                 <div className="wc-input-completion-item">
                     { this.props.strings.tooManyUserSays || 'Too many matching user says, please input more for auto completion.' }({ inputCompletions.length })
                 </div>
@@ -118,12 +126,14 @@ export const InputCompletion = connect(
     (state: ChatState) => ({
         format: state.format,
         datasets: state.inputCompletion.datasets,
+        active: state.inputCompletion.active,
         user: state.connection.user
     }),
     { sendMessage },
     (stateProps: any, dispatchProps: any, ownProps: any): Props => ({
         locale: stateProps.format.locale,
         datasets: stateProps.datasets,
+        active: stateProps.active,
         currentInput: ownProps.currentInput,
         strings: stateProps.format.strings,
         sendMessage: (text: string) => dispatchProps.sendMessage(text, stateProps.user, stateProps.locale),

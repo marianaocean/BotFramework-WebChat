@@ -12,3 +12,7 @@ export const INPUT_COMPLETION: InputCompletionConstsType = {
     CONTAINER_MAX_HEIGHT: 300,
     SELECTED_CLASS_NAME: 'selected'
 };
+
+export const rewriteConst = (consitant: any, key: any, value: any) => {
+    consitant[key] = value;
+};

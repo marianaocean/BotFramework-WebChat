@@ -20,6 +20,7 @@ export interface Strings {
     config: string;
     timeInterval: string;
     tooManyUserSays: string;
+    inputCompletion: string;
 }
 
 interface LocalizedStrings {
@@ -43,12 +44,13 @@ const localizedStrings: LocalizedStrings = {
         listeningIndicator: 'Listening...',
         uploadFile: 'Upload file',
         speak: 'Speak',
-        alwaysSpeak: 'always speak',
-        autoListenAfterSpeak: 'auto listen after speak',
+        alwaysSpeak: 'Always speak',
+        autoListenAfterSpeak: 'Auto listen after speak',
         close: 'close',
         config: 'Configs',
-        timeInterval: 'time interval (s)',
-        tooManyUserSays: 'Too many matching user says, please input more for auto completion.'
+        timeInterval: 'Time interval (s)',
+        tooManyUserSays: 'There are too many questions to match, so try typing a little more.',
+        inputCompletion: 'Input completion'
     },
     'th-th': {
         title: 'พูดคุย',
@@ -71,7 +73,8 @@ const localizedStrings: LocalizedStrings = {
         close: 'ปิด',
         config: 'การกำหนดค่า',
         timeInterval: '',
-        tooManyUserSays: ''
+        tooManyUserSays: '',
+        inputCompletion: ''
     },
     'ja-jp': {
         title: 'チャット',
@@ -94,7 +97,8 @@ const localizedStrings: LocalizedStrings = {
         close: '閉じる',
         config: '設定',
         timeInterval: 'メッセージ間隔（秒）',
-        tooManyUserSays: 'マッチする質問が多すぎるため、もう少し入力してみてください。'
+        tooManyUserSays: 'マッチする質問が多すぎるため、もう少し入力してみてください。',
+        inputCompletion: '質問予測'
     },
     'zh-hans': {
         title: '聊天',
@@ -117,7 +121,8 @@ const localizedStrings: LocalizedStrings = {
         close: '关闭',
         config: '设定',
         timeInterval: '消息间隔（秒）',
-        tooManyUserSays: '匹配结果过多，请输入更多内容以匹配'
+        tooManyUserSays: '匹配结果过多，请输入更多内容以匹配',
+        inputCompletion: '问题补全'
     },
     'zh-hant': {
         title: '聊天',
@@ -140,7 +145,8 @@ const localizedStrings: LocalizedStrings = {
         close: '關閉',
         config: '設定',
         timeInterval: '消息間隔（秒）',
-        tooManyUserSays: '匹配结果过多，请输入更多内容以匹配'
+        tooManyUserSays: '匹配结果过多，请输入更多内容以匹配',
+        inputCompletion: '問題補全'
     },
     'ru-ru': {
         title: 'Чат',
@@ -163,7 +169,8 @@ const localizedStrings: LocalizedStrings = {
         close: 'близко',
         config: 'настройки',
         timeInterval: '',
-        tooManyUserSays: ''
+        tooManyUserSays: '',
+        inputCompletion: ''
     },
     'ko-kr': {
         title: '채팅',
@@ -186,7 +193,8 @@ const localizedStrings: LocalizedStrings = {
         close: '닫기',
         config: '설정',
         timeInterval: '메세지간격(초)',
-        tooManyUserSays: ''
+        tooManyUserSays: '일치하는 질문수가 너무 많습니다. 좀 더 입력해 주세요.',
+        inputCompletion: '예상질문'
     }
 //     'nb-no': {
 //         title: 'Chat',

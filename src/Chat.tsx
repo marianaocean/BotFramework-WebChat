@@ -15,6 +15,7 @@ import { SpeechOptions } from './SpeechOptions';
 import { ChatActions, createStore, sendMessage } from './Store';
 import { ActivityOrID, FormatOptions } from './Types';
 import { UrlToQrcode } from './UrlToQrcode';
+import { INPUT_COMPLETION, rewriteConst } from './utils/const';
 import { WaitingMessage } from './WaitingMessage';
 
 export interface ChatProps {
@@ -95,8 +96,17 @@ export class Chat extends React.Component<ChatProps, {}> {
 
         if (!!props.botExtensions.inputCompletion) {
             const userSaysFetcher = new UserSaysFetcher({secret: props.directLine.secret, store: this.store});
-            this.store.dispatch<ChatActions>({type: 'Set_Fetcher', fetcher: userSaysFetcher});
-            userSaysFetcher.fetchData(initLocale);
+            this.store.dispatch<ChatActions>({type: 'Input_Completion_Initialize', fetcher: userSaysFetcher, active: !props.botExtensions.inputCompletion.disabled});
+            if (!props.botExtensions.inputCompletion.disabled) {
+                userSaysFetcher.fetchData(initLocale);
+            }
+            if (!!props.botExtensions.inputCompletion.maxHeight && typeof props.botExtensions.inputCompletion.maxHeight === 'number' && props.botExtensions.inputCompletion.maxHeight > 300) {
+                rewriteConst(INPUT_COMPLETION, 'CONTAINER_MAX_HEIGHT', props.botExtensions.inputCompletion.maxHeight);
+            }
+
+            if (!!props.botExtensions.inputCompletion.maxOptions && typeof props.botExtensions.inputCompletion.maxOptions === 'number' && props.botExtensions.inputCompletion.maxOptions >= 10  && props.botExtensions.inputCompletion.maxOptions <= 30) {
+                rewriteConst(INPUT_COMPLETION, 'COMPLETIONS_MAXIMUM', props.botExtensions.inputCompletion.maxOptions);
+            }
         }
 
         if (props.adaptiveCardsHostConfig) {
