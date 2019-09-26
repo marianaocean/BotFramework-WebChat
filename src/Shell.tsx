@@ -58,16 +58,18 @@ class ShellContainer extends React.Component<Props> implements ShellFunctions {
 
     private onKeyDown(e: React.KeyboardEvent<HTMLElement>) {
         if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].indexOf(e.key) > -1 && this.completionsLength > 0) {
-            e.preventDefault();
             if (e.key === 'ArrowUp') {
+                e.preventDefault();
                 if (this.selectedIndex === 0) {
                     this.selectedIndex = this.completionsLength;
                 } else {
                     this.selectedIndex -= 1;
                 }
             } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
                 this.selectedIndex += 1;
-            } else {
+            } else if (this.selectedIndex > 0) {
+                e.preventDefault();
                 this.selectedIndex = 0;
             }
             if (this.selectedIndex > this.completionsLength || this.selectedIndex < 0) {

@@ -12,8 +12,8 @@ class UserSaysFetcher {
     private store: Store<ChatState>;
     private isFetching: boolean;
     private fetchDelay: number;
-    private fetchEndPoint: string = 'https://input-completion.obotai.com/input_completion';
-    // private fetchEndPoint: string = 'http://192.168.33.10:8002/input_completion';
+    // private fetchEndPoint: string = 'https://input-completion.obotai.com/input_completion';
+    private fetchEndPoint: string = 'http://192.168.33.10:8002/input_completion';
     constructor(props: UserSaysFetcherProps) {
         this.fetchTasks = [];
         this.secret = props.secret;
