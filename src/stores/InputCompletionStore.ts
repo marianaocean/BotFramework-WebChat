@@ -3,9 +3,21 @@ import { Epic } from 'redux-observable';
 import { UserSaysFetcher } from '../helpers/UserSaysFetcher';
 import { ChatActions, ChatState, nullAction } from '../Store';
 
+export enum InputCompletionMatchMode {
+    TEXT_ONLY,
+    KEYWORD_BASE,
+    SMART,
+    HIGHLY_MATCH
+}
+
+export interface InputComlpetionSettingsProps {
+    mode: InputCompletionMatchMode;
+}
+
 export interface InputCompletionState {
     fetcher: UserSaysFetcher;
     datasets: any;
+    settings: InputComlpetionSettingsProps;
     active: boolean;
 }
 
@@ -25,6 +37,7 @@ export const inputCompletion: Reducer<InputCompletionState> = (
     state: InputCompletionState = {
         fetcher: null,
         datasets: null,
+        settings: { mode: InputCompletionMatchMode.HIGHLY_MATCH },
         active: true
     },
     action: InputCompletionAction
