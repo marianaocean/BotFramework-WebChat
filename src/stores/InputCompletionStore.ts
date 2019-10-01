@@ -1,6 +1,6 @@
 import { Reducer } from 'redux';
 import { Epic } from 'redux-observable';
-import { UserSaysFetcher } from '../helpers/UserSaysFetcher';
+import { Completion, UserSaysFetcher } from '../helpers/UserSaysFetcher';
 import { ChatActions, ChatState, nullAction } from '../Store';
 
 export enum InputCompletionMatchMode {
@@ -30,7 +30,7 @@ export type InputCompletionAction = {
 } | {
     type: 'Set_Data',
     code: string,
-    data: string[]
+    data: Completion[]
 };
 
 export const inputCompletion: Reducer<InputCompletionState> = (

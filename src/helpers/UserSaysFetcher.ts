@@ -6,14 +6,19 @@ export interface UserSaysFetcherProps {
     store?: Store<ChatState>;
 }
 
+export interface Completion {
+    text: string;
+    keywords: string;
+}
+
 class UserSaysFetcher {
     private fetchTasks: string[];
     private secret: string;
     private store: Store<ChatState>;
     private isFetching: boolean;
     private fetchDelay: number;
-    // private fetchEndPoint: string = 'https://input-completion.obotai.com/input_completion';
-    private fetchEndPoint: string = 'http://192.168.33.10:8002/input_completion';
+    private fetchEndPoint: string = 'https://input-completion.obotai.com/input_completion';
+    // private fetchEndPoint: string = 'http://192.168.33.10:8002/input_completion';
     constructor(props: UserSaysFetcherProps) {
         this.fetchTasks = [];
         this.secret = props.secret;
@@ -51,7 +56,11 @@ class UserSaysFetcher {
         req.onload = async e => {
             try {
                 const response = await JSON.parse(req.response);
-                this.store.dispatch<ChatActions>({type: 'Set_Data', code: fetchCode, data: response.user_says});
+                this.store.dispatch<ChatActions>({
+                    type: 'Set_Data',
+                    code: fetchCode,
+                    data: response.user_says.map((userSay: any) => ({text: userSay.text, keywords: userSay.keywords} as Completion))
+                });
                 if (this.fetchTasks.length > 0) {
                     this.fetch();
                 } else {

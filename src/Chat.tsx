@@ -5,7 +5,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
-import { Activity, CardActionTypes, DirectLine, DirectLineOptions, IBotConnection, User } from 'botframework-directlinejs';
+import { Activity, CardActionTypes, ConnectionStatus, DirectLine, DirectLineOptions, IBotConnection, User } from 'botframework-directlinejs';
 import { Provider } from 'react-redux';
 import { getTabIndex } from './getTabIndex';
 import { UserSaysFetcher } from './helpers/UserSaysFetcher';
@@ -107,6 +107,10 @@ export class Chat extends React.Component<ChatProps, {}> {
             if (!!props.botExtensions.inputCompletion.maxOptions && typeof props.botExtensions.inputCompletion.maxOptions === 'number' && props.botExtensions.inputCompletion.maxOptions >= 10  && props.botExtensions.inputCompletion.maxOptions <= 30) {
                 rewriteConst(INPUT_COMPLETION, 'COMPLETIONS_MAXIMUM', props.botExtensions.inputCompletion.maxOptions);
             }
+
+            if (!!props.botExtensions.inputCompletion.keywordMinLength && typeof props.botExtensions.inputCompletion.keywordMinLength === 'number' && props.botExtensions.inputCompletion.keywordMinLength >= 1  && props.botExtensions.inputCompletion.keywordMinLength <= 5) {
+                rewriteConst(INPUT_COMPLETION, 'MINIMUM_KEYWORD_LENGTH', props.botExtensions.inputCompletion.keywordMinLength);
+            }
         }
 
         if (props.adaptiveCardsHostConfig) {
@@ -191,15 +195,9 @@ export class Chat extends React.Component<ChatProps, {}> {
 
     private handleIncomingActivity(activity: Activity) {
         const state = this.store.getState();
-        // if ((!state.customSetting.sessionId && activity.conversation && activity.conversation.id) || state.customSetting.sessionId !== activity.conversation.id) {
-        //     this.store.dispatch<ChatActions>({ type: 'Save_Conversation_Id', conversationId: activity.conversation.id });
-        //     if (this.props.botExtensions && this.props.botExtensions.callbacks) {
-        //         const botCallbacks = this.props.botExtensions.callbacks as BotCallBacks;
-        //         if (botCallbacks.conversationStarted && typeof botCallbacks.conversationStarted === 'function') {
-        //             botCallbacks.conversationStarted(activity.conversation.id);
-        //         }
-        //     }
-        // }
+        if ((!state.customSetting.sessionId && activity.conversation && activity.conversation.id) || state.customSetting.sessionId !== activity.conversation.id) {
+            this.store.dispatch<ChatActions>({ type: 'Save_Conversation_Id', conversationId: activity.conversation.id });
+        }
         switch (activity.type) {
             case 'message':
                 if (state.customSetting.intervalController.available) {
@@ -359,6 +357,16 @@ export class Chat extends React.Component<ChatProps, {}> {
                     const refGrammarId = botConnection.referenceGrammarId;
                     if (refGrammarId) {
                         this.props.speechOptions.speechRecognizer.referenceGrammarId = refGrammarId;
+                    }
+                }
+                if (connectionStatus === ConnectionStatus.Online) {
+                    const output = (this.botConnection as any).conversationId as string;
+                    const state = this.store.getState();
+                    if (this.props.botExtensions && this.props.botExtensions.callbacks) {
+                        const botCallbacks = this.props.botExtensions.callbacks as BotCallBacks;
+                        if (botCallbacks.conversationStarted && typeof botCallbacks.conversationStarted === 'function' && !state.customSetting.sessionId) {
+                            botCallbacks.conversationStarted(output);
+                        }
                     }
                 }
                 this.store.dispatch<ChatActions>({ type: 'Connection_Change', connectionStatus });

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { classList } from './Chat';
-import { fetcherCodeParse } from './helpers/UserSaysFetcher';
+import { Completion, fetcherCodeParse } from './helpers/UserSaysFetcher';
 import { ChatState, checkLocale, CustomSettingState, FormatState, sendMessage } from './Store';
 import { InputComlpetionSettingsProps, InputCompletionMatchMode } from './stores/InputCompletionStore';
 import { Strings } from './Strings';
@@ -20,7 +20,7 @@ interface Props {
 }
 
 interface FilteredResultProps {
-    completions: string[];
+    completions: Completion[];
     keywordMatched: boolean;
 }
 
@@ -31,17 +31,16 @@ interface HighlyMatchedKeywordLocationProps {
 
 class InputCompltionView extends React.Component<Props> {
 
-    private inputCompletions: string[] = null;
+    private inputCompletions: Completion[] = null;
     private inputCompletionBox$: HTMLDivElement = null;
     private inputCompletionContainer$: HTMLDivElement = null;
     private inputCompletionController$: HTMLDivElement = null;
     private selectedChild: HTMLDivElement = null;
     private isContainerDisplay: boolean = true;
-    private tempCompletions: string[] = null;
+    private tempCompletions: Completion[] = null;
     private tempKeyword: string = null;
     private tempInput: string = null;
     private completionTimeout: number = null;
-    private loading: boolean = false;
 
     constructor(props: Props) {
         super(props);
@@ -52,12 +51,17 @@ class InputCompltionView extends React.Component<Props> {
             return;
         }
         this.tempInput = input;
-        const self = this;
         window.clearTimeout(this.completionTimeout);
-        this.completionTimeout = window.setTimeout(
-            () => self.updateInputCompletions(input), 200
-        );
+        if (!!input && input.length > 0) {
+            const self = this;
+            this.completionTimeout = window.setTimeout(
+                () => self.updateInputCompletions(input), 200
+            );
+        } else {
+            this.updateInputCompletions('');
+        }
     }
+
     private updateInputCompletions = (input: string) => {
         this.inputCompletions = this.getInputCompletions(input);
         if (this.inputCompletions.length > 0 && this.inputCompletions.length <= INPUT_COMPLETION.COMPLETIONS_MAXIMUM) {
@@ -71,7 +75,7 @@ class InputCompltionView extends React.Component<Props> {
     private getInputCompletions = (input: string) => {
         const strict = checkLocale(this.props.locale, 'en');
         const searchedInput = strict ? input : input.replace(strict ? INPUT_COMPLETION.INPUT_FILTER_REGEX_STRICT : INPUT_COMPLETION.INPUT_FILTER_REGEX, '');
-        if (!searchedInput || searchedInput.length <= 1) {
+        if (!searchedInput || searchedInput.length < 1) {
             this.resetTemp();
             return [];
         }
@@ -128,14 +132,14 @@ class InputCompltionView extends React.Component<Props> {
         return [true, ''];
     }
 
-    private filterCompletions = (data: string[], fullInput: string, addition: string, strict: boolean) => {
-        const resultCompletions: string[] = [];
+    private filterCompletions = (data: Completion[], fullInput: string, addition: string, strict: boolean) => {
+        const resultCompletions: Completion[] = [];
         let resultKeywordMatched = false;
         const matchPattern = !!addition && !!this.tempKeyword;
-        data.some((text: string) => {
-            const [matched, keywordMatched] = matchPattern ? this.matchWithKeyword(text.toLowerCase(), addition, strict) : this.matchWithoutKeyword(text.toLowerCase(), fullInput, strict);
+        data.some((completionItem: Completion) => {
+            const [matched, keywordMatched] = matchPattern ? this.matchWithKeyword(completionItem, addition, strict) : this.matchWithoutKeyword(completionItem, fullInput, strict);
             if (matched) {
-                resultCompletions.push(text);
+                resultCompletions.push(completionItem);
             }
             if (!resultKeywordMatched && keywordMatched) {
                 resultKeywordMatched = true;
@@ -148,8 +152,9 @@ class InputCompltionView extends React.Component<Props> {
         } as FilteredResultProps;
     }
 
-    private matchWithKeyword = (text: string, addition: string, strict: boolean) => {
-        const [keywords, userSay] = this.separatedText(text, INPUT_COMPLETION.SEPARATOR);
+    private matchWithKeyword = (completionItem: Completion, addition: string, strict: boolean) => {
+        const keywords = completionItem.keywords.toLowerCase();
+        const userSay = completionItem.text.toLowerCase();
         const keywordsExists = keywords && keywords.length > 0;
         const userSayExists = userSay && userSay.length > 0;
         if (!userSayExists) {
@@ -175,8 +180,9 @@ class InputCompltionView extends React.Component<Props> {
         return !strict ? keywords.indexOf(checkedWord) !== -1 : keywords.split(INPUT_COMPLETION.KEYWORD_SEPARATOR).some(word => word.toLowerCase() === checkedWord);
     }
 
-    private matchWithoutKeyword = (text: string, input: string, strict: boolean) => {
-        const [keywords, userSay] = this.separatedText(text, INPUT_COMPLETION.SEPARATOR);
+    private matchWithoutKeyword = (completionItem: Completion, input: string, strict: boolean) => {
+        const keywords = completionItem.keywords.toLowerCase();
+        const userSay = completionItem.text.toLowerCase();
         if (keywords && keywords.length > 0 && this.searchKeyword(keywords, input, strict)) {
             return [true, true];
         }
@@ -186,14 +192,15 @@ class InputCompltionView extends React.Component<Props> {
         return [false, false];
     }
 
-    private highlyFilterCompletions = (data: string[], input: string, strict: boolean) => {
-        return data.filter((text: string) =>
-            this.highlyMatch(text, input, strict)
+    private highlyFilterCompletions = (data: Completion[], input: string, strict: boolean) => {
+        return data.filter((completionItem: Completion) =>
+            this.highlyMatch(completionItem, input, strict)
         );
     }
 
-    private highlyMatch = (text: string, input: string, strict: boolean) => {
-        const [keywords, userSay] = this.separatedText(text, INPUT_COMPLETION.SEPARATOR);
+    private highlyMatch = (completionItem: Completion, input: string, strict: boolean) => {
+        const keywords = completionItem.keywords;
+        const userSay = completionItem.text;
         const matchedKeywordLocations: HighlyMatchedKeywordLocationProps[] = [];
         for (let i = 0; i < input.length ; i ++) {
             let matchedKeyword = '';
@@ -210,8 +217,9 @@ class InputCompltionView extends React.Component<Props> {
                         }
                     }
                 }
-                // if (matchedKeyword.length >= 2) {
-                if (!strict || matchedKeyword.length >= 2) {
+
+                const minKeywordLength = INPUT_COMPLETION.MINIMUM_KEYWORD_LENGTH >= 2 || !strict ? INPUT_COMPLETION.MINIMUM_KEYWORD_LENGTH : 2;
+                if (matchedKeyword.length >= minKeywordLength) {
                     matchedKeywordLocations.push({startAt: i, endAt: i + matchedKeyword.length - 1});
                     i += matchedKeyword.length - 1;
                 }
@@ -238,34 +246,17 @@ class InputCompltionView extends React.Component<Props> {
         });
     }
 
-    private separatedText = (text: string, separator: string) => {
-        const separatorIndex = text.indexOf(separator);
-        let keywords: string = null;
-        let userSay: string = null;
-        if (separatorIndex > -1) {
-            keywords = text.slice(0, separatorIndex);
-            userSay = text.slice(separatorIndex + 1);
-        }
-        return [keywords, userSay];
-    }
-
     private resetTemp = () => {
         this.tempCompletions = null;
         this.tempKeyword = null;
+        this.tempInput = null;
     }
 
-    private inputCompletionsElements = (inputCompletions: string[]) => {
-        return inputCompletions.map((completion: string, index: number) => {
-            const realCompletion = this.getRealCompletion(completion);
-            return <div className="wc-input-completion-item" key={ index } onClick={() => this.sendMessage(realCompletion)}>{ realCompletion }</div>;
+    private inputCompletionsElements = (inputCompletions: Completion[]) => {
+        return inputCompletions.map((completion: Completion, index: number) => {
+            const userSay = completion.text;
+            return <div className="wc-input-completion-item" key={ index } onClick={() => this.sendMessage(userSay)}>{ userSay }</div>;
         });
-    }
-
-    private getRealCompletion(completion: string) {
-        const separatorIndex = completion.indexOf(INPUT_COMPLETION.SEPARATOR);
-        if (separatorIndex !== -1) {
-            return completion.slice(separatorIndex + 1);
-        }
     }
 
     private sendMessage = (text: string) => {
@@ -312,18 +303,27 @@ class InputCompltionView extends React.Component<Props> {
         }
     }
 
+    componentWillUpdate(nextProps: any) {
+        this.inputChanged(nextProps.currentInput);
+    }
+
     componentDidUpdate() {
         if (this.inputCompletionContainer$) {
             const containerHeight = this.inputCompletionContainer$.offsetHeight;
             const controllerHeight = this.inputCompletionController$.offsetHeight;
             const marginTop = containerHeight > INPUT_COMPLETION.CONTAINER_MAX_HEIGHT ? INPUT_COMPLETION.CONTAINER_MAX_HEIGHT : containerHeight;
             this.inputCompletionBox$.style.marginTop = ((-1) * (marginTop + controllerHeight + 12)) + 'px';
+            const distanceToTop = this.inputCompletionContainer$.getBoundingClientRect().top;
+            if (distanceToTop < 0) {
+                const afterHeight = this.inputCompletionContainer$.clientHeight + distanceToTop;
+                this.inputCompletionContainer$.style.height = afterHeight + 'px';
+                this.inputCompletionBox$.style.marginTop = ((-1) * (afterHeight + controllerHeight + 12)) + 'px';
+            }
         }
     }
 
     render() {
         const containerClass = classList('wc-input-completion-container', !this.isContainerDisplay && 'hide');
-        this.inputChanged(this.props.currentInput);
         return this.props.active && this.inputCompletions && this.inputCompletions.length > 0 && <div ref={div => this.inputCompletionBox$ = div}>
             <div className="wc-input-completion-controller" ref={ div => this.inputCompletionController$ = div } onClick={_ => this.containerToggle()}>
                 <span className="wc-input-completion-controller-icon"></span>
