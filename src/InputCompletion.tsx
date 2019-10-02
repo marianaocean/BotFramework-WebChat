@@ -194,13 +194,13 @@ class InputCompltionView extends React.Component<Props> {
 
     private highlyFilterCompletions = (data: Completion[], input: string, strict: boolean) => {
         return data.filter((completionItem: Completion) =>
-            this.highlyMatch(completionItem, input, strict)
+            this.highlyMatch(completionItem, input.toLowerCase(), strict)
         );
     }
 
     private highlyMatch = (completionItem: Completion, input: string, strict: boolean) => {
-        const keywords = completionItem.keywords;
-        const userSay = completionItem.text;
+        const keywords = completionItem.keywords.toLowerCase();
+        const userSay = completionItem.text.toLowerCase();
         const matchedKeywordLocations: HighlyMatchedKeywordLocationProps[] = [];
         for (let i = 0; i < input.length ; i ++) {
             let matchedKeyword = '';
