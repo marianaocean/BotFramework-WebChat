@@ -13,6 +13,7 @@ import * as konsole from './Konsole';
 import { Speech } from './SpeechModule';
 import { SpeechOptions } from './SpeechOptions';
 import { ChatActions, createStore, sendMessage } from './Store';
+import { ExternalContentProps } from './stores/ExternalContentStore';
 import { ActivityOrID, FormatOptions } from './Types';
 import { UrlToQrcode } from './UrlToQrcode';
 import { INPUT_COMPLETION, rewriteConst } from './utils/const';
@@ -41,12 +42,14 @@ export interface ChatProps {
     user: User;
     botName?: string;
     session?: boolean;
+    externalContent?: ExternalContentProps;
     botExtensions: any;
     fromAppProps?: any;
 }
 
 export interface BotCallBacks {
     conversationStarted?: (sessionId: string) => void;
+    threeDActions?: {sentMessage: () => void};
 }
 
 import { Configuration } from './Configuration';
@@ -190,6 +193,9 @@ export class Chat extends React.Component<ChatProps, {}> {
         }
         if (props.botExtensions && props.botExtensions.configurable) {
             this.store.dispatch<ChatActions>({ type: 'Enable_Configuration' });
+        }
+        if (!!props.externalContent) {
+            this.store.dispatch<ChatActions>({ type: 'External_Content_Initialize', props: props.externalContent });
         }
     }
 

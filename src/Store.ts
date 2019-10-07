@@ -3,6 +3,7 @@ import { Activity, Attachment, ConnectionStatus, IBotConnection, Media, MediaTyp
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import * as konsole from './Konsole';
 import { Speech } from './SpeechModule';
+import { externalContent, ExternalContentAction, ExternalContentState } from './stores/ExternalContentStore';
 import { fetchInputCompletionDataEpic, inputCompletion, InputCompletionAction, InputCompletionState } from './stores/InputCompletionStore';
 import { defaultStrings, strings, Strings } from './Strings';
 import { ActivityOrID } from './Types';
@@ -852,7 +853,17 @@ export const adaptiveCards: Reducer<AdaptiveCardsState> = (
     }
 };
 
-export type ChatActions = ChangeLanguageAction | CustomMenuAction | CustomSettingAction | InputCompletionAction | ShellAction | FormatAction | SizeAction | ConnectionAction | HistoryAction | AdaptiveCardsAction;
+export type ChatActions = ChangeLanguageAction
+    | CustomMenuAction
+    | CustomSettingAction
+    | InputCompletionAction
+    | ShellAction
+    | FormatAction
+    | SizeAction
+    | ConnectionAction
+    | HistoryAction
+    | AdaptiveCardsAction
+    | ExternalContentAction;
 
 export const nullAction = { type: null } as ChatActions;
 
@@ -867,6 +878,7 @@ export interface ChatState {
     customMenu: CustomMenuState;
     customSetting: CustomSettingState;
     inputCompletion: InputCompletionState;
+    externalContent: ExternalContentState;
 }
 
 const speakFromMsg = (msg: Message, fallbackLocale: string) => {
@@ -977,6 +989,13 @@ const waitingMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
     .map( action => {
         const state = store.getState();
         let activity = {};
+        if (!!state.externalContent && !!state.externalContent.active && !!state.externalContent.contentActions.sentMessage) {
+            try {
+                state.externalContent.contentActions.sentMessage();
+            } catch (e) {
+                console.log('Contents not ready yet..');
+            }
+        }
         if (!state.customSetting.waitingMessage || !state.customSetting.waitingMessage.type || !state.customSetting.waitingMessage.content) {
             return nullAction;
         }
@@ -1303,7 +1322,8 @@ export const createStore = () =>
             changeLanguage,
             customMenu,
             customSetting,
-            inputCompletion
+            inputCompletion,
+            externalContent
         }),
         applyMiddleware(createEpicMiddleware(combineEpics(
             updateSelectedActivityEpic,
