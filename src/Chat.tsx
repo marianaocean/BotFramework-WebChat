@@ -8,6 +8,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { Activity, CardActionTypes, ConnectionStatus, DirectLine, DirectLineOptions, IBotConnection, User } from 'botframework-directlinejs';
 import { Provider } from 'react-redux';
 import { getTabIndex } from './getTabIndex';
+import { TimeoutAlertMode, TimeoutListener } from './helpers/TimeoutListener';
 import { UserSaysFetcher } from './helpers/UserSaysFetcher';
 import * as konsole from './Konsole';
 import { Speech } from './SpeechModule';
@@ -196,6 +197,9 @@ export class Chat extends React.Component<ChatProps, {}> {
         }
         if (!!props.externalContent) {
             this.store.dispatch<ChatActions>({ type: 'External_Content_Initialize', props: props.externalContent });
+        }
+        if (props.botExtensions && props.botExtensions.timeoutAlert && props.botExtensions.timeoutAlert in TimeoutAlertMode) {
+            TimeoutListener.initialize(props.botExtensions.timeoutAlert);
         }
     }
 

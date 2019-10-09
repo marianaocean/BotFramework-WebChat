@@ -1,6 +1,7 @@
 import { HostConfig } from 'adaptivecards';
 import { Activity, Attachment, ConnectionStatus, IBotConnection, Media, MediaType, Message, User } from 'botframework-directlinejs';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { TimeoutListener } from './helpers/TimeoutListener';
 import * as konsole from './Konsole';
 import { Speech } from './SpeechModule';
 import { externalContent, ExternalContentAction, ExternalContentState } from './stores/ExternalContentStore';
@@ -611,7 +612,7 @@ export interface HistoryState {
 }
 
 export type HistoryAction = {
-    type: 'Receive_Message' | 'Send_Message' | 'Show_Typing' | 'Receive_Sent_Message' | 'Push_Menu_Message' | 'Push_Waiting_Message' | 'Push_Qrcode_Message',
+    type: 'Receive_Message' | 'Send_Message' | 'Show_Typing' | 'Receive_Sent_Message' | 'Push_Menu_Message' | 'Push_Waiting_Message' | 'Push_Qrcode_Message' | 'Timeout_Alert',
     activity: Activity
 } | {
     type: 'Send_Message_Try' | 'Send_Message_Fail' | 'Send_Message_Retry',
@@ -698,6 +699,7 @@ export const history: Reducer<HistoryState> = (
                 ],
                 clientActivityCounter: state.clientActivityCounter + 1
             };
+        case 'Timeout_Alert':
         case 'Push_Waiting_Message':
             return {
                 ...state,
@@ -719,7 +721,7 @@ export const history: Reducer<HistoryState> = (
         case 'Remove_Waiting_Message':
             return {
                 ...state,
-                activities: [...state.activities.filter(activity => ['waitingString', 'waitingImage', 'waitingInterval'].indexOf(activity.id) < 0)]
+                activities: [...state.activities.filter(activity => ['TimeoutAlert', 'waitingString', 'waitingImage', 'waitingInterval'].indexOf(activity.id) < 0)]
             };
         case 'Change_Language':
         case 'Changed_Language':
@@ -1097,6 +1099,7 @@ const receiveMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
     )
     .map( action => {
         const state = store.getState();
+        TimeoutListener.countDownReset();
         if ((state.customSetting.waitingMessage && state.customSetting.waitingMessage.type && state.customSetting.waitingMessage.content) || state.customSetting.intervalController.available) {
             return ({type: 'Remove_Waiting_Message'} as HistoryAction);
         }
@@ -1303,6 +1306,19 @@ const sendTypingEpic: Epic<ChatActions, ChatState> = (action$, store) =>
         .catch(error => Observable.of(nullAction))
     );
 
+const offlineAlertEpic: Epic<ChatActions, ChatState> = (action$, store) =>
+    action$.ofType(
+        'Send_Message',
+        'Change_Language',
+        'Send_Menu_Message',
+        'Submit_Form'
+    )
+    .map(action => {
+        const state = store.getState();
+        TimeoutListener.countDown(store as Store<ChatState>);
+        return nullAction;
+    });
+
 // Now we put it all together into a store with middleware
 
 import { combineReducers, createStore as reduxCreateStore, Store } from 'redux';
@@ -1346,7 +1362,8 @@ export const createStore = () =>
             waitingMessageEpic,
             turnOnSpeakerEpic,
             waitIntervalEpic,
-            fetchInputCompletionDataEpic
+            fetchInputCompletionDataEpic,
+            offlineAlertEpic
         )))
     );
 

@@ -21,6 +21,8 @@ export interface Strings {
     timeInterval: string;
     tooManyUserSays: string;
     inputCompletion: string;
+    longtimeNoResponse: string;
+    confirmToReload: string;
 }
 
 interface LocalizedStrings {
@@ -50,7 +52,9 @@ const localizedStrings: LocalizedStrings = {
         config: 'Configs',
         timeInterval: 'Time interval (s)',
         tooManyUserSays: 'There are too many questions to match, so try typing a little more.',
-        inputCompletion: 'Input completion'
+        inputCompletion: 'Input completion',
+        longtimeNoResponse: 'Bot is not responding. Please change the text and try send it again or reload the page.',
+        confirmToReload: 'It seems that internet connection has been lost. Please reload the page!'
     },
     'th-th': {
         title: 'พูดคุย',
@@ -74,7 +78,9 @@ const localizedStrings: LocalizedStrings = {
         config: 'การกำหนดค่า',
         timeInterval: '',
         tooManyUserSays: '',
-        inputCompletion: ''
+        inputCompletion: '',
+        longtimeNoResponse: '',
+        confirmToReload: ''
     },
     'ja-jp': {
         title: 'チャット',
@@ -98,7 +104,9 @@ const localizedStrings: LocalizedStrings = {
         config: '設定',
         timeInterval: 'メッセージ間隔（秒）',
         tooManyUserSays: 'マッチする質問が多すぎるため、もう少し入力してみてください。',
-        inputCompletion: '質問予測'
+        inputCompletion: '質問予測',
+        longtimeNoResponse: 'ボットの反応がなさそうです、言い方を変えて再送かページリロードかをしてみてください！',
+        confirmToReload: '通信ができなくなっているかもしれません、ページをリロードしてください！'
     },
     'zh-hans': {
         title: '聊天',
@@ -122,7 +130,9 @@ const localizedStrings: LocalizedStrings = {
         config: '设定',
         timeInterval: '消息间隔（秒）',
         tooManyUserSays: '匹配结果过多，请输入更多内容以匹配',
-        inputCompletion: '问题补全'
+        inputCompletion: '问题补全',
+        longtimeNoResponse: '机器人似乎没有响应，请重新发送或刷新页面',
+        confirmToReload: '网络连接可能已断开，请刷新页面'
     },
     'zh-hant': {
         title: '聊天',
@@ -146,7 +156,9 @@ const localizedStrings: LocalizedStrings = {
         config: '設定',
         timeInterval: '消息間隔（秒）',
         tooManyUserSays: '匹配结果过多，请输入更多内容以匹配',
-        inputCompletion: '問題補全'
+        inputCompletion: '問題補全',
+        longtimeNoResponse: '机器人似乎没有响应，請重試或刷新頁面',
+        confirmToReload: '網絡連接可能已斷開，請刷新頁面'
     },
     'ru-ru': {
         title: 'Чат',
@@ -170,7 +182,9 @@ const localizedStrings: LocalizedStrings = {
         config: 'настройки',
         timeInterval: '',
         tooManyUserSays: '',
-        inputCompletion: ''
+        inputCompletion: '',
+        longtimeNoResponse: '',
+        confirmToReload: ''
     },
     'ko-kr': {
         title: '채팅',
@@ -194,7 +208,9 @@ const localizedStrings: LocalizedStrings = {
         config: '설정',
         timeInterval: '메세지간격(초)',
         tooManyUserSays: '일치하는 질문수가 너무 많습니다. 좀 더 입력해 주세요.',
-        inputCompletion: '예상질문'
+        inputCompletion: '예상질문',
+        longtimeNoResponse: '챗봇이 반응이 없습니다. 입력문장을 바꿔서 다시 전송하거나 페이지를 다시 로드해 주세요.',
+        confirmToReload: '통신이 끊어진 것 같습니다. 페이지를 다시 로드해 주세요!'
     }
 //     'nb-no': {
 //         title: 'Chat',
