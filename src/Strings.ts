@@ -23,6 +23,7 @@ export interface Strings {
     inputCompletion: string;
     longtimeNoResponse: string;
     confirmToReload: string;
+    voiceInput: string;
 }
 
 interface LocalizedStrings {
@@ -54,7 +55,8 @@ const localizedStrings: LocalizedStrings = {
         tooManyUserSays: 'There are too many questions to match, so try typing a little more.',
         inputCompletion: 'Input completion',
         longtimeNoResponse: 'Bot is not responding. Please change the text and try send it again or reload the page.',
-        confirmToReload: 'It seems that internet connection has been lost. Please reload the page!'
+        confirmToReload: 'It seems that internet connection has been lost. Please reload the page!',
+        voiceInput: 'Voice Input'
     },
     'th-th': {
         title: 'พูดคุย',
@@ -80,7 +82,8 @@ const localizedStrings: LocalizedStrings = {
         tooManyUserSays: '',
         inputCompletion: '',
         longtimeNoResponse: '',
-        confirmToReload: ''
+        confirmToReload: '',
+        voiceInput: ''
     },
     'ja-jp': {
         title: 'チャット',
@@ -106,7 +109,8 @@ const localizedStrings: LocalizedStrings = {
         tooManyUserSays: 'マッチする質問が多すぎるため、もう少し入力してみてください。',
         inputCompletion: '質問予測',
         longtimeNoResponse: 'ボットの反応がなさそうです、言い方を変えて再送かページリロードかをしてみてください！',
-        confirmToReload: '通信ができなくなっているかもしれません、ページをリロードしてください！'
+        confirmToReload: '通信ができなくなっているかもしれません、ページをリロードしてください！',
+        voiceInput: '音声入力'
     },
     'zh-hans': {
         title: '聊天',
@@ -132,7 +136,8 @@ const localizedStrings: LocalizedStrings = {
         tooManyUserSays: '匹配结果过多，请输入更多内容以匹配',
         inputCompletion: '问题补全',
         longtimeNoResponse: '机器人似乎没有响应，请重新发送或刷新页面',
-        confirmToReload: '网络连接可能已断开，请刷新页面'
+        confirmToReload: '网络连接可能已断开，请刷新页面',
+        voiceInput: '语音输入'
     },
     'zh-hant': {
         title: '聊天',
@@ -158,7 +163,8 @@ const localizedStrings: LocalizedStrings = {
         tooManyUserSays: '匹配结果过多，请输入更多内容以匹配',
         inputCompletion: '問題補全',
         longtimeNoResponse: '机器人似乎没有响应，請重試或刷新頁面',
-        confirmToReload: '網絡連接可能已斷開，請刷新頁面'
+        confirmToReload: '網絡連接可能已斷開，請刷新頁面',
+        voiceInput: '語音輸入'
     },
     'ru-ru': {
         title: 'Чат',
@@ -184,7 +190,8 @@ const localizedStrings: LocalizedStrings = {
         tooManyUserSays: '',
         inputCompletion: '',
         longtimeNoResponse: '',
-        confirmToReload: ''
+        confirmToReload: '',
+        voiceInput: ''
     },
     'ko-kr': {
         title: '채팅',
@@ -210,7 +217,8 @@ const localizedStrings: LocalizedStrings = {
         tooManyUserSays: '일치하는 질문수가 너무 많습니다. 좀 더 입력해 주세요.',
         inputCompletion: '예상질문',
         longtimeNoResponse: '챗봇이 반응이 없습니다. 입력문장을 바꿔서 다시 전송하거나 페이지를 다시 로드해 주세요.',
-        confirmToReload: '통신이 끊어진 것 같습니다. 페이지를 다시 로드해 주세요!'
+        confirmToReload: '통신이 끊어진 것 같습니다. 페이지를 다시 로드해 주세요!',
+        voiceInput: '음성 입력'
     }
 //     'nb-no': {
 //         title: 'Chat',
