@@ -148,7 +148,7 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
     if (props.customMenu) {
         props.customMenu = {
             ...props.customMenu,
-            showMenu: true
+            showMenu: 'showMenu' in props.customMenu ? props.customMenu.showMenu : true
         };
     }
 

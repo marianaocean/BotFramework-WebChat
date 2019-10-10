@@ -156,15 +156,13 @@ export class Chat extends React.Component<ChatProps, {}> {
         }
 
         if (props.customMenu) {
-            if (props.customMenu.showMenu) {
-                this.store.dispatch<ChatActions>({
-                    type: 'Set_Custom_Menu_Setting',
-                    showMenu: props.customMenu.showMenu,
-                    commonIcons: props.customMenu.commonIcons,
-                    menuToggleSetting: props.customMenu.menuToggleSetting,
-                    allMessages: props.customMenu.allMessages
-                });
-            }
+            this.store.dispatch<ChatActions>({
+                type: 'Set_Custom_Menu_Setting',
+                showMenu: props.customMenu.showMenu,
+                commonIcons: props.customMenu.commonIcons,
+                menuToggleSetting: props.customMenu.menuToggleSetting,
+                allMessages: props.customMenu.allMessages
+            });
         }
 
         if (props.icon || this.props.waitingMessage || this.props.urlToQrcode || (this.props.botExtensions && this.props.botExtensions.scrollToBottom > 1)) {
@@ -476,7 +474,7 @@ export class Chat extends React.Component<ChatProps, {}> {
                         !!state.customSetting.configurable && <Configuration />
                     }
                     {
-                        !!state.customMenu.showMenu && <CustomMenu />
+                        !!this.props.customMenu && <CustomMenu />
                     }
                     {
                         !this.props.disabled && <Shell ref={ this._saveShellRef } />
