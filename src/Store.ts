@@ -1031,7 +1031,11 @@ const waitingMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
     });
 
 const turnOnSpeakerEpic: Epic<ChatActions, ChatState> = (action$, store) =>
-    action$.ofType('Push_Waiting_Message')
+    action$.ofType(
+        'Send_Message',
+        'Change_Language',
+        'Send_Menu_Message'
+    )
     .map( action => {
         return {type: 'Turn_On_Settings'} as ChatActions;
     });
