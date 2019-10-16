@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { classList } from './Chat';
+import { Speech } from './SpeechModule';
 import { ChatState, CustomSettingState, FormatState } from './Store';
 import { InputCompletionState } from './stores/InputCompletionStore';
 
@@ -82,18 +83,24 @@ class Configs extends React.Component<Props> {
                 <span className="wc-configs-title">{ this.props.format && this.props.format.strings.config || 'Configs' }</span>
             </div>
             <div className="wc-configs-body">
-                <p>
-                    <input id="alwaysSpeakCheckbox" type="checkbox" onChange={ this._toggleAlwaysSpeak } checked={ !!this.props.customSetting.alwaysSpeak }/>
-                    <label htmlFor="alwaysSpeakCheckbox">
-                        { this.props.format && this.props.format.strings.alwaysSpeak || 'Always speak' }
-                    </label>
-                </p>
-                <p>
-                    <input id="autoListenAfterSpeakCheckbox" type="checkbox" onChange={ this._toggleAutoListenAfterSpeak } checked={ !!this.props.customSetting.autoListenAfterSpeak }/>
-                    <label htmlFor="autoListenAfterSpeakCheckbox">
-                        { this.props.format && this.props.format.strings.autoListenAfterSpeak || 'Auto listen after speak' }
-                    </label>
-                </p>
+                {
+                    !!Speech.SpeechSynthesizer.speechIsAvailable() &&
+                    <p>
+                        <input id="alwaysSpeakCheckbox" type="checkbox" onChange={ this._toggleAlwaysSpeak } checked={ !!this.props.customSetting.alwaysSpeak }/>
+                        <label htmlFor="alwaysSpeakCheckbox">
+                            { this.props.format && this.props.format.strings.alwaysSpeak || 'Always speak' }
+                        </label>
+                    </p>
+                }
+                {
+                    !!Speech.SpeechRecognizer.speechIsAvailable() &&
+                    <p>
+                        <input id="autoListenAfterSpeakCheckbox" type="checkbox" onChange={ this._toggleAutoListenAfterSpeak } checked={ !!this.props.customSetting.autoListenAfterSpeak }/>
+                        <label htmlFor="autoListenAfterSpeakCheckbox">
+                            { this.props.format && this.props.format.strings.autoListenAfterSpeak || 'Auto listen after speak' }
+                        </label>
+                    </p>
+                }
                 {
                     false && this.props.customSetting.intervalController.configurable &&
                     (

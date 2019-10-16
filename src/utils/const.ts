@@ -26,3 +26,13 @@ export const INPUT_COMPLETION: InputCompletionConstsType = {
 export const rewriteConst = (consitant: any, key: any, value: any) => {
     consitant[key] = value;
 };
+
+export const CHECKED_LOCALE_GROUPS = [
+    ['ja', 'ja-JP', 'ja-jp'],
+    ['en', 'en-US', 'EN'],
+    ['zh-hant', 'cmn-Hant-TW', 'zh-TW'],
+    ['zh-hans', 'zh', 'zh-CN'],
+    ['ko', 'ko-kr', 'ko-KR'],
+    ['ru', 'ru-ru', 'ru-RU'],
+    ['th', 'th-th', 'th-TH']
+];

@@ -148,7 +148,11 @@ export class Chat extends React.Component<ChatProps, {}> {
             this.store.dispatch<ChatActions>({ type: 'Save_Setting', recognizer: props.speechOptions.speechRecognizer });
             Speech.SpeechRecognizer.setSpeechRecognizer(props.speechOptions.speechRecognizer);
             Speech.SpeechSynthesizer.setSpeechSynthesizer(props.speechOptions.speechSynthesizer);
-            this.store.dispatch<ChatActions>({ type: 'Set_Auto_Listen', autoListenAfterSpeak: props.speechOptions.autoListenAfterSpeak, alwaysSpeak: props.speechOptions.alwaysSpeak });
+            this.store.dispatch<ChatActions>({
+                type: 'Set_Auto_Listen',
+                autoListenAfterSpeak: Speech.SpeechRecognizer.speechIsAvailable() && props.speechOptions.autoListenAfterSpeak,
+                alwaysSpeak: Speech.SpeechSynthesizer.speechIsAvailable() && props.speechOptions.alwaysSpeak
+            });
         }
 
         if (props.languages) {
@@ -345,6 +349,11 @@ export class Chat extends React.Component<ChatProps, {}> {
         this.props.fromAppProps.toggleContainer();
     }
 
+    private get canConfigShow() {
+        const state = this.store.getState();
+        return !!state.customSetting.configurable && !(!this.props.speechOptions.speechRecognizer && !this.props.speechOptions.speechSynthesizer  && !state.inputCompletion.fetcher);
+    }
+
     componentDidMount() {
         // Now that we're mounted, we know our dimensions. Put them in the store (this will force a re-render)
         this.setSize();
@@ -456,7 +465,7 @@ export class Chat extends React.Component<ChatProps, {}> {
                             }
                             <span>{ typeof state.format.chatTitle === 'string' ? state.format.chatTitle : state.format.strings.title }</span>
                             {
-                                !!state.customSetting.configurable && <span className="wc-configurature" onClick={ this._toggleConfig }></span>
+                                this.canConfigShow && <span className="wc-configurature" onClick={ this._toggleConfig }>settings</span>
                             }
                         </div>
                 }
@@ -471,7 +480,7 @@ export class Chat extends React.Component<ChatProps, {}> {
                         !!state.changeLanguage.display && <Languages ref="languages" />
                     }
                     {
-                        !!state.customSetting.configurable && <Configuration />
+                        this.canConfigShow && <Configuration />
                     }
                     {
                         !!this.props.customMenu && <CustomMenu />

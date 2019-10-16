@@ -1,4 +1,5 @@
 import jspeech from 'jspeech';
+import { CHECKED_LOCALE_GROUPS } from './utils/const';
 
 export type Action = () => void;
 
@@ -142,6 +143,10 @@ export namespace Speech {
 
             SpeechSynthesizer.instance.stopSpeaking();
         }
+
+        public static speechIsAvailable() {
+            return SpeechSynthesizer.instance != null;
+        }
     }
 
     export class BrowserSpeechRecognizer implements ISpeechRecognizer {
@@ -260,6 +265,7 @@ export namespace Speech {
         private lastOperation: SpeechSynthesisUtterance = null;
         private audioElement: HTMLAudioElement = null;
         private speakRequests: SpeakRequest[] = [];
+        private allVoices: SpeechSynthesisVoice[] = [];
 
         public speak(text: string, lang: string, onSpeakingStarted: Action = null, onSpeakingFinished: Action = null) {
             if (!('SpeechSynthesisUtterance' in window) || !text) {
@@ -341,11 +347,13 @@ export namespace Speech {
 
         private playNextTTS(requestContainer: SpeakRequest, iCurrent: number) {
             // lang : string, onSpeakQueued: Func<SpeechSynthesisUtterance, void>, onSpeakStarted : Action, onFinishedSpeaking : Action
-
             const moveToNext = () => {
                 this.playNextTTS(requestContainer, iCurrent + 1);
             };
-
+            const checkLocale = (ComparingLocale: string, ComparedLocale: string) => {
+                const checkGroup = CHECKED_LOCALE_GROUPS;
+                return checkGroup.some(locale => locale.indexOf(ComparingLocale) >= 0 && locale.indexOf(ComparedLocale) >= 0);
+            };
             if (iCurrent < requestContainer.speakChunks.length) {
                 const current = requestContainer.speakChunks[iCurrent];
                 if (typeof current === 'number') {
@@ -364,7 +372,16 @@ export namespace Speech {
                         // msg.rate = 1; // 0.1 to 10
                         // msg.pitch = 2; //0 to 2
                         msg.text = current;
-                        msg.lang = requestContainer.lang;
+                        if (this.allVoices.length === 0) {
+                            this.allVoices = speechSynthesis.getVoices();
+                        }
+                        const targetVoiceIndex = this.allVoices.findIndex((voice: SpeechSynthesisVoice) =>
+                            checkLocale(voice.lang, requestContainer.lang));
+                        if (targetVoiceIndex === -1) {
+                            moveToNext();
+                        }
+                        // msg.lang = requestContainer.lang;
+                        msg.voice = this.allVoices[targetVoiceIndex];
                         msg.onstart = iCurrent === 0 ? requestContainer.onSpeakingStarted : null;
                         msg.onend = moveToNext;
                         msg.onerror = moveToNext;
@@ -374,6 +391,7 @@ export namespace Speech {
                         }
 
                         window.speechSynthesis.speak(msg);
+
                     }
                 }
             } else {

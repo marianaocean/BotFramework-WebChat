@@ -85,14 +85,23 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
             props.speechOptions = {
                 ...props.speechOptions
             };
-        } else if ((window as any).webkitSpeechRecognition) {
+        } else {
+            let speechRecognizer = props.speechOptions.speechRecognizer;
+            let speechSynthesizer = props.speechOptions.speechSynthesizer;
+
+            if (!speechRecognizer && (window as any).webkitSpeechRecognition) {
+                speechRecognizer = new Speech.BrowserSpeechRecognizer('ja-JP');
+            }
+
+            if (!speechSynthesizer && (window as any).SpeechSynthesisUtterance) {
+                speechSynthesizer = new Speech.BrowserSpeechSynthesizer();
+            }
+
             props.speechOptions = {
                 ...props.speechOptions,
-                speechRecognizer: new Speech.BrowserSpeechRecognizer('ja-JP'),
-                speechSynthesizer: new Speech.BrowserSpeechSynthesizer()
+                speechRecognizer,
+                speechSynthesizer
             };
-        } else {
-            props.speechOptions = null;
         }
     }
 
@@ -162,7 +171,7 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
 
     if (!lazyLoad || !controller) {
         konsole.log('BotChat.App props', props);
-        ReactDOM.render(React.createElement(AppContainer, props), container);
+        ReactDOM.render(React.createElement(AppContainer, props), container, () => { speechSynthesizerWarmup(); });
     }
     if (controller && document.body.contains(controller)) {
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -302,7 +311,7 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
         controller.addEventListener('click', () => {
             if (lazyLoad) {
                 if (container.getElementsByClassName('wc-app').length === 0) {
-                    ReactDOM.render(React.createElement(AppContainer, props), container);
+                    ReactDOM.render(React.createElement(AppContainer, props), container, () => { speechSynthesizerWarmup(); });
                     if (typeof callAfterRender === 'function') {
                         callAfterRender();
                     }
@@ -317,3 +326,15 @@ const AppContainer = (props: AppProps) =>
     <div className="wc-app">
         <Chat { ...props } />
     </div>;
+
+const speechSynthesizerWarmup = () => {
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (!isIOS) {
+        return;
+    }
+    console.log('Speech Synthesis warmup!');
+    const voice = speechSynthesis.getVoices()[0] || null;
+    const utterThis = new SpeechSynthesisUtterance('');
+    utterThis.voice = voice;
+    speechSynthesis.speak(utterThis);
+};

@@ -9,6 +9,7 @@ import { fetchInputCompletionDataEpic, inputCompletion, InputCompletionAction, I
 import { defaultStrings, strings, Strings } from './Strings';
 import { ActivityOrID } from './Types';
 import { UrlToQrcode } from './UrlToQrcode';
+import { CHECKED_LOCALE_GROUPS } from './utils/const';
 import { WaitingMessage } from './WaitingMessage';
 
 // Reducers - perform state transformations
@@ -115,15 +116,7 @@ const attachmentsFromFiles = (files: FileList) => {
 
 export const LANGUAGE_COUNT = 7;
 export function checkLocale(ComparingLocale: string, ComparedLocale: string) {
-    const checkGroup = [
-        ['ja', 'ja-JP', 'ja-jp'],
-        ['en', 'en-US', 'EN'],
-        ['zh-hant', 'cmn-Hant-TW'],
-        ['zh-hans', 'zh', 'zh-CN'],
-        ['ko', 'ko-kr', 'ko-KR'],
-        ['ru', 'ru-ru', 'ru-RU'],
-        ['th', 'th-th', 'th-TH']
-    ];
+    const checkGroup = CHECKED_LOCALE_GROUPS;
     return checkGroup.some(locale => locale.indexOf(ComparingLocale) >= 0 && locale.indexOf(ComparedLocale) >= 0);
 }
 
@@ -1194,7 +1187,7 @@ const speakSSMLEpic: Epic<ChatActions, ChatState> = (action$, store) =>
 
         let onSpeakingStarted = null;
         let onSpeakingFinished = () => nullAction;
-        if (action.autoListenAfterSpeak || store.getState().customSetting.autoListenAfterSpeak) {
+        if (!!Speech.SpeechRecognizer.speechIsAvailable() && (action.autoListenAfterSpeak || store.getState().customSetting.autoListenAfterSpeak)) {
             onSpeakingStarted = () => Speech.SpeechRecognizer.warmup() ;
             onSpeakingFinished = () => ({ type: 'Listening_Starting' } as ShellAction);
         }
