@@ -347,6 +347,7 @@ export namespace Speech {
 
         private playNextTTS(requestContainer: SpeakRequest, iCurrent: number) {
             // lang : string, onSpeakQueued: Func<SpeechSynthesisUtterance, void>, onSpeakStarted : Action, onFinishedSpeaking : Action
+            const isIOS = /iPhone|iPad|iPod/i.test(window.navigator.userAgent);
             const moveToNext = () => {
                 this.playNextTTS(requestContainer, iCurrent + 1);
             };
@@ -367,31 +368,37 @@ export namespace Speech {
                         audio.play();
                     } else {
                         const msg = new SpeechSynthesisUtterance();
-                        // msg.voiceURI = 'native';
-                        // msg.volume = 1; // 0 to 1
-                        // msg.rate = 1; // 0.1 to 10
-                        // msg.pitch = 2; //0 to 2
                         msg.text = current;
-                        if (this.allVoices.length === 0) {
-                            this.allVoices = speechSynthesis.getVoices();
-                        }
-                        const targetVoiceIndex = this.allVoices.findIndex((voice: SpeechSynthesisVoice) =>
-                            checkLocale(voice.lang, requestContainer.lang));
-                        if (targetVoiceIndex === -1) {
-                            moveToNext();
-                        }
-                        // msg.lang = requestContainer.lang;
-                        msg.voice = this.allVoices[targetVoiceIndex];
                         msg.onstart = iCurrent === 0 ? requestContainer.onSpeakingStarted : null;
                         msg.onend = moveToNext;
                         msg.onerror = moveToNext;
+                        if (isIOS) {
+                            if (this.allVoices.length === 0) {
+                                this.allVoices = window.speechSynthesis.getVoices();
+                            }
+                            const targetVoiceIndex = this.allVoices.findIndex((voice: SpeechSynthesisVoice) =>
+                                checkLocale(voice.lang, requestContainer.lang));
+                            if (targetVoiceIndex === -1) {
+                                moveToNext();
+                            } else {
+                                msg.voice = this.allVoices[targetVoiceIndex];
+                                if (requestContainer.onSpeakQueued) {
+                                    requestContainer.onSpeakQueued(msg);
+                                }
+                                window.speechSynthesis.speak(msg);
+                            }
+                        } else {
+                            // msg.voiceURI = 'native';
+                            // msg.volume = 1; // 0 to 1
+                            // msg.rate = 1; // 0.1 to 10
+                            // msg.pitch = 2; //0 to 2
+                            msg.lang = requestContainer.lang;
+                            if (requestContainer.onSpeakQueued) {
+                                requestContainer.onSpeakQueued(msg);
+                            }
 
-                        if (requestContainer.onSpeakQueued) {
-                            requestContainer.onSpeakQueued(msg);
+                            window.speechSynthesis.speak(msg);
                         }
-
-                        window.speechSynthesis.speak(msg);
-
                     }
                 }
             } else {

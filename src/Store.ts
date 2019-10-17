@@ -9,7 +9,7 @@ import { fetchInputCompletionDataEpic, inputCompletion, InputCompletionAction, I
 import { defaultStrings, strings, Strings } from './Strings';
 import { ActivityOrID } from './Types';
 import { UrlToQrcode } from './UrlToQrcode';
-import { CHECKED_LOCALE_GROUPS } from './utils/const';
+import { CHECKED_LOCALE_GROUPS, RESPONSE_EVENT } from './utils/const';
 import { WaitingMessage } from './WaitingMessage';
 
 // Reducers - perform state transformations
@@ -957,18 +957,23 @@ const receiveChangedLanguageMessageEpic: Epic<ChatActions, ChatState> = (action$
     .map( action => {
         const state = store.getState();
         const i = languageChangeWords.findIndex(word => word.message === action.activity.text);
-        if (i > -1) {
-            const setLanguage = languageChangeWords[i].language;
+        if ((action.activity.value && action.activity.value.type && action.activity.value.type === RESPONSE_EVENT.CHANGE_LANGUAGE) || i > -1) {
+            let codeIndex = i;
+            if (action.activity.value && action.activity.value.type && action.activity.value.type === RESPONSE_EVENT.CHANGE_LANGUAGE) {
+                codeIndex = languageChangeWords.findIndex(word => checkLocale(word.language, action.activity.value.language_code));
+                if (codeIndex === -1) {
+                    console.log('Not support language: ', action.activity.value.language_code);
+                    return nullAction;
+                }
+            }
+            const setLanguage = languageChangeWords[codeIndex].language;
             if (state.changeLanguage.recognizer) {
-                // const setRecognizerLanguage = ['zh-hant', 'th-th'].indexOf(setLanguage) >= 0 ? languageChangeWords[i].recognizerLanguage : setLanguage;
-                const setRecognizerLanguage = languageChangeWords[i].recognizerLanguage;
+                const setRecognizerLanguage = languageChangeWords[codeIndex].recognizerLanguage;
                 const recognizer = state.changeLanguage.recognizer;
                 if (recognizer && typeof recognizer.setLanguage === 'function') {
                     recognizer.setLanguage(setRecognizerLanguage);
                 }
             }
-            // Speech.SpeechRecognizer.setSpeechRecognizer(new Speech.BrowserSpeechRecognizer(setRecognizerLanguage));
-            // Speech.SpeechSynthesizer.setSpeechSynthesizer(new Speech.BrowserSpeechSynthesizer());
             return ({ type: 'Set_Locale', locale: setLanguage } as FormatAction );
         }
         return nullAction;

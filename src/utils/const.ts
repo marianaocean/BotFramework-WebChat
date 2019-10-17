@@ -36,3 +36,7 @@ export const CHECKED_LOCALE_GROUPS = [
     ['ru', 'ru-ru', 'ru-RU'],
     ['th', 'th-th', 'th-TH']
 ];
+
+export const RESPONSE_EVENT = {
+    CHANGE_LANGUAGE: 'change_language'
+};

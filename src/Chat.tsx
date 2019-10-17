@@ -465,7 +465,7 @@ export class Chat extends React.Component<ChatProps, {}> {
                             }
                             <span>{ typeof state.format.chatTitle === 'string' ? state.format.chatTitle : state.format.strings.title }</span>
                             {
-                                this.canConfigShow && <span className="wc-configurature" onClick={ this._toggleConfig }>settings</span>
+                                this.canConfigShow && <span className="wc-configurature" onClick={ this._toggleConfig }></span>
                             }
                         </div>
                 }
