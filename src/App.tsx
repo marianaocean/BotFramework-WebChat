@@ -169,10 +169,6 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
         pcScrollFix = props.botExtensions.backgroundFix.findIndex((fx: string) => fx === 'pc') > -1;
     }
 
-    if (!lazyLoad || !controller) {
-        konsole.log('BotChat.App props', props);
-        ReactDOM.render(React.createElement(AppContainer, props), container, () => { speechSynthesizerWarmup(); });
-    }
     if (controller && document.body.contains(controller)) {
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -319,6 +315,11 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
             }
             toggleContaienr();
         });
+    }
+
+    if (!lazyLoad || !controller) {
+        konsole.log('BotChat.App props', props);
+        ReactDOM.render(React.createElement(AppContainer, props), container, () => { speechSynthesizerWarmup(); });
     }
 };
 

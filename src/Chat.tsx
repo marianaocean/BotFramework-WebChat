@@ -98,7 +98,7 @@ export class Chat extends React.Component<ChatProps, {}> {
             locale: initLocale
         });
 
-        if (!!props.botExtensions.inputCompletion) {
+        if (!!props.botExtensions && !!props.botExtensions.inputCompletion) {
             const userSaysFetcher = new UserSaysFetcher({secret: props.directLine.secret, store: this.store});
             this.store.dispatch<ChatActions>({type: 'Input_Completion_Initialize', fetcher: userSaysFetcher, active: !props.botExtensions.inputCompletion.disabled});
             if (!props.botExtensions.inputCompletion.disabled) {
@@ -351,7 +351,7 @@ export class Chat extends React.Component<ChatProps, {}> {
 
     private get canConfigShow() {
         const state = this.store.getState();
-        return !!state.customSetting.configurable && !(!this.props.speechOptions.speechRecognizer && !this.props.speechOptions.speechSynthesizer  && !state.inputCompletion.fetcher);
+        return !!state.customSetting.configurable && ((!!this.props.speechOptions && (!!this.props.speechOptions.speechRecognizer || !!this.props.speechOptions.speechSynthesizer)) || !!state.inputCompletion.fetcher);
     }
 
     componentDidMount() {
