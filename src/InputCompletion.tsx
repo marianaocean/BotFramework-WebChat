@@ -199,51 +199,68 @@ class InputCompltionView extends React.Component<Props> {
     }
 
     private highlyMatch = (completionItem: Completion, input: string, strict: boolean) => {
-        const keywords = completionItem.keywords.toLowerCase();
-        const userSay = completionItem.text.toLowerCase();
-        const matchedKeywordLocations: HighlyMatchedKeywordLocationProps[] = [];
-        for (let i = 0; i < input.length ; i ++) {
-            let matchedKeyword = '';
-            if (keywords.indexOf(input[i]) !== -1) {
-                matchedKeyword = input[i];
-                if (i < input.length - 1) {
-                    const checkedWord = matchedKeyword + input[i + 1];
-                    if (keywords.indexOf(checkedWord) !== -1) {
-                        matchedKeyword = checkedWord;
-                        let j = i + 2;
-                        while (j < input.length && this.searchKeyword(keywords, matchedKeyword + input[j], strict)) {
-                            matchedKeyword += input[j];
-                            j ++;
+        if (!strict) {
+            const keywords = completionItem.keywords.toLowerCase();
+            const userSay = completionItem.text.toLowerCase();
+            const matchedKeywordLocations: HighlyMatchedKeywordLocationProps[] = [];
+            for (let i = 0; i < input.length ; i ++) {
+                let matchedKeyword = '';
+                if (keywords.indexOf(input[i]) !== -1) {
+                    matchedKeyword = input[i];
+                    if (i < input.length - 1) {
+                        const checkedWord = matchedKeyword + input[i + 1];
+                        if (keywords.indexOf(checkedWord) !== -1) {
+                            matchedKeyword = checkedWord;
+                            let j = i + 2;
+                            while (j < input.length && this.searchKeyword(keywords, matchedKeyword + input[j], strict)) {
+                                matchedKeyword += input[j];
+                                j ++;
+                            }
                         }
                     }
-                }
 
-                const minKeywordLength = INPUT_COMPLETION.MINIMUM_KEYWORD_LENGTH >= 2 || !strict ? INPUT_COMPLETION.MINIMUM_KEYWORD_LENGTH : 2;
-                if (matchedKeyword.length >= minKeywordLength) {
-                    matchedKeywordLocations.push({startAt: i, endAt: i + matchedKeyword.length - 1});
-                    i += matchedKeyword.length - 1;
-                }
-            } else {
-                if (userSay.indexOf(input[i]) === -1) {
-                    return false;
+                    const minKeywordLength = INPUT_COMPLETION.MINIMUM_KEYWORD_LENGTH >= 2 || !strict ? INPUT_COMPLETION.MINIMUM_KEYWORD_LENGTH : 2;
+                    if (matchedKeyword.length >= minKeywordLength) {
+                        matchedKeywordLocations.push({startAt: i, endAt: i + matchedKeyword.length - 1});
+                        i += matchedKeyword.length - 1;
+                    }
+                } else {
+                    if (userSay.indexOf(input[i]) === -1) {
+                        return false;
+                    }
                 }
             }
-        }
-        const userSayCheckList: string[] = [];
-        let remained: string = input;
-        matchedKeywordLocations.reverse().forEach((keywordLocation: HighlyMatchedKeywordLocationProps) => {
-            const last = remained.slice(keywordLocation.endAt + 1);
-            if (last.length > 0) {
-                userSayCheckList.push(last);
+            const userSayCheckList: string[] = [];
+            let remained: string = input;
+            matchedKeywordLocations.reverse().forEach((keywordLocation: HighlyMatchedKeywordLocationProps) => {
+                const last = remained.slice(keywordLocation.endAt + 1);
+                if (last.length > 0) {
+                    userSayCheckList.push(last);
+                }
+                remained = remained.slice(0, keywordLocation.startAt);
+            });
+            if (remained.length > 0) {
+                userSayCheckList.push(remained);
             }
-            remained = remained.slice(0, keywordLocation.startAt);
-        });
-        if (remained.length > 0) {
-            userSayCheckList.push(remained);
+            return !userSayCheckList.some((checkedWord: string) => {
+                return userSay.indexOf(checkedWord) === -1;
+            });
+        } else {
+            const keywords = completionItem.keywords.toLowerCase().split(INPUT_COMPLETION.KEYWORD_SEPARATOR);
+            const userSay = completionItem.text.toLowerCase();
+            const lowerInput = input.toLowerCase().split(' ');
+
+            const matchedKeywords: string[] = [];
+            const notMatchedKeywords: string[] = [];
+            lowerInput.forEach((word: string) => {
+                if (keywords.indexOf(word) !== -1) {
+                    matchedKeywords.push(word);
+                } else {
+                    notMatchedKeywords.push(word);
+                }
+            });
+            return !notMatchedKeywords.some((word: string) => userSay.indexOf(word) === -1);
         }
-        return !userSayCheckList.some((checkedWord: string) => {
-            return userSay.indexOf(checkedWord) === -1;
-        });
     }
 
     private resetTemp = () => {

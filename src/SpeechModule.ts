@@ -257,7 +257,9 @@ export namespace Speech {
         }
 
         public setLanguage(language: string) {
-            this.recognizer.lang = language;
+            if (!!this.recognizer) {
+                this.recognizer.lang = language;
+            }
         }
     }
 
