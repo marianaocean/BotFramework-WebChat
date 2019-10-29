@@ -24,6 +24,7 @@ export interface Strings {
     longtimeNoResponse: string;
     confirmToReload: string;
     voiceInput: string;
+    stopSpeaking: string;
 }
 
 interface LocalizedStrings {
@@ -56,7 +57,8 @@ const localizedStrings: LocalizedStrings = {
         inputCompletion: 'Input completion',
         longtimeNoResponse: 'Bot is not responding. Please change the text and try send it again or reload the page.',
         confirmToReload: 'It seems that internet connection has been lost. Please reload the page!',
-        voiceInput: 'Voice Input'
+        voiceInput: 'Voice Input',
+        stopSpeaking: 'Stop Speaking'
     },
     'th-th': {
         title: 'พูดคุย',
@@ -83,7 +85,8 @@ const localizedStrings: LocalizedStrings = {
         inputCompletion: 'การคาดเดาคำถาม',
         longtimeNoResponse: 'ดูเหมือนว่า Bot จะไม่ตอบสนอง ลองเปลี่ยนวิธีการพูดแล้วส่งซำ้อีกครั้ง หรือ โหลดหน้าเว็บซ้ำอีกครั้ง',
         confirmToReload: 'อาจจะไม่สามารถสื่อสารได้ กรุณาโหลดเว็บซ้ำอีกรอบ',
-        voiceInput: 'ใส่เสียงพูด'
+        voiceInput: 'ใส่เสียงพูด',
+        stopSpeaking: 'หยุด'
     },
     'ja-jp': {
         title: 'チャット',
@@ -110,7 +113,8 @@ const localizedStrings: LocalizedStrings = {
         inputCompletion: '質問予測',
         longtimeNoResponse: 'ボットの反応がなさそうです、言い方を変えて再送かページリロードかをしてみてください！',
         confirmToReload: '通信ができなくなっているかもしれません、ページをリロードしてください！',
-        voiceInput: '音声入力'
+        voiceInput: '音声入力',
+        stopSpeaking: '停止'
     },
     'zh-hans': {
         title: '聊天',
@@ -137,7 +141,8 @@ const localizedStrings: LocalizedStrings = {
         inputCompletion: '问题补全',
         longtimeNoResponse: '机器人似乎没有响应，请重新发送或刷新页面',
         confirmToReload: '网络连接可能已断开，请刷新页面',
-        voiceInput: '语音输入'
+        voiceInput: '语音输入',
+        stopSpeaking: '停止'
     },
     'zh-hant': {
         title: '聊天',
@@ -164,7 +169,8 @@ const localizedStrings: LocalizedStrings = {
         inputCompletion: '問題補全',
         longtimeNoResponse: '机器人似乎没有响应，請重試或刷新頁面',
         confirmToReload: '網絡連接可能已斷開，請刷新頁面',
-        voiceInput: '語音輸入'
+        voiceInput: '語音輸入',
+        stopSpeaking: '停止'
     },
     'ru-ru': {
         title: 'Чат',
@@ -191,7 +197,8 @@ const localizedStrings: LocalizedStrings = {
         inputCompletion: '',
         longtimeNoResponse: '',
         confirmToReload: '',
-        voiceInput: ''
+        voiceInput: '',
+        stopSpeaking: ''
     },
     'ko-kr': {
         title: '채팅',
@@ -218,7 +225,8 @@ const localizedStrings: LocalizedStrings = {
         inputCompletion: '예상질문',
         longtimeNoResponse: '챗봇이 반응이 없습니다. 입력문장을 바꿔서 다시 전송하거나 페이지를 다시 로드해 주세요.',
         confirmToReload: '통신이 끊어진 것 같습니다. 페이지를 다시 로드해 주세요!',
-        voiceInput: '음성 입력'
+        voiceInput: '음성 입력',
+        stopSpeaking: '자동읽기멈춤'
     }
 //     'nb-no': {
 //         title: 'Chat',

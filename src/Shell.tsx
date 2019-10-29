@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { classList } from './Chat';
 import { InputCompletion } from './InputCompletion';
 import { Speech } from './SpeechModule';
-import { ChatActions, ListeningState, sendFiles, sendMessage } from './Store';
+import { ChatActions, ListeningState, sendFiles, sendMessage, SpeakingState } from './Store';
 import { ChatState } from './Store';
 import { Strings } from './Strings';
 
@@ -12,6 +12,7 @@ interface Props {
     inputText: string;
     strings: Strings;
     listeningState: ListeningState;
+    speakingState: SpeakingState;
     showUploadButton: boolean;
     inputCompletionActive: boolean;
     onChangeText: (inputText: string) => void;
@@ -19,6 +20,7 @@ interface Props {
     sendFiles: (files: FileList) => void;
     stopListening: () => void;
     startListening: () => void;
+    stopSpeaking: () => void;
 }
 
 export interface ShellFunctions {
@@ -129,6 +131,12 @@ class ShellContainer extends React.Component<Props> implements ShellFunctions {
         }
     }
 
+    private onClickStopSpeak() {
+        if (this.props.speakingState === SpeakingState.SPEAKING) {
+            this.props.stopSpeaking();
+        }
+    }
+
     public focus(appendKey?: string) {
         if (this.textInput) {
             this.textInput.focus();
@@ -148,9 +156,11 @@ class ShellContainer extends React.Component<Props> implements ShellFunctions {
 
         const showMicButton = this.props.listeningState !== ListeningState.STOPPED || (Speech.SpeechRecognizer.speechIsAvailable()  && !this.props.inputText.length);
 
+        const showStopMicButton = !showMicButton && this.props.speakingState === SpeakingState.SPEAKING;
+
         const sendButtonClassName = classList(
             'wc-send',
-            showMicButton && 'hidden'
+            (showMicButton || showStopMicButton) && 'hidden'
         );
 
         const micButtonClassName = classList(
@@ -158,6 +168,12 @@ class ShellContainer extends React.Component<Props> implements ShellFunctions {
             !showMicButton && 'hidden',
             this.props.listeningState === ListeningState.STARTED && 'active',
             this.props.listeningState !== ListeningState.STARTED && 'inactive'
+        );
+
+        const stopSpeakClassName = classList(
+            'wc-stop-speak',
+            !showStopMicButton && 'hidden',
+            this.props.speakingState === SpeakingState.SPEAKING && 'active'
         );
 
         const placeholder = this.props.listeningState === ListeningState.STARTED ? this.props.strings.listeningIndicator : this.props.strings.consolePlaceholder;
@@ -226,7 +242,7 @@ class ShellContainer extends React.Component<Props> implements ShellFunctions {
                     type="button"
                 >
                     <span className="wc-send-icon"></span>
-                    { this.props.strings.send || 'Send' }
+                    <span className="wc-send-text">{ this.props.strings.send || 'Send' }</span>
                 </button>
                 <button
                     className={ micButtonClassName }
@@ -237,7 +253,17 @@ class ShellContainer extends React.Component<Props> implements ShellFunctions {
                     type="button"
                 >
                    <span className="wc-mic-icon"></span>
-                    { this.props.strings.voiceInput || 'Voice Input' }
+                   <span className="wc-mic-text">{ this.props.strings.voiceInput || 'Voice Input' }</span>
+                </button>
+                <button
+                    className={ stopSpeakClassName }
+                    onClick={ () => this.onClickStopSpeak() }
+                    role="button"
+                    tabIndex={ 0 }
+                    type="button"
+                >
+                   <span className="wc-speak-stop-icon"></span>
+                   <span className="wc-speak-stop-text">{ this.props.strings.stopSpeaking || 'Stop' }</span>
                 </button>
             </div>
         );
@@ -254,12 +280,14 @@ export const Shell = connect(
         locale: state.format.locale,
         user: state.connection.user,
         listeningState: state.shell.listeningState,
+        speakingState: state.shell.speakingState,
         fetcher: state.inputCompletion.fetcher
     }), {
         // passed down to ShellContainer
         onChangeText: (input: string) => ({ type: 'Update_Input', input, source: 'text' } as ChatActions),
         stopListening:  () => ({ type: 'Listening_Stopping' }),
         startListening:  () => ({ type: 'Listening_Starting' }),
+        stopSpeaking: () => ({type: 'Stop_Speaking'}),
         // only used to create helper functions below
         sendMessage,
         sendFiles
@@ -269,6 +297,7 @@ export const Shell = connect(
         showUploadButton: stateProps.showUploadButton,
         strings: stateProps.strings,
         listeningState: stateProps.listeningState,
+        speakingState: stateProps.speakingState,
         inputCompletionActive: !!stateProps.fetcher,
         // from dispatchProps
         onChangeText: dispatchProps.onChangeText,
@@ -276,7 +305,8 @@ export const Shell = connect(
         sendMessage: (text: string) => dispatchProps.sendMessage(text, stateProps.user, stateProps.locale),
         sendFiles: (files: FileList) => dispatchProps.sendFiles(files, stateProps.user, stateProps.locale),
         startListening: () => dispatchProps.startListening(),
-        stopListening: () => dispatchProps.stopListening()
+        stopListening: () => dispatchProps.stopListening(),
+        stopSpeaking: () => dispatchProps.stopSpeaking()
     }), {
         withRef: true
     }

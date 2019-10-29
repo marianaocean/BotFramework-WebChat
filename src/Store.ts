@@ -23,6 +23,11 @@ export enum ListeningState {
     STOPPING
 }
 
+export enum SpeakingState {
+    SPEAKING,
+    STOPPED
+}
+
 export const languageChangeWords: any[] = [
     { text: 'japanese', language: 'ja-JP', message: 'こんにちは、日本語を設定しました。', recognizerLanguage: 'ja-JP' },
     { text: 'tchinese', language: 'zh-hant', message: '您好，語言已經設定為繁體中文。', recognizerLanguage: 'cmn-Hant-TW' },
@@ -364,6 +369,7 @@ export interface ShellState {
     input: string;
     listeningState: ListeningState;
     lastInputViaSpeech: boolean;
+    speakingState: SpeakingState;
 }
 
 export type ShellAction = {
@@ -383,12 +389,14 @@ export type ShellAction = {
 } |  {
     type: 'Card_Action_Clicked'
 } | {
+    type: 'Speaking_Started' | 'Speaking_Stopped'
+} | {
     type: 'Set_Send_Typing',
     sendTyping: boolean
 } | {
     type: 'Send_Message',
     activity: Activity
-}| {
+} | {
     type: 'Speak_SSML',
     ssml: string,
     locale: string
@@ -400,7 +408,8 @@ export const shell: Reducer<ShellState> = (
         input: '',
         sendTyping: false,
         listeningState: ListeningState.STOPPED,
-        lastInputViaSpeech : false
+        lastInputViaSpeech : false,
+        speakingState: SpeakingState.STOPPED
     },
     action: ShellAction
 ) => {
@@ -453,7 +462,16 @@ export const shell: Reducer<ShellState> = (
                 ...state,
                 lastInputViaSpeech : false
            };
-
+        case 'Speaking_Started':
+            return {
+                ...state,
+                speakingState: SpeakingState.SPEAKING
+            };
+        case 'Speaking_Stopped':
+            return {
+                ...state,
+                speakingState: SpeakingState.STOPPED
+            };
         default:
             return state;
     }
@@ -1191,7 +1209,8 @@ const speakSSMLEpic: Epic<ChatActions, ChatState> = (action$, store) =>
     .mergeMap(action => {
 
         let onSpeakingStarted = null;
-        let onSpeakingFinished = () => nullAction;
+        // let onSpeakingFinished = () => nullAction;
+        let onSpeakingFinished = () => ({type: 'Speaking_Stopped'});
         if (!!Speech.SpeechRecognizer.speechIsAvailable() && (action.autoListenAfterSpeak || store.getState().customSetting.autoListenAfterSpeak)) {
             onSpeakingStarted = () => Speech.SpeechRecognizer.warmup() ;
             onSpeakingFinished = () => ({ type: 'Listening_Starting' } as ShellAction);
@@ -1202,6 +1221,10 @@ const speakSSMLEpic: Epic<ChatActions, ChatState> = (action$, store) =>
             .catch(error => Observable.of(nullAction));
     })
     .merge(action$.ofType('Speak_SSML').map(_ => ({ type: 'Listening_Stopping' } as ShellAction)));
+
+const speakingStartedEpic: Epic<ChatActions, ChatState> = (action$, store) =>
+    action$.ofType('Speak_SSML')
+    .map(_ => ({type: 'Speaking_Started'}));
 
 const speakOnMessageReceivedEpic: Epic<ChatActions, ChatState> = (action$, store) =>
     action$.ofType('Receive_Message')
@@ -1218,7 +1241,8 @@ const stopSpeakingEpic: Epic<ChatActions, ChatState> = action$ =>
         'Stop_Speaking'
     )
     .do(Speech.SpeechSynthesizer.stopSpeaking)
-    .map(_ => nullAction);
+    // .map(_ => nullAction);
+    .map(_ => ({type: 'Speaking_Stopped'}));
 
 const stopListeningEpic: Epic<ChatActions, ChatState> = (action$, store) =>
     action$.ofType(
@@ -1365,7 +1389,8 @@ export const createStore = () =>
             turnOnSpeakerEpic,
             waitIntervalEpic,
             fetchInputCompletionDataEpic,
-            offlineAlertEpic
+            offlineAlertEpic,
+            speakingStartedEpic
         )))
     );
 
