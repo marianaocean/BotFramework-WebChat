@@ -385,7 +385,7 @@ export type ShellAction = {
 } | {
     type: 'Listening_Stop'
 } | {
-    type: 'Stop_Speaking'
+    type: 'Stop_Speaking' | 'Last_Input_Not_Speech'
 } |  {
     type: 'Card_Action_Clicked'
 } | {
@@ -471,6 +471,11 @@ export const shell: Reducer<ShellState> = (
             return {
                 ...state,
                 speakingState: SpeakingState.STOPPED
+            };
+        case 'Last_Input_Not_Speech':
+            return {
+                ...state,
+                lastInputViaSpeech: false
             };
         default:
             return state;
@@ -1345,6 +1350,14 @@ const offlineAlertEpic: Epic<ChatActions, ChatState> = (action$, store) =>
         return nullAction;
     });
 
+const lastInputNotSpeechEpic: Epic<ChatActions, ChatState> = (action$, store) =>
+    action$.ofType(
+        'Change_Language',
+        'Send_Menu_Message',
+        'Submit_Form'
+    )
+    .map(action => ({type: 'Last_Input_Not_Speech'}));
+
 // Now we put it all together into a store with middleware
 
 import { combineReducers, createStore as reduxCreateStore, Store } from 'redux';
@@ -1390,7 +1403,8 @@ export const createStore = () =>
             waitIntervalEpic,
             fetchInputCompletionDataEpic,
             offlineAlertEpic,
-            speakingStartedEpic
+            speakingStartedEpic,
+            lastInputNotSpeechEpic
         )))
     );
 
