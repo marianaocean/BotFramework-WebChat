@@ -308,6 +308,8 @@ export class WrappedActivity extends React.Component<WrappedActivityProps, {}> {
 
     render() {
         let timeLine: JSX.Element;
+        let noContent: boolean = false;
+        const placeholder = <div className="wc-waiting-msg"></div>;
         switch (this.props.activity.id) {
             case undefined:
                 timeLine = <span>{ this.props.format.strings.messageSending }</span>;
@@ -315,6 +317,8 @@ export class WrappedActivity extends React.Component<WrappedActivityProps, {}> {
             case null:
                 timeLine = <span>{ this.props.format.strings.messageFailed }</span>;
                 break;
+            case 'waitingCss':
+                noContent = true;
             case 'waitingString':
             case 'waitingImage':
             case 'waitingInterval':
@@ -377,11 +381,7 @@ export class WrappedActivity extends React.Component<WrappedActivityProps, {}> {
                 }
                     <div className={wcMessageClass} ref={ div => this.messageDiv = div }>
                         <div className={ contentClassName }>
-                            <svg className="wc-message-callout">
-                                <path className="point-left" d="m0,6 l6 6 v-12 z" />
-                                <path className="point-right" d="m6,6 l-6 6 v-12 z" />
-                            </svg>
-                                { this.props.children }
+                            { noContent ? placeholder : this.props.children }
                         </div>
                     </div>
                     <div className={ classList('wc-message-from', 'wc-message-from-' + who, !!icontype && 'with-custom-icon')}>{ timeLine }</div>

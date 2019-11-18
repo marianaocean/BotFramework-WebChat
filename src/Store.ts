@@ -10,6 +10,7 @@ import { defaultStrings, strings, Strings } from './Strings';
 import { ActivityOrID } from './Types';
 import { UrlToQrcode } from './UrlToQrcode';
 import { CHECKED_LOCALE_GROUPS, RESPONSE_EVENT } from './utils/const';
+import { CheckTool } from './utils/tools';
 import { WaitingMessage } from './WaitingMessage';
 
 // Reducers - perform state transformations
@@ -737,7 +738,7 @@ export const history: Reducer<HistoryState> = (
         case 'Remove_Waiting_Message':
             return {
                 ...state,
-                activities: [...state.activities.filter(activity => ['TimeoutAlert', 'waitingString', 'waitingImage', 'waitingInterval'].indexOf(activity.id) < 0)]
+                activities: [...state.activities.filter(activity => !CheckTool.activityShouldBeRemoved(activity))]
             };
         case 'Change_Language':
         case 'Changed_Language':
@@ -1011,7 +1012,6 @@ const waitingMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
     )
     .map( action => {
         const state = store.getState();
-        let activity = {};
         if (!!state.externalContent && !!state.externalContent.active && !!state.externalContent.contentActions.sentMessage) {
             try {
                 state.externalContent.contentActions.sentMessage();
@@ -1019,32 +1019,48 @@ const waitingMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
                 console.log('Contents not ready yet..');
             }
         }
-        if (!state.customSetting.waitingMessage || !state.customSetting.waitingMessage.type || !state.customSetting.waitingMessage.content) {
+        if (!state.customSetting.waitingMessage || !state.customSetting.waitingMessage.isValid) {
             return nullAction;
         }
+        let activity: any = {
+            type: 'message',
+            from: {id: null, name: 'waiting'},
+            locale: state.format.locale,
+            textFormat: 'plain',
+            timestamp: (new Date()).toISOString()
+        };
         if (state.customSetting.waitingMessage) {
             const waitingMessage = state.customSetting.waitingMessage;
-            if (waitingMessage.type && waitingMessage.type === 'message') {
-                activity = {
-                    id: 'waitingString',
-                    type: 'message',
-                    text: waitingMessage.content,
-                    from: {id: null, name: 'waiting'},
-                    locale: state.format.locale,
-                    textFormat: 'plain',
-                    timestamp: (new Date()).toISOString()
-                };
-            } else if (waitingMessage.type) {
-                activity = {
-                    id: 'waitingImage',
-                    type: 'message',
-                    from: {id: null, name: 'waiting'},
-                    locale: state.format.locale,
-                    attachments: [{
-                        contentType: waitingMessage.type as MediaType,
-                        contentUrl: waitingMessage.content
-                    }] as Media[]
-                };
+            if (waitingMessage.type) {
+                switch (waitingMessage.type) {
+                    case 'message':
+                        activity = {
+                            ...activity,
+                            id: 'waitingString',
+                            text: waitingMessage.content,
+                            textFormat: 'plain',
+                            timestamp: (new Date()).toISOString()
+                        };
+                        break;
+                    case 'css':
+                        activity = {
+                            ...activity,
+                            id: 'waitingCss',
+                            text: 'use css',
+                            textFormat: 'plain',
+                            timestamp: (new Date()).toISOString()
+                        };
+                        break;
+                    default:
+                        activity = {
+                            ...activity,
+                            id: 'waitingImage',
+                            attachments: [{
+                                contentType: waitingMessage.type as MediaType,
+                                contentUrl: waitingMessage.content
+                            }] as Media[]
+                        };
+                }
             }
         }
         return ({type: 'Push_Waiting_Message', activity} as HistoryAction);
@@ -1125,7 +1141,7 @@ const receiveMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
     .map( action => {
         const state = store.getState();
         TimeoutListener.countDownReset();
-        if ((state.customSetting.waitingMessage && state.customSetting.waitingMessage.type && state.customSetting.waitingMessage.content) || state.customSetting.intervalController.available) {
+        if ((state.customSetting.waitingMessage && state.customSetting.waitingMessage.isValid) || state.customSetting.intervalController.available) {
             return ({type: 'Remove_Waiting_Message'} as HistoryAction);
         }
         return nullAction;

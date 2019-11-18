@@ -129,7 +129,7 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
 
     if (props.waitingMessage) {
 
-        if (!props.waitingMessage.content) {
+        if (props.waitingMessage.type !== 'css' && !props.waitingMessage.content) {
             console.error('please set waiting message content or delete waiting message');
             return;
         }
