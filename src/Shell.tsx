@@ -28,6 +28,7 @@ export interface ShellFunctions {
 }
 
 class ShellContainer extends React.Component<Props> implements ShellFunctions {
+    private wcConsole: HTMLDivElement;
     private textInput: HTMLInputElement;
     private fileInput: HTMLInputElement;
     private inputCompletion: React.Component;
@@ -179,13 +180,14 @@ class ShellContainer extends React.Component<Props> implements ShellFunctions {
         const placeholder = this.props.listeningState === ListeningState.STARTED ? this.props.strings.listeningIndicator : this.props.strings.consolePlaceholder;
 
         return (
-            <div className={ className }>
+            <div className={ className } ref={ div => this.wcConsole = div } >
                 {
                     this.props.inputCompletionActive &&
                     <InputCompletion
                         ref={ (target: any) => this.inputCompletion = target && target.getWrappedInstance() }
                         currentInput={ this.props.inputText }
                         passCompletionsLength={(length: number) => this.receiveCompletionsLength(length)}
+                        shell={ this.wcConsole }
                     >
                     </InputCompletion>
                 }

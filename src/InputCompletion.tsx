@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { classList } from './Chat';
 import { Completion, fetcherCodeParse } from './helpers/UserSaysFetcher';
-import { ChatState, checkLocale, CustomSettingState, FormatState, sendMessage } from './Store';
+import { ChatState, checkLocale, CustomSettingState, FormatState, sendMessage, shell, SizeState } from './Store';
 import { InputComlpetionSettingsProps, InputCompletionMatchMode } from './stores/InputCompletionStore';
 import { Strings } from './Strings';
 import { INPUT_COMPLETION } from './utils/const';
@@ -14,6 +14,8 @@ interface Props {
     strings: Strings;
     active: boolean;
     settings: InputComlpetionSettingsProps;
+    shell: HTMLDivElement;
+    size: SizeState;
 
     sendMessage: (text: string) => void;
     passCompletionsLength: (length: number) => void;
@@ -41,6 +43,7 @@ class InputCompltionView extends React.Component<Props> {
     private tempKeyword: string = null;
     private tempInput: string = null;
     private completionTimeout: number = null;
+    private distanceToBottom: number = 0;
 
     constructor(props: Props) {
         super(props);
@@ -69,6 +72,7 @@ class InputCompltionView extends React.Component<Props> {
         } else {
             this.props.passCompletionsLength(0);
         }
+        this.isContainerDisplay = true;
         this.forceUpdate();
     }
 
@@ -321,6 +325,10 @@ class InputCompltionView extends React.Component<Props> {
     }
 
     componentWillUpdate(nextProps: any) {
+        if (nextProps && this.props && this.props.shell && nextProps.size.width !== this.props.size.width) {
+            const shellStyle = window.getComputedStyle(this.props.shell);
+            this.distanceToBottom = parseFloat(shellStyle.paddingTop) + parseFloat(shellStyle.borderTopWidth) - 1;
+        }
         this.inputChanged(nextProps.currentInput);
     }
 
@@ -329,20 +337,21 @@ class InputCompltionView extends React.Component<Props> {
             const containerHeight = this.inputCompletionContainer$.offsetHeight;
             const controllerHeight = this.inputCompletionController$.offsetHeight;
             const marginTop = containerHeight > INPUT_COMPLETION.CONTAINER_MAX_HEIGHT ? INPUT_COMPLETION.CONTAINER_MAX_HEIGHT : containerHeight;
-            this.inputCompletionBox$.style.marginTop = ((-1) * (marginTop + controllerHeight + 12)) + 'px';
+            this.inputCompletionBox$.style.marginTop = ((-1) * (marginTop + controllerHeight + this.distanceToBottom)) + 'px';
             const distanceToTop = this.inputCompletionContainer$.getBoundingClientRect().top;
             if (distanceToTop < 0) {
                 const afterHeight = this.inputCompletionContainer$.clientHeight + distanceToTop;
                 this.inputCompletionContainer$.style.height = afterHeight + 'px';
-                this.inputCompletionBox$.style.marginTop = ((-1) * (afterHeight + controllerHeight + 12)) + 'px';
+                this.inputCompletionBox$.style.marginTop = ((-1) * (afterHeight + controllerHeight + this.distanceToBottom)) + 'px';
             }
         }
     }
 
     render() {
+        const controllerClass = classList('wc-input-completion-controller', !this.isContainerDisplay && 'container-hide');
         const containerClass = classList('wc-input-completion-container', !this.isContainerDisplay && 'hide');
         return this.props.active && this.inputCompletions && this.inputCompletions.length > 0 && <div ref={div => this.inputCompletionBox$ = div}>
-            <div className="wc-input-completion-controller" ref={ div => this.inputCompletionController$ = div } onClick={_ => this.containerToggle()}>
+            <div className={ controllerClass } ref={ div => this.inputCompletionController$ = div } onClick={_ => this.containerToggle()}>
                 <span className="wc-input-completion-controller-icon"></span>
             </div>
             <div ref={ div => this.inputCompletionContainer$ = div } className={ containerClass }>
@@ -362,7 +371,8 @@ export const InputCompletion = connect(
         datasets: state.inputCompletion.datasets,
         active: state.inputCompletion.active,
         user: state.connection.user,
-        settings: state.inputCompletion.settings
+        settings: state.inputCompletion.settings,
+        size: state.size
     }),
     { sendMessage },
     (stateProps: any, dispatchProps: any, ownProps: any): Props => ({
@@ -372,6 +382,8 @@ export const InputCompletion = connect(
         currentInput: ownProps.currentInput,
         strings: stateProps.format.strings,
         settings: stateProps.settings,
+        shell: ownProps.shell,
+        size: stateProps.size,
         sendMessage: (text: string) => dispatchProps.sendMessage(text, stateProps.user, stateProps.locale),
         passCompletionsLength: (length: number) => ownProps.passCompletionsLength(length)
     }), {
