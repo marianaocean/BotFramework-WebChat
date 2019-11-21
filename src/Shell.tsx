@@ -264,8 +264,8 @@ class ShellContainer extends React.Component<Props> implements ShellFunctions {
                     tabIndex={ 0 }
                     type="button"
                 >
-                   <span className="wc-speak-stop-icon"></span>
-                   <span className="wc-speak-stop-text">{ this.props.strings.stopSpeaking || 'Stop' }</span>
+                   <span className="wc-stop-speak-icon"></span>
+                   <span className="wc-stop-speak-text">{ this.props.strings.stopSpeaking || 'Stop' }</span>
                 </button>
             </div>
         );
