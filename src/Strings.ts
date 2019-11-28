@@ -58,7 +58,7 @@ const localizedStrings: LocalizedStrings = {
         longtimeNoResponse: 'Bot is not responding. Please change the text and try send it again or reload the page.',
         confirmToReload: 'It seems that internet connection has been lost. Please reload the page!',
         voiceInput: 'Voice Input',
-        stopSpeaking: 'Stop Speaking'
+        stopSpeaking: 'Stop'
     },
     'th-th': {
         title: 'พูดคุย',
