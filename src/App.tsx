@@ -90,7 +90,26 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
             let speechSynthesizer = props.speechOptions.speechSynthesizer;
 
             if (!speechRecognizer && (window as any).webkitSpeechRecognition) {
+                const documentWindow = window as any;
                 speechRecognizer = new Speech.BrowserSpeechRecognizer('ja-JP');
+                // // Detect latest edge browser by plugins
+                // if (documentWindow.navigator && documentWindow.navigator.plugins) {
+                //     const plugins = documentWindow.navigator.plugins as PluginArray;
+                //     const keys = Object.keys(plugins);
+                //     for (const k of keys) {
+                //         const index = parseInt(k, 10);
+                //         if (/(edge)+/g.test(plugins[index].name.toLowerCase())) {
+                //             speechRecognizer = null;
+                //             break;
+                //         }
+                //     }
+                // }
+                // Detect Opera and Edge browser by agent
+                if (documentWindow.navigator && documentWindow.navigator.userAgent) {
+                    if (/edg[e]{0,1}\/[0-9.]+$/.test(documentWindow.navigator.userAgent.toLowerCase()) || /opr\/[0-9.]+$/.test(documentWindow.navigator.userAgent.toLowerCase())) {
+                        speechRecognizer = null;
+                    }
+                }
             }
 
             if (!speechSynthesizer && (window as any).SpeechSynthesisUtterance) {
