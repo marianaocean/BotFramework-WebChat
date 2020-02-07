@@ -90,7 +90,8 @@ const renderDefault = (
         const src = text
             .replace(/<(.*?)>/g, (match, text) => `&lt;${text}&gt;`)
             .replace(/(http[s]{0,1}:\/\/\w+\S+(\.\w\S+)+?)(\s|$)/g, (match, link) => `<a href='${ link }' target='_blank'>${ link }</a>`)
-            .replace(/(\n|\r)+/g, '<br/>');
+            .replace(/(\n|\r|\r\n){2,}/g, '<br/><br/>')
+            .replace(/(\n|\r|\r\n)+/g, '<br/>');
         __html = '<p>' + src + '</p>';
     }
 
