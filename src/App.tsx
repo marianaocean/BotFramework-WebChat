@@ -6,7 +6,7 @@ import { Speech } from './SpeechModule';
 
 export type AppProps = ChatProps;
 
-export const App = (props: AppProps, container: HTMLElement, controller: HTMLElement = null, callAfterRender: () => void) => {
+export const App = (props: AppProps, container: HTMLElement, controller: HTMLElement = null, callAfterRender: () => void, toggleEvent: () => void) => {
 
     if (!!props.fromAppProps) {
         console.log('please not set fromAppProps');
@@ -319,6 +319,11 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
                     }
                 }
             }
+
+            if (toggleEvent && typeof toggleEvent === 'function') {
+                toggleEvent();
+            }
+
         };
 
         props.fromAppProps.toggleContainer = () => toggleContaienr();
