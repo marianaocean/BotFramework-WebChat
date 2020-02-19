@@ -23,21 +23,27 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
 
     let cid = null;
 
-    if (typeof localStorage === 'undefined') {
-        console.log('localStorage disable');
-        props.session = false;
-    }
-
     if (props.session) {
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        cid = localStorage.getItem('obotConversationId_' + botName);
-        const ts = localStorage.getItem('obotConversationIdTimestamp_'  + botName);
-        if (!!cid) {
-                const dateTs = new Date(parseInt(ts, 10)).toLocaleDateString('ja-JP', options);
-                const dateNow = new Date(Date.now()).toLocaleDateString('ja-JP', options);
-                if (dateTs !== dateNow) {
-                cid = null;
+        try {
+            if (typeof localStorage === 'undefined') {
+                console.log('localStorage disable');
+                props.session = false;
             }
+            if (props.session) {
+                const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                cid = localStorage.getItem('obotConversationId_' + botName);
+                const ts = localStorage.getItem('obotConversationIdTimestamp_'  + botName);
+                if (!!cid) {
+                        const dateTs = new Date(parseInt(ts, 10)).toLocaleDateString('ja-JP', options);
+                        const dateNow = new Date(Date.now()).toLocaleDateString('ja-JP', options);
+                        if (dateTs !== dateNow) {
+                        cid = null;
+                    }
+                }
+            }
+        } catch (e) {
+            console.error(e);
+            props.session = false;
         }
     }
 
