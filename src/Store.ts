@@ -137,6 +137,7 @@ export interface CustomSettingState {
     showConfig: boolean;
     intervalController: IntervalController;
     sessionId?: string;
+    channelData: any;
 }
 
 export type CustomSettingAction = {
@@ -161,6 +162,9 @@ export type CustomSettingAction = {
 } | {
     type: 'Save_Conversation_Id',
     conversationId: string
+} | {
+    type: 'Set_Channel_Data',
+    channelData: any
 };
 
 export const customSetting: Reducer<CustomSettingState> = (
@@ -174,7 +178,8 @@ export const customSetting: Reducer<CustomSettingState> = (
         configurable: false,
         showConfig: false,
         intervalController: new IntervalController({}),
-        sessionId: null
+        sessionId: null,
+        channelData: null
     },
     action: CustomSettingAction
 ) => {
@@ -227,6 +232,11 @@ export const customSetting: Reducer<CustomSettingState> = (
         case 'Turn_On_Settings':
             state.intervalController.turnToUsing();
             return state;
+        case 'Set_Channel_Data':
+            return {
+                ...state,
+                channelData: action.channelData
+            };
         case 'Save_Conversation_Id':
             return {
                 ...state,
@@ -971,6 +981,9 @@ const changeLanguageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
             };
             (activity as any).entities = (activity as any).entities == null ? [capabilities] :  [...(activity as any).entities, capabilities];
         }
+        if (state.customSetting.channelData) {
+            activity.channelData = {...activity.channelData, payload: state.customSetting.channelData};
+        }
         return state.connection.botConnection.postActivity(activity)
         .map(id => ({type: 'Changed_Language'} as HistoryAction))
         .catch(error => Observable.of({ type: 'Change_Language_Fail' } as HistoryAction));
@@ -1182,6 +1195,9 @@ const pushMenuMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
             };
             (activity as any).entities = (activity as any).entities == null ? [capabilities] :  [...(activity as any).entities, capabilities];
         }
+        if (state.customSetting.channelData) {
+            activity.channelData = {...activity.channelData, payload: state.customSetting.channelData};
+        }
         return state.connection.botConnection.postActivity(activity)
         .map(id => ({type: 'Sent_Menu_Message'} as HistoryAction))
         .catch(error => Observable.of({ type: 'Send_Menu_Message_Fail' } as HistoryAction));
@@ -1217,6 +1233,9 @@ const trySendMessageEpic: Epic<ChatActions, ChatState> = (action$, store) =>
             (activity as any).entities = (activity as any).entities == null ? [capabilities] :  [...(activity as any).entities, capabilities];
         }
 
+        if (state.customSetting.channelData) {
+            activity.channelData = {...activity.channelData, payload: state.customSetting.channelData};
+        }
         return state.connection.botConnection.postActivity(activity)
         .map(id => ({ type: 'Send_Message_Succeed', clientActivityId, id } as HistoryAction))
         .catch(error => Observable.of({ type: 'Send_Message_Fail', clientActivityId } as HistoryAction));

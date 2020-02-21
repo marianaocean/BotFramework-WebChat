@@ -48,6 +48,8 @@ export interface ChatProps {
     fromAppProps?: any;
 }
 
+let gateboxNo: any = null;
+
 export interface BotCallBacks {
     conversationStarted?: (sessionId: string) => void;
     threeDActions?: {sentMessage: () => void};
@@ -196,6 +198,10 @@ export class Chat extends React.Component<ChatProps, {}> {
         }
         if (props.botExtensions && props.botExtensions.configurable) {
             this.store.dispatch<ChatActions>({ type: 'Enable_Configuration' });
+        }
+        if (props.botExtensions && props.botExtensions.channelData && props.botExtensions.channelData.gatebox_no) {
+            this.store.dispatch<ChatActions>({ type: 'Set_Channel_Data', channelData: props.botExtensions.channelData});
+            gateboxNo = props.botExtensions.channelData.gatebox_no;
         }
         if (!!props.externalContent) {
             this.store.dispatch<ChatActions>({ type: 'External_Content_Initialize', props: props.externalContent });
@@ -558,7 +564,10 @@ export const sendPostBack = (botConnection: IBotConnection, text: string, value:
         from,
         locale,
         channelData: {
-            postback: true
+            postback: true,
+            payload: {
+                gatebox_no: gateboxNo
+            }
         }
     })
     .subscribe(
