@@ -323,7 +323,7 @@ export class WrappedActivity extends React.Component<WrappedActivityProps, {}> {
             case 'waitingImage':
             case 'waitingInterval':
             case 'qrcode':
-                timeLine = <br/>;
+                timeLine = null;
                 break;
             case 'retry':
                 timeLine =
@@ -384,7 +384,7 @@ export class WrappedActivity extends React.Component<WrappedActivityProps, {}> {
                             { noContent ? placeholder : this.props.children }
                         </div>
                     </div>
-                    <div className={ classList('wc-message-from', 'wc-message-from-' + who, !!icontype && 'with-custom-icon')}>{ timeLine }</div>
+                    <div className={ classList('wc-message-from', 'wc-message-from-' + who, !!icontype && 'with-custom-icon')}>{ timeLine || '' }</div>
                 </div>
         );
     }
