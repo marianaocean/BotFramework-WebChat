@@ -56,8 +56,8 @@ export class Carousel extends React.PureComponent<CarouselProps, {}> {
         return (
             <div className="wc-carousel" ref={ div => this.root = div }>
                 <HScroll ref={ hscroll => this.hscroll = hscroll }
-                    prevSvgPathData="M 16.5 22 L 19 19.5 L 13.5 14 L 19 8.5 L 16.5 6 L 8.5 14 L 16.5 22 Z"
-                    nextSvgPathData="M 12.5 22 L 10 19.5 L 15.5 14 L 10 8.5 L 12.5 6 L 20.5 14 L 12.5 22 Z"
+                    prevSvgPathData="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"
+                    nextSvgPathData="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
                     scrollUnit="item"
                 >
                     <CarouselAttachments { ...this.props as CarouselAttachmentProps } />
