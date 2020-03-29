@@ -136,7 +136,7 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
         props.directLine = {
             ...props.directLine,
             webSocket: !!props.directLine.webSocket,
-            conversationId: cid
+            conversationId: props.directLine.conversationId || cid
         };
     }
 
