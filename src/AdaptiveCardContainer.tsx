@@ -1,5 +1,6 @@
 import { Action, AdaptiveCard, HostConfig, IValidationError, OpenUrlAction, SubmitAction } from 'adaptivecards';
 import { IAction, IAdaptiveCard, IOpenUrlAction, IShowCardAction, ISubmitAction } from 'adaptivecards/lib/schema';
+import axios from 'axios';
 import { CardAction } from 'botframework-directlinejs/built/directLine';
 import * as MarkdownIt from 'markdown-it';
 import * as React from 'react';
@@ -140,6 +141,12 @@ class AdaptiveCardContainer extends React.Component<Props, State> {
                 } else {
                     if (action.data && typeof action.data === 'object' && (action.data as any).type === 'form') {
                         this.props.submitForm();
+                    } else if (action.data && typeof action.data === 'object' && (action.data as any).type === 'enquiry-form') {
+                        const headers = {
+                            'Content-Type': 'application/json'
+                        };
+                        axios.post('https://enquiry-email-dln.appspot.com/api/send-enquiry/',
+                        JSON.stringify(action.data), {headers}).then();
                     }
                     this.props.onCardAction(typeof action.data === 'string' ? 'imBack' : 'postBack', action.data);
                 }
