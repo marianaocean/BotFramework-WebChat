@@ -1,7 +1,7 @@
 import { Action, AdaptiveCard, HostConfig, IValidationError, OpenUrlAction, SubmitAction } from 'adaptivecards';
 import { IAction, IAdaptiveCard, IOpenUrlAction, IShowCardAction, ISubmitAction } from 'adaptivecards/lib/schema';
 import axios from 'axios';
-import { CardAction } from 'botframework-directlinejs/built/directLine';
+import { CardAction, Conversation } from 'botframework-directlinejs/built/directLine';
 import * as MarkdownIt from 'markdown-it';
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
@@ -20,6 +20,7 @@ export interface Props {
     hostConfig: HostConfig;
     jsonCard?: IAdaptiveCard;
     nativeCard?: AdaptiveCard;
+    conversationId?: string;
     onCardAction: IDoCardAction;
     onClick?: (e: React.MouseEvent<HTMLElement>) => void;
     onImageLoad?: () => any;
@@ -34,7 +35,9 @@ export interface State {
 export interface BotFrameworkCardAction extends CardAction {
     __isBotFrameworkCardAction: boolean;
 }
-
+interface InquireFormData {
+    [key: string]: any;
+}
 const markdownIt = new MarkdownIt({
     breaks: true,
     html: false,
@@ -85,7 +88,6 @@ class AdaptiveCardContainer extends React.Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
-
         this.handleImageLoad = this.handleImageLoad.bind(this);
         this.onClick = this.onClick.bind(this);
         this.saveDiv = this.saveDiv.bind(this);
@@ -145,8 +147,12 @@ class AdaptiveCardContainer extends React.Component<Props, State> {
                         const headers = {
                             'Content-Type': 'application/json'
                         };
+                        const formData: InquireFormData = {
+                            'session-id': this.props.conversationId,
+                            ...action.data
+                        };
                         axios.post('https://enquiry-email-dln.appspot.com/api/send-enquiry/',
-                        JSON.stringify(action.data), {headers}).then();
+                        JSON.stringify(formData), {headers}).then();
                     }
                     this.props.onCardAction(typeof action.data === 'string' ? 'imBack' : 'postBack', action.data);
                 }
