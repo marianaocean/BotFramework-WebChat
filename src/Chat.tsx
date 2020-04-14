@@ -25,6 +25,7 @@ export interface ChatProps {
     bot: User;
     botConnection?: IBotConnection;
     chatTitle?: boolean | string;
+    subTitle?: any;
     directLine?: DirectLineOptions;
     disabled?: boolean;
     formatOptions?: FormatOptions;
@@ -192,7 +193,7 @@ export class Chat extends React.Component<ChatProps, {}> {
             if (this.props.botExtensions && this.props.botExtensions.scrollToBottom > 1) {
                 pScrollToBottom = this.props.botExtensions.scrollToBottom;
             }
-            this.store.dispatch<ChatActions>({ type: 'Set_Custom_Settings', icon: pIcon, waitingMessage: pWaitingMessage, urlToQrcode: pUrlToQrcode, scrollToBottom: pScrollToBottom });
+            this.store.dispatch<ChatActions>({ type: 'Set_Custom_Settings', icon: pIcon, waitingMessage: pWaitingMessage, urlToQrcode: pUrlToQrcode, scrollToBottom: pScrollToBottom, subTitle: props.subTitle });
         }
         if (props.botExtensions && props.botExtensions.configurable) {
             this.store.dispatch<ChatActions>({ type: 'Enable_Configuration' });
@@ -464,6 +465,16 @@ export class Chat extends React.Component<ChatProps, {}> {
                                     <span className="wc-bot-toggle" onClick={ this._toggleContainer }></span>
                             }
                             <span>{ typeof state.format.chatTitle === 'string' ? state.format.chatTitle : state.format.strings.title }</span>
+                            {
+                                state.customSetting.subTitle && <span className="wc-header-subtitle">
+                                    { state.customSetting.subTitle.text }
+                                    {
+                                        state.customSetting.subTitle.link && <a className="wc-header-subtitle-link" href={ state.customSetting.subTitle.link.href } target={ state.customSetting.subTitle.link.target }>
+                                            { state.customSetting.subTitle.link.text }
+                                        </a>
+                                    }
+                                </span>
+                            }
                             {
                                 this.canConfigShow && <span className="wc-configurature" onClick={ this._toggleConfig }></span>
                             }

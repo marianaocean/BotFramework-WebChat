@@ -47,6 +47,34 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
         }
     }
 
+    if (props.subTitle) {
+        if (typeof props.subTitle === 'string') {
+            props.subTitle = {
+                text: props.subTitle
+            };
+        } else if (typeof props.subTitle === 'object') {
+            const st: any = {};
+            st.text = props.subTitle.text;
+            if (props.subTitle.link) {
+                if (!!props.subTitle.link.text && !!props.subTitle.link.href) {
+                    st.link = {
+                        text: props.subTitle.link.text,
+                        href: props.subTitle.link.href,
+                        target: '_blank'
+                    };
+                    if (!!props.subTitle.link.target) {
+                        st.link.target = props.subTitle.link.target;
+                    }
+                } else {
+                    props.subTitle.link = null;
+                }
+            }
+            props.subTitle = st;
+        } else {
+            props.subTitle = null;
+        }
+    }
+
     if (!props.bot) {
         props.bot = {
             id: 'bot' + botName,

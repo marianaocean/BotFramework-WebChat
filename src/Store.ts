@@ -137,6 +137,7 @@ export interface CustomSettingState {
     showConfig: boolean;
     intervalController: IntervalController;
     sessionId?: string;
+    subTitle?: any;
 }
 
 export type CustomSettingAction = {
@@ -144,7 +145,8 @@ export type CustomSettingAction = {
     icon: { type: string, content: string },
     waitingMessage: WaitingMessage,
     urlToQrcode: UrlToQrcode,
-    scrollToBottom: number
+    scrollToBottom: number,
+    subTitle?: any
 } | {
     type: 'Set_Auto_Listen',
     autoListenAfterSpeak: boolean,
@@ -185,7 +187,8 @@ export const customSetting: Reducer<CustomSettingState> = (
                 icon: !!action.icon ? { ...action.icon, content: action.icon.content || 'chatbot' } : null,
                 waitingMessage: !!action.waitingMessage ? action.waitingMessage : null,
                 urlToQrcode: action.urlToQrcode,
-                scrollToBottom: action.scrollToBottom
+                scrollToBottom: action.scrollToBottom,
+                subTitle: action.subTitle
             };
         case 'Set_Auto_Listen':
             return {
