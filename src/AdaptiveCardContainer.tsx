@@ -153,6 +153,7 @@ class AdaptiveCardContainer extends React.Component<Props, State> {
                         };
                         axios.post('https://enquiry-email-dln.appspot.com/api/send-enquiry/',
                         JSON.stringify(formData), {headers}).then();
+                        return;
                     }
                     this.props.onCardAction(typeof action.data === 'string' ? 'imBack' : 'postBack', action.data);
                 }
