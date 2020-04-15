@@ -15,7 +15,7 @@ const Attachments = (props: {
     onImageLoad: () => void;
     size: SizeState;
     showIcon: boolean;
-    conversationId?: string;
+    conversationId?: any;
 }) => {
     const { attachments, attachmentLayout, ...otherProps } = props;
 
@@ -93,7 +93,7 @@ export class ActivityView extends React.Component<ActivityViewProps, {}> {
                             onImageLoad={ props.onImageLoad }
                             size={ props.size }
                             showIcon={ props.showIcon }
-                            conversationId={ activity.conversation.id }
+                            conversationId={ activity.conversation }
                         />
                     </div>
                 );

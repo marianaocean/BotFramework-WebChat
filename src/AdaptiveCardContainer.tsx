@@ -1,7 +1,7 @@
 import { Action, AdaptiveCard, HostConfig, IValidationError, OpenUrlAction, SubmitAction } from 'adaptivecards';
 import { IAction, IAdaptiveCard, IOpenUrlAction, IShowCardAction, ISubmitAction } from 'adaptivecards/lib/schema';
 import axios from 'axios';
-import { CardAction, Conversation } from 'botframework-directlinejs/built/directLine';
+import { CardAction } from 'botframework-directlinejs/built/directLine';
 import * as MarkdownIt from 'markdown-it';
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
@@ -20,7 +20,7 @@ export interface Props {
     hostConfig: HostConfig;
     jsonCard?: IAdaptiveCard;
     nativeCard?: AdaptiveCard;
-    conversationId?: string;
+    conversationId?: any;
     onCardAction: IDoCardAction;
     onClick?: (e: React.MouseEvent<HTMLElement>) => void;
     onImageLoad?: () => any;
@@ -148,7 +148,7 @@ class AdaptiveCardContainer extends React.Component<Props, State> {
                             'Content-Type': 'application/json'
                         };
                         const formData: InquireFormData = {
-                            'session-id': this.props.conversationId,
+                            'session-id': this.props.conversationId.id,
                             ...action.data
                         };
                         axios.post('https://enquiry-email-dln.appspot.com/api/send-enquiry/',

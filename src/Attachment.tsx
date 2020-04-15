@@ -178,7 +178,7 @@ export const AttachmentView = (props: {
     attachment: Attachment;
     disabled: boolean;
     format: FormatState;
-    conversationId?: string;
+    conversationId?: any;
     onCardAction: IDoCardAction;
     onImageLoad: () => void;
 }) => {
@@ -266,7 +266,6 @@ export const AttachmentView = (props: {
                     onCardAction={ props.onCardAction }
                     onClick={ onCardAction(attachment.content.tap) }
                     onImageLoad={ props.onImageLoad }
-                    conversationId={ props.conversationId}
                 />
             );
 
@@ -297,7 +296,6 @@ export const AttachmentView = (props: {
                     onCardAction={ props.onCardAction }
                     onClick={ onCardAction(attachment.content.tap) }
                     onImageLoad={ props.onImageLoad }
-                    conversationId={ props.conversationId}
                 />
             );
 
@@ -312,7 +310,6 @@ export const AttachmentView = (props: {
                     disabled={ props.disabled }
                     nativeCard={ CardBuilder.buildCommonCard(attachment.content) }
                     onCardAction={ props.onCardAction }
-                    conversationId={ props.conversationId}
                 >
                     { getRichCardContentMedia('video', attachment.content) }
                 </AdaptiveCardContainer>
@@ -329,7 +326,6 @@ export const AttachmentView = (props: {
                     disabled={ props.disabled }
                     onCardAction={ props.onCardAction }
                     nativeCard={ CardBuilder.buildCommonCard(attachment.content) }
-                    conversationId={ props.conversationId}
                 >
                     { getRichCardContentMedia(mediaType, attachment.content) }
                 </AdaptiveCardContainer>
@@ -346,7 +342,6 @@ export const AttachmentView = (props: {
                     disabled={ props.disabled }
                     nativeCard={CardBuilder.buildCommonCard(attachment.content)}
                     onCardAction={props.onCardAction}
-                    conversationId={ props.conversationId}
                 >
                     { getRichCardContentMedia('audio', attachment.content) }
                 </AdaptiveCardContainer>
@@ -363,7 +358,6 @@ export const AttachmentView = (props: {
                     disabled={ props.disabled }
                     nativeCard={ CardBuilder.buildCommonCard(attachment.content) }
                     onCardAction={ props.onCardAction }
-                    conversationId={ props.conversationId}
                 />
             );
 
@@ -378,7 +372,6 @@ export const AttachmentView = (props: {
                     disabled={ props.disabled }
                     nativeCard={ CardBuilder.buildOAuthCard(attachment.content) }
                     onCardAction={ props.onCardAction }
-                    conversationId={ props.conversationId}
                 />
             );
 
@@ -445,7 +438,6 @@ export const AttachmentView = (props: {
                     nativeCard={ receiptCardBuilder.card }
                     onCardAction={ props.onCardAction }
                     onClick={ onCardAction(attachment.content.tap) }
-                    conversationId={ props.conversationId}
                 />
             );
 
@@ -476,7 +468,6 @@ export const AttachmentView = (props: {
                     disabled={ props.disabled }
                     nativeCard={ CardBuilder.buildCommonCard(attachment.content) }
                     onCardAction={ props.onCardAction }
-                    conversationId={ props.conversationId}
                 >
                     { attachedImage(attachment.content.images) }
                 </AdaptiveCardContainer>
