@@ -460,11 +460,7 @@ export class Chat extends React.Component<ChatProps, {}> {
                 {
                     !!state.format.chatTitle &&
                         <div className="wc-header">
-                            {
-                                !!this.props.fromAppProps && !!this.props.fromAppProps.toggleContainer && typeof this.props.fromAppProps.toggleContainer === 'function' &&
-                                    <span className="wc-bot-toggle" onClick={ this._toggleContainer }></span>
-                            }
-                            <span>{ typeof state.format.chatTitle === 'string' ? state.format.chatTitle : state.format.strings.title }</span>
+                            <span className="wc-header-title">{ typeof state.format.chatTitle === 'string' ? state.format.chatTitle : state.format.strings.title }</span>
                             {
                                 state.customSetting.subTitle && <span className="wc-header-subtitle">
                                     { state.customSetting.subTitle.text }
@@ -476,7 +472,11 @@ export class Chat extends React.Component<ChatProps, {}> {
                                 </span>
                             }
                             {
-                                this.canConfigShow && <span className="wc-configurature" onClick={ this._toggleConfig }></span>
+                                this.canConfigShow && <span className="wc-header-config" onClick={ this._toggleConfig }></span>
+                            }
+                            {
+                                !!this.props.fromAppProps && !!this.props.fromAppProps.toggleContainer && typeof this.props.fromAppProps.toggleContainer === 'function' &&
+                                    <span className="wc-header-close" onClick={ this._toggleContainer }></span>
                             }
                         </div>
                 }
