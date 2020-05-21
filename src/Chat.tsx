@@ -17,7 +17,7 @@ import { ChatActions, createStore, sendMessage } from './Store';
 import { ExternalContentProps } from './stores/ExternalContentStore';
 import { ActivityOrID, FormatOptions } from './Types';
 import { UrlToQrcode } from './UrlToQrcode';
-import { INPUT_COMPLETION, rewriteConst } from './utils/const';
+import { BOT_WINDOW_FULL_SIZE_CLASSNAME, INPUT_COMPLETION, rewriteConst } from './utils/const';
 import { WaitingMessage } from './WaitingMessage';
 
 export interface ChatProps {
@@ -65,6 +65,8 @@ export class Chat extends React.Component<ChatProps, {}> {
 
     private store = createStore();
     private botConnection: IBotConnection;
+
+    private isBotFullWindow: boolean = false;
 
     private activitySubscription: Subscription;
     private connectionStatusSubscription: Subscription;
@@ -350,6 +352,25 @@ export class Chat extends React.Component<ChatProps, {}> {
         this.props.fromAppProps.toggleContainer();
     }
 
+    private resizeWindow() {
+        if (this.props.fromAppProps) {
+            this.isBotFullWindow = !this.isBotFullWindow;
+            const container: HTMLElement = this.props.fromAppProps.container;
+            try {
+                if (this.isBotFullWindow) {
+                    if (!container.classList.contains(BOT_WINDOW_FULL_SIZE_CLASSNAME)) {
+                        container.classList.add(BOT_WINDOW_FULL_SIZE_CLASSNAME);
+                    }
+                } else {
+                    container.classList.remove(BOT_WINDOW_FULL_SIZE_CLASSNAME);
+                }
+            } catch (e) {
+                console.log('Invalid container.');
+            }
+            this.forceUpdate();
+        }
+    }
+
     private get canConfigShow() {
         const state = this.store.getState();
         return !!state.customSetting.configurable && ((!!this.props.speechOptions && (!!this.props.speechOptions.speechRecognizer || !!this.props.speechOptions.speechSynthesizer)) || !!state.inputCompletion.fetcher);
@@ -473,6 +494,10 @@ export class Chat extends React.Component<ChatProps, {}> {
                             }
                             {
                                 this.canConfigShow && <span className="wc-header-config" onClick={ this._toggleConfig }></span>
+                            }
+                            {
+                                !!this.props.fromAppProps && !!this.props.fromAppProps.container &&
+                                <span className={ classList('wc-header-resizer', this.isBotFullWindow ? 'wc-header-resizer-return' : 'wc-header-resizer-maximize') } onClick={ () => { this.resizeWindow(); } }></span>
                             }
                             {
                                 !!this.props.fromAppProps && !!this.props.fromAppProps.toggleContainer && typeof this.props.fromAppProps.toggleContainer === 'function' &&

@@ -222,7 +222,11 @@ export const App = (props: AppProps, container: HTMLElement, controller: HTMLEle
         pcScrollFix = props.botExtensions.backgroundFix.findIndex((fx: string) => fx === 'pc') > -1;
     }
 
+    // トグル版でのみ動作
     if (controller && document.body.contains(controller)) {
+        if (!pcScrollFix) {
+            props.fromAppProps.container = container;
+        }
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         let scrollbarSize: number = null;

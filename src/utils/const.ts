@@ -40,3 +40,5 @@ export const CHECKED_LOCALE_GROUPS = [
 export const RESPONSE_EVENT = {
     CHANGE_LANGUAGE: 'change_language'
 };
+
+export const BOT_WINDOW_FULL_SIZE_CLASSNAME = 'wc-bot-full-size';
