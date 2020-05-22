@@ -497,7 +497,7 @@ export class Chat extends React.Component<ChatProps, {}> {
                             }
                             {
                                 !!this.props.fromAppProps && !!this.props.fromAppProps.container &&
-                                <span className={ classList('wc-header-resizer', this.isBotFullWindow ? 'wc-header-resizer-return' : 'wc-header-resizer-maximize') } onClick={ () => { this.resizeWindow(); } }></span>
+                                <span className={ classList('wc-header-resizer', this.isBotFullWindow ? 'wc-header-resizer-restore' : 'wc-header-resizer-maximize') } onClick={ () => { this.resizeWindow(); } }></span>
                             }
                             {
                                 !!this.props.fromAppProps && !!this.props.fromAppProps.toggleContainer && typeof this.props.fromAppProps.toggleContainer === 'function' &&
