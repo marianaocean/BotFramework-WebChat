@@ -37,9 +37,14 @@ export class HistoryView extends React.Component<HistoryProps, {}> {
 
     private carouselActivity: WrappedActivity;
     private largeWidth: number;
+    public doChangeAlignBottomPadding: () => void;
 
     constructor(props: HistoryProps) {
         super(props);
+        const self = this;
+        this.doChangeAlignBottomPadding = () => {
+            self.changeAlignBottomPadding();
+        };
     }
 
     componentDidMount() {
@@ -84,6 +89,12 @@ export class HistoryView extends React.Component<HistoryProps, {}> {
         }
 
         this.autoscroll();
+    }
+
+    public changeAlignBottomPadding() {
+        if (this.scrollContent) {
+            this.autoscroll();
+        }
     }
 
     private autoscroll() {

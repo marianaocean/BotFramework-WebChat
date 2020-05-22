@@ -368,6 +368,8 @@ export class Chat extends React.Component<ChatProps, {}> {
                 console.log('Invalid container.');
             }
             this.forceUpdate();
+            const historyComponent: any = this.historyRef;
+            historyComponent.doChangeAlignBottomPadding();
         }
     }
 
